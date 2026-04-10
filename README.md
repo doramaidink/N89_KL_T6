@@ -1,3 +1,5 @@
+## 🚀CÁC YÊU CẦU CHUNG
+
 ## 📌 Lưu ý khi upload code
   👤 Cấu hình username là tên của mình 
   📝 Khi commit nhớ ghi rõ cái nào là upload cái nào là chỉnh sửa và ghi kèm tên mình
@@ -23,4 +25,15 @@
    NODE_ENV=development
    MONGODB_CONNECTIONSTRING =  mongodb+srv://vqthanh1999_db_user:6OsbfK3lpmqcgMk0@cluster0.twyp2qx.mongodb.net/?appName=Cluster0;
    B4: chạy 2 thư mục đồng thời cùng 1 lúc và gõ npm run dev
+
    
+## 🚀format code:
+   - Frontend:
+   * Page: trang lớn chỉ gọi lại các UI không code html bên trong
+   * UI: các UI bên trong Page nới code html
+   * HTML: đặt tên các class cho dễ hiểu, không bị trùng - có thể thêm tên trang ở mỗi class (VD: trang trangchu các class sẽ có tên như là header-trangchu)
+   * CSS: CSS cho phần trang nào thì gạch ngang tên trang và kết thúc cũng z VD: ---<tên trang>--- nội dung css cho trang ---<tên trang>---
+  ## ⚠️Code xong giao diện nào thì mở console lên xem có lỗi j không 
+  ## ❌ Không được để bất cứ lỗi j cônsole không được dòng đỏ nào
+   * ở các ảnh trong img phải tạo thư mục đàng hoàng rồi bỏ ảnh đó vào không để từa lưa VD: địa điểm sơn trà sẽ tạo 1 thư mục sontra và để các ảnh về sơn trà bên trong.
+  
