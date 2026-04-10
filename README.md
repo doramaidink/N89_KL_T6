@@ -12,3 +12,12 @@
   * git add . (. là tất cả các code còn khi chỉ upload 1 file nào thì chỉ cần ghi tên file đó ra VD: git add "trangchu.jsx")
   * git commit -m ""( trong "" là nội dung điền theo format đã định sẵn)
   * git push -u origin master ( nếu sài main thì đổi master sang main)
+ 
+ - Chạy dự án sau khi tải về:
+   B1: vào từng thư mục frontend và backend sau đó chạy npm install
+   B2: Tạo 1 file .env ở backend bên ngoài thư mục src
+   B3: Vào file .env vừa tạo và dán code sau:
+   NODE_ENV=development
+   MONGODB_CONNECTIONSTRING =  mongodb+srv://vqthanh1999_db_user:6OsbfK3lpmqcgMk0@cluster0.twyp2qx.mongodb.net/?appName=Cluster0;
+   B4: chạy 2 thư mục đồng thời cùng 1 lúc và gõ npm run dev
+   
