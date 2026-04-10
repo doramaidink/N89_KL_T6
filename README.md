@@ -36,5 +36,5 @@
    * ở các ảnh trong img phải tạo thư mục đàng hoàng rồi bỏ ảnh đó vào không để từa lưa VD: địa điểm sơn trà sẽ tạo 1 thư mục sontra và để các ảnh về sơn trà bên trong.
   ## ⚠️Code xong giao diện nào thì mở console lên xem có lỗi j không 
   ## ❌ Không được để bất cứ lỗi j cônsole không được dòng đỏ nào
-
+  ## sau khi clone về máy các lần sau chỉ cần chạy lệnh "git pull origin master" để cập nhập lại code không còn cần clone về 
   
