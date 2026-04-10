@@ -33,7 +33,8 @@
    * UI: các UI bên trong Page nới code html
    * HTML: đặt tên các class cho dễ hiểu, không bị trùng - có thể thêm tên trang ở mỗi class (VD: trang trangchu các class sẽ có tên như là header-trangchu)
    * CSS: CSS cho phần trang nào thì gạch ngang tên trang và kết thúc cũng z VD: ---<tên trang>--- nội dung css cho trang ---<tên trang>---
+   * ở các ảnh trong img phải tạo thư mục đàng hoàng rồi bỏ ảnh đó vào không để từa lưa VD: địa điểm sơn trà sẽ tạo 1 thư mục sontra và để các ảnh về sơn trà bên trong.
   ## ⚠️Code xong giao diện nào thì mở console lên xem có lỗi j không 
   ## ❌ Không được để bất cứ lỗi j cônsole không được dòng đỏ nào
-   * ở các ảnh trong img phải tạo thư mục đàng hoàng rồi bỏ ảnh đó vào không để từa lưa VD: địa điểm sơn trà sẽ tạo 1 thư mục sontra và để các ảnh về sơn trà bên trong.
+
   
