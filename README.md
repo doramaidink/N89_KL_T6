@@ -1,4 +1,4 @@
-###### 📌 Lưu ý khi upload code
+## 📌 Lưu ý khi upload code
   👤 Cấu hình username là tên của mình 
   📝 Khi commit nhớ ghi rõ cái nào là upload cái nào là chỉnh sửa và ghi kèm tên mình
    Yêu cầu chung:
