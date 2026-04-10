@@ -14,7 +14,7 @@
   - trước khi sửa gì rồi commit lên lại thì "git pull" để kiểm tra trước khi commit lại
   - Các bước upload lên git:
     * git init
-    * git add . (. là tất cả các code còn khi chỉ upload 1 file nào thì chỉ cần ghi tên file đó ra VD: git add "trangchu.jsx")
+    * git add . ("." là tất cả các code còn khi chỉ upload 1 file nào thì chỉ cần ghi tên file đó ra VD: git add "trangchu.jsx")
     * git commit -m ""( trong "" là nội dung điền theo format đã định sẵn)
     * git push -u origin master ( nếu sài main thì đổi master sang main)
  
