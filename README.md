@@ -15,7 +15,7 @@
     * git commit -m ""( trong "" là nội dung điền theo format đã định sẵn)
     * git push -u origin master ( nếu sài main thì đổi master sang main)
  
-###### ⚠️Chạy dự án sau khi tải về:
+## ⚠️Chạy dự án sau khi tải về:
    B1: vào từng thư mục frontend và backend sau đó chạy npm install
    B2: Tạo 1 file .env ở backend bên ngoài thư mục src
    B3: Vào file .env vừa tạo và dán code sau:
