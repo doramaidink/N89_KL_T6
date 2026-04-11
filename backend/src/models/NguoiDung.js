@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 
 const NguoiDung = new Schema({
   hoTen: { type: String },
-  soDienThoai: { type: String, },
+  email: { type: String, unique: true },
   matKhau: { type: String },
   ngaysinh: { type: Date },
   vaiTro: { type: String, default: 'nguoiDung' },

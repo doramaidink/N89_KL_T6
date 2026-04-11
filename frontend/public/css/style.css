@@ -33,8 +33,9 @@ body {
 }
 
 .imglogo-headerlogin {
-  width: 150px;
-  height: 90px;
+  width: 50px;
+  height: 50px;
+  margin-top: -10px;
 }
 
 /* RIGHT */
@@ -91,7 +92,7 @@ body {
 
 /* FORM CONTAINER */
 .form-dangki {
-  width: 400px;
+  width: 450px;
   height: 35rem;
   padding: 20px;
   border-radius: 15px;
@@ -132,7 +133,7 @@ body {
   font-size: 14px;
 }
 .congroup-contentdangki{
-  width: 350px;
+  width: 410px;
   height: 3rem;
   display: flex;
   align-items: center;
@@ -157,7 +158,7 @@ body {
 }
 .congroup2-contentdangki{
   display: flex;
-  width: 175px;
+  width: 200px;
   height: 3rem;
   align-items: center;
   border: 3px solid rgba(52, 73, 59, 0.664);
@@ -165,8 +166,9 @@ body {
 }
 .congroup2-contentdangki input{
   border: none;
-  font-size: 14px;
+  font-size: 12px;
   color: #e2dcdc83;
+  outline: none;
 
 }
 .dangkyngay-contentdangki{
@@ -301,6 +303,11 @@ body {
 .content-contentdangnhap{
   text-align: start;
 }
+.content-contentdangnhap .form-message{
+  color: red;
+  font-size: 0.7rem;
+  margin-top: 6px;
+}
 .content-contentdangnhap label{
   font-size: 14px;
   margin-bottom: 10px;
@@ -341,13 +348,22 @@ body {
   cursor: pointer;
   transition: 0.3s;
 }
+.btn-main-dangnhap:hover {
+  background: #00c85371;
+}
 
 .login-link-dangnhap {
   margin-top: 15px;
   font-size: 13px;
   color: #ccc;
 }
-
+.login-link-dangnhap span{
+  color: #00c853;
+}
+.login-link-dangnhap span:hover{
+  cursor: pointer;
+  color: #00c85362;
+}
 .password-row-dangnhap {
   display: flex;
   justify-content: space-between;

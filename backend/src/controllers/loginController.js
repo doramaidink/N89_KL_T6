@@ -7,19 +7,19 @@ class loginController{
     try {
       const data = req.body;
        const exist = await NguoiDungs.findOne({
-        soDienThoai: data.soDienThoai
+       email: data.email
       });
 
       if (exist) {
         return res.status(400).json({
-          field: "soDienThoai",
-          message: "Số điện thoại đã tồn tại"
+          field: "email",
+          message: "Email đã tồn tại"
         });
       }
       // TỰ THÊM vaiTro
       const user = await NguoiDungs.create({
         hoTen: data.hoTen || "",
-        soDienThoai: data.soDienThoai || "",
+        email: data.email || "",
         matKhau: data.passWord,
         ngaysinh: data.ngaysinh,
         vaiTro: "nguoiDung",              // <<< TỰ THÊM
@@ -38,7 +38,7 @@ class loginController{
   }
    async dangnhap(req, res) {
     try {
-    const { soDienThoai, passWord } = req.body;
+    const { email, passWord } = req.body;
     
 
     // 1. Kiểm tra quản trị viên
@@ -68,19 +68,19 @@ class loginController{
     // }
 
     // 3. Kiểm tra người dùng
-    let nd = await NguoiDungs.findOne({ soDienThoai });
+    let nd = await NguoiDungs.findOne({ email });
     if (nd && nd.matKhau === passWord) {
       return res.status(200).json({
         user: {
           id: nd._id,
-          soDienThoai: nd.soDienThoai,
+          email: nd.email,
           vaiTro: "nguoiDung",
-          slug: nd.slug || nd.soDienThoai.toLowerCase().replace(/ /g, "-")
+          slug: nd.slug || nd.email.toLowerCase().replace(/ /g, "-")
         }
       });
     }
 
-    return res.status(400).json({ message: "Sai số điện thoại hoặc mật khẩu!" });
+    return res.status(400).json({ message: "Sai email hoặc mật khẩu!" });
 
   } catch (error) {
     console.log(error);

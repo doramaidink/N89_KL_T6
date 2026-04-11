@@ -7,15 +7,15 @@ const Header = () => {
 
       {/* LEFT */}
       <div className="logo-group-header">
-        <img src="/img/logo.png" className="logo-trangchu-header" />
+        <img src="public/img/logo.jpeg" className="logo-trangchu-header" />
         <span className="brand-name-header">Backpacking VietNam</span>
       </div>
 
       {/* CENTER */}
       <div className="nav-header">
-        <span className="btntrangchu-header">Trang Chủ</span>
-        <span className="btnkhampha-header" >Khám Phá</span>
-        <span>Hướng Dẫn Viên</span>
+        <a href="/" className="btntrangchu-header">Trang Chủ</a>
+        <a href="/khampha" className="btnkhampha-header" >Khám Phá</a>
+        <a href="/Huongdanvien" >Hướng Dẫn Viên</a>
       </div>
 
       {/* RIGHT */}

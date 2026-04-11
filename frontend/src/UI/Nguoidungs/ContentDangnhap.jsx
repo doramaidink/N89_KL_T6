@@ -15,8 +15,8 @@ const ContentDangnhap = () => {
                     form: '#form-2',
                     errorSelector: '.form-message',
                     rules: [
-                        window.Validator.isRequired('#SDT'),
-                        window.Validator.isMinLength('#SDT', 10),
+                        window.Validator.isRequired("#email"),
+                        window.Validator.isEmail("#email") ,
                         window.Validator.isRequired('#login-v2-password'),
                         window.Validator.isMinLength('#login-v2-password', 6),
                     ],
@@ -82,8 +82,8 @@ const ContentDangnhap = () => {
             {/* SĐT */}
             <label>SỐ ĐIỆN THOẠI</label>
             <div className="input-group-dangnhap">
-             <img className="img-dangnhap" src="/public/img/telephone.png" alt="" />
-              <input  id='SDT' name="soDienThoai" placeholder="Nhập số điện thoại" />
+             <img className="img-dangnhap" src="/img/mail.png" alt="" />
+              <input  id="email" name="email" type="email" placeholder="Nhập email" />
               <span className="form-message"></span>
             </div>
 
@@ -94,7 +94,7 @@ const ContentDangnhap = () => {
             </div>
 
             <div className="input-group-dangnhap">
-               <img className="img-dangnhap" src="/public/img/locked-computer.png" alt="" />
+               <img className="img-dangnhap" src="/img/locked-computer.png" alt="" />
               <input  name="passWord" className="login-v2-input" type="password" id="login-v2-password" placeholder="Nhập mật khẩu" />
               <span className="form-message"></span>
             </div>
@@ -103,7 +103,7 @@ const ContentDangnhap = () => {
           </div>
 
           <p className="login-link-dangnhap">
-            Chưa có tài khoản? <span>Đăng ký ngay</span>
+            Chưa có tài khoản? <span  onClick={() => navigate("/dangki")}>Đăng ký ngay</span>
           </p>
         </form>
       </div>

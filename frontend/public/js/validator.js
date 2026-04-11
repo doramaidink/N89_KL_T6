@@ -109,6 +109,14 @@ Validator.isNLPassword = function (selector, getConfirmValue) {
         test: function (value) {
             return value === getConfirmValue() ? undefined : 'Mật khẩu nhập lại không chính xác'
         }
+    };   
+}
+Validator.isEmail = function (selector) {
+    return {
+        selector: selector,
+        test: function (value) {
+            var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            return regex.test(value) ? undefined : 'Vui lòng nhập email hợp lệ'
+        }
     };
-    
 }
