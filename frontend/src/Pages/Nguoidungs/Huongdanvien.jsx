@@ -1,5 +1,5 @@
 import React from 'react'
-import Header from '../../UI/Nguoidungs/Header'
+import Header from '../../UI/Nguoidungs/Headers/HeaderHuongDanVien'
 import Footer from '../../UI/Nguoidungs/Footer'
 import ContentHuongdanvien from '../../UI/Nguoidungs/ContentHuongdanvien'
 

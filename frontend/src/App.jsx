@@ -19,6 +19,8 @@ import Nhom from './Pages/Nguoidungs/Nhom';
 import Danhgia from './Pages/Nguoidungs/Danhgia';
 import Trangchunguoidung from './Pages/Nguoidungs/Trangchunguoidung';
 import Chitietdiadiem from './Pages/Nguoidungs/Chitietdiadiem';
+import Quenmatkhau from './Pages/Nguoidungs/Quenmatkhau';
+import Datlaimatkhau from './Pages/Nguoidungs/Datlaimatkhau';
 
 
 function App() {
@@ -31,12 +33,15 @@ function App() {
         <Route path='*' element={<Notfound />} />
 
         <Route path='/dangki' element={<Dangki />} />
+       
 
         <Route path='/dangnhap' element={<Dangnhap />} />
 
         <Route path='/' element={<Trangchu />} />
 
-        <Route path='/user/:slug' element={<Trangchunguoidung/>} />
+        <Route path='/:hoten' element={<Trangchunguoidung/>} />
+      <Route path="/quen-mat-khau" element={<Quenmatkhau />} />
+<Route path="/dat-lai-mat-khau" element={<Datlaimatkhau />} />
 
         <Route path='/khampha' element={<Khampha />} />
 

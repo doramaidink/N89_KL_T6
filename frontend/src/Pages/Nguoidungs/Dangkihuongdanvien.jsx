@@ -1,7 +1,7 @@
 import React from 'react'
 import Footer from '../../UI/Nguoidungs/Footer'
 import ContentDkHdv from '../../UI/Nguoidungs/ContentDkHdv'
-import HeaderTaikhoan from '../../UI/Nguoidungs/HeaderTaikhoan'
+import HeaderTaikhoan from '../../UI/Nguoidungs/Headers/HeaderTaikhoan';
 
  const Dangkihuongdanvien = () => {
   return (

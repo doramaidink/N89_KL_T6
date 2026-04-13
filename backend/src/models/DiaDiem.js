@@ -13,6 +13,7 @@ const DiaDiem = new Schema({
   quangduong: { type: String },
   khuVuc: { type: String },
   hot:{ type: Boolean, default: false },
+  tinh:{type:String},
   image: { type: String },
   images:  [{ type: String }],
   dacDiemDiaDanh: [{ type: String }],

@@ -7,8 +7,11 @@ const ContentKhampha = () => {
 
   const [diaDiems, setDiaDiems] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [keyword, setKeyword] = useState("");
-  const [selectedKhuVuc, setSelectedKhuVuc] = useState("Tất cả");
+  const [selectedTinh, setSelectedTinh] = useState("");
+  const [selectedDoKho, setSelectedDoKho] = useState("");
+  const [selectedNganSach, setSelectedNganSach] = useState("");
 
   useEffect(() => {
     const fetchDiaDiems = async () => {
@@ -25,24 +28,44 @@ const ContentKhampha = () => {
     fetchDiaDiems();
   }, []);
 
-  const danhSachKhuVuc = useMemo(() => {
-    const khuVucs = diaDiems.map((item) => item.khuVuc).filter(Boolean);
-    return ["Tất cả", ...new Set(khuVucs)];
+  const danhSachTinh = useMemo(() => {
+    const list = diaDiems.map((item) => item.tinh).filter(Boolean);
+    return [...new Set(list)];
+  }, [diaDiems]);
+
+  const danhSachDoKho = useMemo(() => {
+    const list = diaDiems.map((item) => item.doKho).filter(Boolean);
+    return [...new Set(list)];
+  }, [diaDiems]);
+
+  const danhSachNganSach = useMemo(() => {
+    const list = diaDiems.map((item) => item.veVao).filter(Boolean);
+    return [...new Set(list)];
   }, [diaDiems]);
 
   const filteredDiaDiems = useMemo(() => {
     return diaDiems.filter((item) => {
+      const keywordLower = keyword.toLowerCase();
+
       const matchKeyword =
-        item.tenDiaDiem?.toLowerCase().includes(keyword.toLowerCase()) ||
-        item.khuVuc?.toLowerCase().includes(keyword.toLowerCase()) ||
-        item.moTa?.toLowerCase().includes(keyword.toLowerCase());
+        item.tenDiaDiem?.toLowerCase().includes(keywordLower) ||
+        item.tinh?.toLowerCase().includes(keywordLower) ||
+        item.moTa?.toLowerCase().includes(keywordLower);
 
-      const matchKhuVuc =
-        selectedKhuVuc === "Tất cả" || item.khuVuc === selectedKhuVuc;
+      const matchTinh = !selectedTinh || item.tinh === selectedTinh;
+      const matchDoKho = !selectedDoKho || item.doKho === selectedDoKho;
+      const matchNganSach = !selectedNganSach || item.veVao === selectedNganSach;
 
-      return matchKeyword && matchKhuVuc;
+      return matchKeyword && matchTinh && matchDoKho && matchNganSach;
     });
-  }, [diaDiems, keyword, selectedKhuVuc]);
+  }, [diaDiems, keyword, selectedTinh, selectedDoKho, selectedNganSach]);
+
+  const handleClearFilters = () => {
+    setKeyword("");
+    setSelectedTinh("");
+    setSelectedDoKho("");
+    setSelectedNganSach("");
+  };
 
   if (loading) {
     return <div className="khampha-loading">Đang tải dữ liệu...</div>;
@@ -54,29 +77,69 @@ const ContentKhampha = () => {
         <section className="khampha-header">
           <h1>Khám Phá Địa Điểm</h1>
           <p>
-            Tìm kiếm những hành trình bằng rừng vượt biển, chinh phục những cung
+            Tìm kiếm những hành trình băng rừng vượt biển, chinh phục những cung
             đường hoang sơ nhất Việt Nam cùng cộng đồng Backpacking.
           </p>
 
           <div className="khampha-search">
+            <span className="search-icon">
+              <i className="fa-solid fa-magnifying-glass"></i>
+            </span>
             <input
               type="text"
-              placeholder="Bạn muốn đi đâu? (Ví dụ: K50, Cù Lao Xanh, Sơn Đoòng...)"
+              placeholder="Bạn muốn đi đâu? (Ví dụ: Hà Giang, Cực Đông, Hang Sơn Đoòng...)"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
             />
           </div>
 
           <div className="khampha-filters">
-            {danhSachKhuVuc.map((khuVuc, index) => (
-              <button
-                key={index}
-                className={selectedKhuVuc === khuVuc ? "active-filter" : ""}
-                onClick={() => setSelectedKhuVuc(khuVuc)}
-              >
-                {khuVuc}
-              </button>
-            ))}
+            <select
+              className="filter-select-khampha"
+              value={selectedTinh}
+              onChange={(e) => setSelectedTinh(e.target.value)}
+            >
+              <option value="">Tỉnh/Thành</option>
+              {danhSachTinh.map((tinh, index) => (
+                <option key={index} value={tinh}>
+                  {tinh}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="filter-select-khampha"
+              value={selectedDoKho}
+              onChange={(e) => setSelectedDoKho(e.target.value)}
+            >
+              <option value="">Độ khó</option>
+              {danhSachDoKho.map((doKho, index) => (
+                <option key={index} value={doKho}>
+                  {doKho}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="filter-select-khampha"
+              value={selectedNganSach}
+              onChange={(e) => setSelectedNganSach(e.target.value)}
+            >
+              <option value="">Ngân sách</option>
+              {danhSachNganSach.map((veVao, index) => (
+                <option key={index} value={veVao}>
+                  {veVao}
+                </option>
+              ))}
+            </select>
+
+            <button
+              type="button"
+              className="clear-filter-btn"
+              onClick={handleClearFilters}
+            >
+              Xóa bỏ lọc
+            </button>
           </div>
         </section>
 
@@ -88,7 +151,11 @@ const ContentKhampha = () => {
               onClick={() => navigate(`/chitietdiadiem/${item.slug}`)}
             >
               <div className="khampha-image-wrap">
-                <img src={item.image} alt={item.tenDiaDiem} className="khampha-image" />
+                <img
+                  src={item.image}
+                  alt={item.tenDiaDiem}
+                  className="khampha-image"
+                />
 
                 <button
                   className="heart-btn"
@@ -110,7 +177,7 @@ const ContentKhampha = () => {
                   <span className="khampha-rating">★ 4.8</span>
                 </div>
 
-                <p className="khampha-location">{item.khuVuc}</p>
+                <p className="khampha-location">{item.tinh}</p>
                 <p className="khampha-desc">{item.moTa}</p>
 
                 <div className="khampha-bottom">
@@ -134,18 +201,8 @@ const ContentKhampha = () => {
         </section>
 
         {filteredDiaDiems.length === 0 && (
-          <div className="empty-khampha">
-            Không tìm thấy địa điểm phù hợp.
-          </div>
+          <div className="empty-khampha">Không tìm thấy địa điểm phù hợp.</div>
         )}
-
-        <div className="pagination-khampha">
-          <button className="page-btn active-page">1</button>
-          <button className="page-btn">2</button>
-          <button className="page-btn">3</button>
-          <button className="page-btn">...</button>
-          <button className="page-btn">12</button>
-        </div>
       </div>
     </div>
   );

@@ -99,7 +99,7 @@ Validator.isMinLength = function (selector, min) {
     return {
         selector: selector,
         test: function (value) {
-            return value.length >= min ? undefined : `Vui lòng nhập SDT hợp lệ`
+            return value.length >= min ? undefined : `Vui lòng nhập ít nhất ${min} ký tự`
         }
     }
 }

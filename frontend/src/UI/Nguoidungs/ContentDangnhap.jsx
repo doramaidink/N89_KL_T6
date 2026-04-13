@@ -41,11 +41,11 @@ const ContentDangnhap = () => {
 
                             // Nhận vai trò từ backend
                             const role = result.user.vaiTro;
-                            const slug = result.user.slug;  
+                            const hoTen = result.user.hoTen;  
 
                             setTimeout(() => {
                                 if (role === "nguoiDung") {
-                                    navigate(`/user/${slug}`);
+                                      navigate(`/${encodeURIComponent(hoTen)}`);
                                  } 
                                 //else if (role === "doanhNghiep") {
                                 //     navigate(`/ManageBookings/${slug}`);
@@ -90,7 +90,7 @@ const ContentDangnhap = () => {
             {/* PASSWORD */}
             <div className="password-row-dangnhap">
               <label>MẬT KHẨU</label>
-              <span className="forgot-dangnhap">Quên mật khẩu?</span>
+              <span onClick={() => navigate("/quen-mat-khau")}  style={{ cursor: "pointer" }} className="forgot-dangnhap">Quên mật khẩu?</span>
             </div>
 
             <div className="input-group-dangnhap">

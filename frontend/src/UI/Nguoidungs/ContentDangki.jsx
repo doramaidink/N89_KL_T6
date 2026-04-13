@@ -14,6 +14,10 @@ const ContentDangki = () => {
   const [emailPreview, setEmailPreview] = useState("");
   const [loading, setLoading] = useState(false);
   const [checkingEmail, setCheckingEmail] = useState(false);
+
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,7 +35,7 @@ const ContentDangki = () => {
             window.Validator.isRequired("#fullname"),
             window.Validator.isMinLength("#fullname", 6),
             window.Validator.isRequired("#email"),
-            window.Validator.isEmail("#email") ,
+            window.Validator.isEmail("#email"),
             window.Validator.isRequired("#register-v2-password"),
             window.Validator.isRequired("#ngaysinh"),
             window.Validator.isMinLength("#register-v2-password", 6),
@@ -45,6 +49,11 @@ const ContentDangki = () => {
           ].filter(Boolean),
           onSubmit: async function (data) {
             try {
+              if (!agreedTerms) {
+                toast.error("Bạn phải đồng ý với điều khoản trước khi đăng ký");
+                return;
+              }
+
               setLoading(true);
               setServerError("");
 
@@ -57,7 +66,6 @@ const ContentDangki = () => {
               );
 
               const actionCodeSettings = {
-                // đổi đúng domain frontend của bạn
                 url: `http://localhost:5173/xac-nhan-email`,
                 handleCodeInApp: true,
               };
@@ -72,6 +80,8 @@ const ContentDangki = () => {
                 JSON.stringify({
                   ...data,
                   email,
+                  daDongYDieuKhoan: true,
+                  phienBanDieuKhoan: "v1.0",
                 })
               );
 
@@ -102,7 +112,7 @@ const ContentDangki = () => {
     return () => {
       document.body.removeChild(script);
     };
-  }, []);
+  }, [agreedTerms]);
 
   const handleCheckVerifiedEmail = async () => {
     try {
@@ -188,88 +198,171 @@ const ContentDangki = () => {
   return (
     <div className="content-dangki">
       {step === "register" ? (
-        <form id="form-1" method="POST" className="form-dangki">
-          <div className="header-contentdangki">
-            <h2>Đăng ký tài khoản</h2>
-            <p>Bắt đầu hành trình khám phá Việt Nam cùng chúng tôi</p>
-          </div>
-
-          <div className="content-contentdangki">
-            <div className="group-contentdangki">
-              <label>Họ Và Tên</label>
-              <div className="congroup-contentdangki">
-                <img className="imguser-contentdangki" src="/img/user.png" alt="" />
-                <input id="fullname" name="hoTen" placeholder="Nguyễn Văn A" type="text" />
-                <span className="form-message"></span>
-              </div>
+        <>
+          <form id="form-1" method="POST" className="form-dangki">
+            <div className="header-contentdangki">
+              <h2>Đăng ký tài khoản</h2>
+              <p>Bắt đầu hành trình khám phá Việt Nam cùng chúng tôi</p>
             </div>
 
-            <div className="group2-contentdangki">
+            <div className="content-contentdangki">
               <div className="group-contentdangki">
-                <label>Ngày sinh</label>
-                <div className="congroup2-contentdangki">
-                  <img className="imguser-contentdangki" src="/img/calendar.png" alt="" />
-                  <input id="ngaysinh" name="ngaysinh" type="date" />
+                <label>Họ Và Tên</label>
+                <div className="congroup-contentdangki">
+                  <img className="imguser-contentdangki" src="/img/user.png" alt="" />
+                  <input id="fullname" name="hoTen" placeholder="Nguyễn Văn A" type="text" />
+                  <span className="form-message"></span>
+                </div>
+              </div>
+
+              <div className="group2-contentdangki">
+                <div className="group-contentdangki">
+                  <label>Ngày sinh</label>
+                  <div className="congroup2-contentdangki">
+                    <img className="imguser-contentdangki" src="/img/calendar.png" alt="" />
+                    <input id="ngaysinh" name="ngaysinh" type="date" />
+                    <span className="form-message"></span>
+                  </div>
+                </div>
+
+                <div className="group-contentdangki">
+                  <label>Email</label>
+                  <div className="congroup2-contentdangki">
+                    <img className="imguser-contentdangki" src="/img/mail.png" alt="" />
+                    <input
+                      id="email"
+                      name="email"
+                      placeholder="example@gmail.com"
+                      type="email"
+                    />
+                    <span className="form-message">{serverError}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="group-contentdangki">
+                <label>Mật Khẩu</label>
+                <div className="congroup-contentdangki">
+                  <img className="imguser-contentdangki" src="/img/locked-computer.png" alt="" />
+                  <input
+                    id="register-v2-password"
+                    name="passWord"
+                    placeholder="******"
+                    type="password"
+                  />
                   <span className="form-message"></span>
                 </div>
               </div>
 
               <div className="group-contentdangki">
-                <label>Email</label>
-                <div className="congroup2-contentdangki">
-                  <img className="imguser-contentdangki" src="/img/mail.png" alt="" />
+                <label>Nhập lại mật khẩu</label>
+                <div className="congroup-contentdangki">
+                  <img className="imguser-contentdangki" src="/img/locked-computer.png" alt="" />
                   <input
-                    id="email"
-                    name="email"
-                    placeholder="example@gmail.com"
-                    type="email"
+                    name="confirmPassword"
+                    id="register-v2-confirm-password"
+                    placeholder="******"
+                    type="password"
                   />
-                  <span className="form-message">{serverError}</span>
+                  <span className="form-message"></span>
+                </div>
+              </div>
+
+              <div className="terms-register-box">
+                <label className="terms-register-label">
+                  <input
+                    type="checkbox"
+                    checked={agreedTerms}
+                    onChange={(e) => setAgreedTerms(e.target.checked)}
+                  />
+                  <span>
+                    Tôi cam kết đã đọc, hiểu và đồng ý với các điều khoản an toàn của hệ thống
+                  </span>
+                </label>
+
+                <button
+                  type="button"
+                  className="btn-xem-dieukhoan"
+                  onClick={() => setShowTermsModal(true)}
+                >
+                  Xem điều khoản
+                </button>
+              </div>      
+            </div>
+
+            <div className="footer-contentdangki">
+              <div className="dacotaikhoan-dangki"> <p>Đã có tài khoản?</p> <a href="/dangnhap">Đăng nhập ngay</a>  </div>
+             
+               <button
+                type="submit"
+                className={`dangkyngay-contentdangki ${!agreedTerms ? "btn-disabled-dangki" : ""}`}
+                disabled={loading || !agreedTerms}
+              >
+                {loading
+                  ? "Đang gửi email xác nhận..."
+                  : "Đăng ký ngay"}
+              </button>           
+            </div>
+          </form>
+
+          {showTermsModal && (
+            <div
+              className="modal-dieukhoan-overlay"
+              onClick={() => setShowTermsModal(false)}
+            >
+              <div
+                className="modal-dieukhoan-content"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="modal-dieukhoan-header">
+                  <h3>Điều khoản cam kết an toàn</h3>
+                  <button
+                    type="button"
+                    className="modal-close-btn"
+                    onClick={() => setShowTermsModal(false)}
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="modal-dieukhoan-body">
+                  <ul>
+                    <li>Tôi cam kết cung cấp thông tin đăng ký chính xác và trung thực.</li>
+                    <li>Tôi hiểu hoạt động trekking, du lịch bụi có thể tồn tại rủi ro về sức khỏe, thời tiết, tai nạn và các sự cố ngoài ý muốn.</li>
+                    <li>Tôi tự chịu trách nhiệm đánh giá tình trạng sức khỏe của bản thân trước khi tham gia các hoạt động.</li>
+                    <li>Tôi cam kết tuân thủ hướng dẫn của trưởng nhóm, hướng dẫn viên và các quy định an toàn của hệ thống.</li>
+                    <li>Tôi không có hành vi gây rối, đe dọa, xúc phạm, quấy rối hoặc làm ảnh hưởng đến sự an toàn của người khác.</li>
+                    <li>Tôi không tự ý tách đoàn hoặc thực hiện các hành vi nguy hiểm ngoài kế hoạch chung.</li>
+                    <li>Tôi chịu trách nhiệm với tài sản cá nhân của mình trong quá trình tham gia hoạt động.</li>
+                    <li>Tôi đồng ý thực hiện check-in, check-out hoặc các xác nhận an toàn khác khi hệ thống yêu cầu.</li>
+                    <li>Tôi hiểu rằng nền tảng có quyền từ chối hoặc khóa tài khoản nếu tôi vi phạm điều khoản hoặc gây nguy hiểm cho cộng đồng.</li>
+                    <li>Tôi xác nhận đã đọc và đồng ý với các điều khoản trước khi đăng ký tài khoản.</li>
+                  </ul>
+                </div>
+
+                <div className="modal-dieukhoan-footer">
+                  <button
+                    type="button"
+                    className="btn-dong-dieukhoan"
+                    onClick={() => setShowTermsModal(false)}
+                  >
+                    Đóng
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-dongy-dieukhoan"
+                    onClick={() => {
+                      setAgreedTerms(true);
+                      setShowTermsModal(false);
+                    }}
+                  >
+                    Tôi đồng ý
+                  </button>
                 </div>
               </div>
             </div>
-
-            <div className="group-contentdangki">
-              <label>Mật Khẩu</label>
-              <div className="congroup-contentdangki">
-                <img className="imguser-contentdangki" src="/img/locked-computer.png" alt="" />
-                <input
-                  id="register-v2-password"
-                  name="passWord"
-                  placeholder="******"
-                  type="password"
-                />
-                <span className="form-message"></span>
-              </div>
-            </div>
-
-            <div className="group-contentdangki">
-              <label>Nhập lại mật khẩu</label>
-              <div className="congroup-contentdangki">
-                <img className="imguser-contentdangki" src="/img/locked-computer.png" alt="" />
-                <input
-                  name="confirmPassword"
-                  id="register-v2-confirm-password"
-                  placeholder="******"
-                  type="password"
-                />
-                <span className="form-message"></span>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="dangkyngay-contentdangki"
-              disabled={loading}
-            >
-              {loading ? "Đang gửi email xác nhận..." : "Đăng ký ngay"}
-            </button>
-          </div>
-
-          <div className="footer-contentdangki">
-            <p>Đã có tài khoản?</p> <a href="/dangnhap">Đăng nhập ngay</a>
-          </div>
-        </form>
+          )}
+        </>
       ) : (
         <div className="otp-wrapper-dangki">
           <div className="form-dangki">
@@ -310,5 +403,4 @@ const ContentDangki = () => {
     </div>
   );
 };
-
 export default ContentDangki;
