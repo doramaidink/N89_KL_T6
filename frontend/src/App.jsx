@@ -22,6 +22,8 @@ import Chitietdiadiem from './Pages/Nguoidungs/Chitietdiadiem';
 import Quenmatkhau from './Pages/Nguoidungs/Quenmatkhau';
 import Datlaimatkhau from './Pages/Nguoidungs/Datlaimatkhau';
 
+import Nhomchat from './Pages/Nguoidungs/Nhomchat';
+
 
 function App() {
 
@@ -66,6 +68,8 @@ function App() {
         <Route path='/nhom' element={<Nhom />} />
 
         <Route path='/danhgia' element={<Danhgia />} />
+
+        <Route path='/nhomchat' element={<Nhomchat/>} />
 
 
 
