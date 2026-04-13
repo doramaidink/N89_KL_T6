@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-// import Webcam from 'react-webcam';
-// import * as faceapi from 'face-api.js';
+import Webcam from 'react-webcam';
+import * as faceapi from 'face-api.js';
 
 const BACKEND_URL = 'http://localhost:5000';
 const MATCH_THRESHOLD = 0.45;
@@ -12,7 +12,7 @@ const ContentDangKyDoiTac = () => {
   const [step, setStep] = useState(1);
   const [modelsLoaded, setModelsLoaded] = useState(false);
 
-  const [captureTarget, setCaptureTarget] = useState('front'); // front | back | face
+  const [captureTarget, setCaptureTarget] = useState('front');
   const [cameraOpen, setCameraOpen] = useState(false);
 
   const [cccdFrontFile, setCccdFrontFile] = useState(null);
@@ -38,6 +38,8 @@ const ContentDangKyDoiTac = () => {
   });
 
   const [formData, setFormData] = useState({
+    email: '',
+    soDienThoai: '',
     hoTen: '',
     soCCCD: '',
     diaChi: '',
@@ -63,7 +65,6 @@ const ContentDangKyDoiTac = () => {
     ],
     camKet: false
   });
-  
 
   useEffect(() => {
     const loadModels = async () => {
@@ -78,6 +79,16 @@ const ContentDangKyDoiTac = () => {
     };
 
     loadModels();
+  }, []);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    setFormData((prev) => ({
+      ...prev,
+      email: user.email || '',
+      soDienThoai: user.soDienThoai || '',
+    }));
   }, []);
 
   const handlePartnerChange = (e) => {
@@ -168,25 +179,25 @@ const ContentDangKyDoiTac = () => {
     setCameraOpen(false);
   };
 
-const uploadFaceToServer = async (file) => {
-  try {
-    const data = new FormData();
-    data.append('faceImage', file);
-    data.append('hoTen', formData.hoTen || cccdInfo.hoTen || 'doi-tac');
+  const uploadFaceToServer = async (file) => {
+    try {
+      const data = new FormData();
+      data.append('faceImage', file);
+      data.append('hoTen', formData.hoTen || cccdInfo.hoTen || 'doi-tac');
 
-    const res = await axios.post(`${BACKEND_URL}/doitac/upload-face`, data, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+      const res = await axios.post(`${BACKEND_URL}/doitac/upload-face`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
-    setFormData((prev) => ({
-      ...prev,
-      anhKhuonMat: res.data.imageUrl
-    }));
-  } catch (error) {
-    console.error(error);
-    alert('Lưu ảnh khuôn mặt thất bại');
-  }
-};
+      setFormData((prev) => ({
+        ...prev,
+        anhKhuonMat: res.data.imageUrl
+      }));
+    } catch (error) {
+      console.error(error);
+      alert('Lưu ảnh khuôn mặt thất bại');
+    }
+  };
 
   const handleReadCCCD = async () => {
     try {
@@ -197,11 +208,15 @@ const uploadFaceToServer = async (file) => {
 
       setOcrLoading(true);
 
+      const currentName = formData.hoTen || 'doi-tac';
+
       const frontData = new FormData();
-      frontData.append('hoTen', formData.hoTen || 'doi-tac');
+      frontData.append('cccdImage', cccdFrontFile);
+      frontData.append('hoTen', currentName);
 
       const backData = new FormData();
-      backData.append('hoTen', formData.hoTen || 'doi-tac');
+      backData.append('cccdImage', cccdBackFile);
+      backData.append('hoTen', currentName);
 
       const [frontRes, backRes] = await Promise.all([
         axios.post(`${BACKEND_URL}/doitac/ocr-cccd-front`, frontData, {
@@ -215,7 +230,7 @@ const uploadFaceToServer = async (file) => {
       const merged = {
         hoTen: frontRes.data.data.hoTen || '',
         soCCCD: frontRes.data.data.soCCCD || '',
-        diaChi: backRes.data.data.diaChi || frontRes.data.data.diaChi || '',
+        diaChi: backRes.data.data.diaChi || '',
         queQuan: backRes.data.data.queQuan || '',
         ngaySinh: frontRes.data.data.ngaySinh || '',
         anhCCCDMatTruoc: frontRes.data.imageUrl,
@@ -238,7 +253,7 @@ const uploadFaceToServer = async (file) => {
       setStep(2);
     } catch (error) {
       console.error(error);
-      alert('Đọc CCCD thất bại');
+      alert(error?.response?.data?.message || 'Đọc CCCD thất bại');
     } finally {
       setOcrLoading(false);
     }
@@ -378,6 +393,7 @@ const uploadFaceToServer = async (file) => {
     try {
       const data = new FormData();
       data.append('lyLichFile', file);
+      data.append('hoTen', formData.hoTen || cccdInfo.hoTen || 'doi-tac');
 
       const res = await axios.post(`${BACKEND_URL}/doitac/upload-judicial-record`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -407,46 +423,52 @@ const uploadFaceToServer = async (file) => {
     }
 
     try {
-      const res = await axios.post(`${BACKEND_URL}/doitac/create`, formData);
+      const payload = {
+        ...formData,
+        faceMatched: Boolean(formData.faceMatched),
+        camKet: Boolean(formData.camKet)
+      };
+
+      const res = await axios.post(`${BACKEND_URL}/doitac/create`, payload);
       alert(res.data.message);
       console.log(res.data);
     } catch (error) {
       console.error(error);
-      alert('Đăng ký thất bại');
+      alert(error?.response?.data?.message || 'Đăng ký thất bại');
     }
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.container}>
-        <h1 style={styles.title}>Đăng ký trở thành Đối tác Hướng dẫn viên</h1>
-        <p style={styles.desc}>Hoàn tất 4 bước để gửi hồ sơ đăng ký.</p>
+    <div className="dkdt-page">
+      <div className="dkdt-container">
+        <h1 className="dkdt-title">Đăng ký trở thành Đối tác Hướng dẫn viên</h1>
+        <p className="dkdt-desc">Hoàn tất 4 bước để gửi hồ sơ đăng ký.</p>
 
-        <div style={styles.stepBar}>
+        <div className="dkdt-stepbar">
           {[1, 2, 3, 4].map((s) => (
-            <div key={s} style={{
-              ...styles.stepItem,
-              background: step === s ? '#00c16a' : '#083126'
-            }}>
+            <div
+              key={s}
+              className={`dkdt-stepitem ${step === s ? 'active' : ''}`}
+            >
               Bước {s}
             </div>
           ))}
         </div>
 
         {cameraOpen && (
-          <div style={styles.card}>
+          <div className="dkdt-card">
             <h3>Camera</h3>
             <Webcam
               ref={webcamRef}
               screenshotFormat="image/jpeg"
               videoConstraints={{ facingMode: 'user' }}
-              style={styles.webcam}
+              className="dkdt-webcam"
             />
-            <div style={styles.actionRow}>
-              <button type="button" style={styles.button} onClick={captureImage}>
+            <div className="dkdt-actionrow">
+              <button type="button" className="dkdt-button" onClick={captureImage}>
                 Chụp ảnh
               </button>
-              <button type="button" style={styles.buttonOutline} onClick={closeCamera}>
+              <button type="button" className="dkdt-button-outline" onClick={closeCamera}>
                 Đóng camera
               </button>
             </div>
@@ -454,17 +476,17 @@ const uploadFaceToServer = async (file) => {
         )}
 
         {step === 1 && (
-          <div style={styles.card}>
+          <div className="dkdt-card">
             <h3>Bước 1: Chụp CCCD 2 mặt</h3>
 
-            <div style={styles.uploadGrid}>
-              <div style={styles.uploadBox}>
-                <p style={styles.label}>CCCD mặt trước</p>
+            <div className="dkdt-uploadgrid">
+              <div className="dkdt-uploadbox">
+                <p className="dkdt-label">CCCD mặt trước</p>
                 {cccdFrontPreview && (
-                  <img src={cccdFrontPreview} alt="CCCD trước" style={styles.previewImage} />
+                  <img src={cccdFrontPreview} alt="CCCD trước" className="dkdt-previewimage" />
                 )}
-                <div style={styles.actionRow}>
-                  <label style={styles.button}>
+                <div className="dkdt-actionrow">
+                  <label className="dkdt-button">
                     Upload ảnh
                     <input
                       hidden
@@ -473,19 +495,19 @@ const uploadFaceToServer = async (file) => {
                       onChange={(e) => handleUploadCCCD(e, 'front')}
                     />
                   </label>
-                  <button type="button" style={styles.buttonOutline} onClick={() => openCameraFor('front')}>
+                  <button type="button" className="dkdt-button-outline" onClick={() => openCameraFor('front')}>
                     Chụp ảnh
                   </button>
                 </div>
               </div>
 
-              <div style={styles.uploadBox}>
-                <p style={styles.label}>CCCD mặt sau</p>
+              <div className="dkdt-uploadbox">
+                <p className="dkdt-label">CCCD mặt sau</p>
                 {cccdBackPreview && (
-                  <img src={cccdBackPreview} alt="CCCD sau" style={styles.previewImage} />
+                  <img src={cccdBackPreview} alt="CCCD sau" className="dkdt-previewimage" />
                 )}
-                <div style={styles.actionRow}>
-                  <label style={styles.button}>
+                <div className="dkdt-actionrow">
+                  <label className="dkdt-button">
                     Upload ảnh
                     <input
                       hidden
@@ -494,77 +516,110 @@ const uploadFaceToServer = async (file) => {
                       onChange={(e) => handleUploadCCCD(e, 'back')}
                     />
                   </label>
-                  <button type="button" style={styles.buttonOutline} onClick={() => openCameraFor('back')}>
+                  <button type="button" className="dkdt-button-outline" onClick={() => openCameraFor('back')}>
                     Chụp ảnh
                   </button>
                 </div>
               </div>
             </div>
 
-            <button type="button" style={styles.submit} onClick={handleReadCCCD}>
+            <button type="button" className="dkdt-submit" onClick={handleReadCCCD}>
               {ocrLoading ? 'Đang đọc CCCD...' : 'Tiếp tục kiểm tra thông tin'}
             </button>
           </div>
         )}
 
         {step === 2 && (
-          <div style={styles.card}>
+          <div className="dkdt-card">
             <h3>Bước 2: Kiểm tra thông tin</h3>
 
-            <div style={styles.infoGrid}>
+            <div className="dkdt-infogrid">
               <div>
-                <label style={styles.label}>Họ tên</label>
-                <input style={styles.input} value={cccdInfo.hoTen} readOnly />
+                <label className="dkdt-label">Họ tên</label>
+                <input
+                  className="dkdt-input"
+                  value={formData.hoTen}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, hoTen: e.target.value }))}
+                />
               </div>
+
               <div>
-                <label style={styles.label}>Số CCCD</label>
-                <input style={styles.input} value={cccdInfo.soCCCD} readOnly />
+                <label className="dkdt-label">Số CCCD</label>
+                <input
+                  className="dkdt-input"
+                  value={formData.soCCCD}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, soCCCD: e.target.value }))}
+                />
               </div>
+
               <div>
-                <label style={styles.label}>Địa chỉ</label>
-                <input style={styles.input} value={cccdInfo.diaChi} readOnly />
+                <label className="dkdt-label">Địa chỉ</label>
+                <input
+                  className="dkdt-input"
+                  value={formData.diaChi}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, diaChi: e.target.value }))}
+                />
               </div>
+
               <div>
-                <label style={styles.label}>Quê quán</label>
-                <input style={styles.input} value={cccdInfo.queQuan} readOnly />
+                <label className="dkdt-label">Quê quán</label>
+                <input
+                  className="dkdt-input"
+                  value={formData.queQuan}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, queQuan: e.target.value }))}
+                />
               </div>
+
               <div>
-                <label style={styles.label}>Ngày sinh</label>
-                <input style={styles.input} value={cccdInfo.ngaySinh} readOnly />
+                <label className="dkdt-label">Ngày sinh</label>
+                <input
+                  className="dkdt-input"
+                  value={formData.ngaySinh}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, ngaySinh: e.target.value }))}
+                />
+              </div>
+
+              <div>
+                <label className="dkdt-label">Tỉnh đăng ký hướng dẫn</label>
+                <input
+                  className="dkdt-input"
+                  name="tinhDangKy"
+                  value={formData.tinhDangKy}
+                  onChange={handlePartnerChange}
+                  placeholder="Ví dụ: Đà Nẵng"
+                />
               </div>
             </div>
 
-            <button type="button" style={styles.submit} onClick={confirmCCCDInfo}>
+            <button type="button" className="dkdt-submit" onClick={confirmCCCDInfo}>
               Xác nhận thông tin đúng
             </button>
           </div>
         )}
 
         {step === 3 && (
-          <div style={styles.card}>
+          <div className="dkdt-card">
             <h3>Bước 3: Xác thực khuôn mặt</h3>
-            <div style={styles.noteBox}>
+
+            <div className="dkdt-notebox">
               Vui lòng tháo kính, bỏ khẩu trang, không đội mũ và chụp nơi đủ sáng.
             </div>
 
-            <div style={styles.actionRow}>
-              <button type="button" style={styles.button} onClick={() => openCameraFor('face')}>
+            <div className="dkdt-actionrow">
+              <button type="button" className="dkdt-button" onClick={() => openCameraFor('face')}>
                 Chụp hình
               </button>
-              <button type="button" style={styles.buttonOutline} onClick={verifyFace}>
+              <button type="button" className="dkdt-button-outline" onClick={verifyFace}>
                 {faceLoading ? 'Đang xác thực...' : 'Xác thực khuôn mặt'}
               </button>
             </div>
 
             {facePreview && (
-              <img src={facePreview} alt="Selfie" style={styles.previewImage} />
+              <img src={facePreview} alt="Selfie" className="dkdt-previewimage" />
             )}
 
             {verifyMessage && (
-              <div style={{
-                ...styles.messageBox,
-                borderColor: formData.faceMatched ? '#00c16a' : '#ff6b6b'
-              }}>
+              <div className={`dkdt-messagebox ${formData.faceMatched ? 'success' : 'error'}`}>
                 {verifyMessage}
               </div>
             )}
@@ -572,79 +627,81 @@ const uploadFaceToServer = async (file) => {
         )}
 
         {step === 4 && (
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <div style={styles.card}>
+          <form onSubmit={handleSubmit} className="dkdt-form">
+            <div className="dkdt-card">
               <h3>Bước 4: Điền thông tin đối tác</h3>
 
-              <div style={styles.sectionTitle}>Địa điểm & Giá cả</div>
+              <div className="dkdt-sectiontitle">Địa điểm & Giá cả</div>
 
               {formData.diaDiemGiaCa.map((item, index) => (
-                <div key={index} style={styles.locationRow}>
+                <div key={index} className="dkdt-locationrow">
                   <input
-                    style={styles.input}
+                    className="dkdt-input"
                     placeholder="Địa điểm hướng dẫn"
                     value={item.diaDiem}
                     onChange={(e) => handleLocationChange(index, 'diaDiem', e.target.value)}
                   />
                   <input
-                    style={styles.input}
+                    className="dkdt-input"
                     placeholder="Mức giá (VNĐ/ngày)"
                     value={item.mucGia}
                     onChange={(e) => handleLocationChange(index, 'mucGia', e.target.value)}
                   />
                   <input
-                    style={styles.input}
-                    placeholder="Kinh nghiệm"
+                    className="dkdt-input"
+                    placeholder="Kinh nghiệm tại địa điểm này"
                     value={item.kinhNghiem}
                     onChange={(e) => handleLocationChange(index, 'kinhNghiem', e.target.value)}
                   />
-                  <button type="button" style={styles.smallDanger} onClick={() => removeLocationRow(index)}>
+                  <button type="button" className="dkdt-small-danger" onClick={() => removeLocationRow(index)}>
                     Xóa
                   </button>
                 </div>
               ))}
 
-              <button type="button" style={styles.addBtn} onClick={addLocationRow}>
+              <button type="button" className="dkdt-addbtn" onClick={addLocationRow}>
                 + Thêm địa điểm
               </button>
             </div>
 
-            <div style={styles.card}>
-              <div style={styles.sectionTitle}>Kỹ năng & Giới thiệu</div>
+            <div className="dkdt-card">
+              <div className="dkdt-sectiontitle">Kỹ năng & Giới thiệu</div>
 
-              <div style={styles.infoGrid}>
+              <div className="dkdt-infogrid">
                 <div>
-                  <label style={styles.label}>Số năm kinh nghiệm</label>
+                  <label className="dkdt-label">Số năm kinh nghiệm</label>
                   <input
-                    style={styles.input}
+                    className="dkdt-input"
                     name="soNamKinhNghiem"
                     value={formData.soNamKinhNghiem}
                     onChange={handlePartnerChange}
                   />
                 </div>
+
                 <div>
-                  <label style={styles.label}>Ngôn ngữ sử dụng</label>
+                  <label className="dkdt-label">Ngôn ngữ sử dụng</label>
                   <input
-                    style={styles.input}
+                    className="dkdt-input"
                     name="ngonNgu"
                     value={formData.ngonNgu}
                     onChange={handlePartnerChange}
+                    placeholder="Ví dụ: vi, en"
                   />
                 </div>
               </div>
 
-              <label style={styles.label}>Mô tả bản thân</label>
+              <label className="dkdt-label">Mô tả bản thân</label>
               <textarea
-                style={styles.textarea}
+                className="dkdt-textarea"
                 name="moTaBanThan"
                 value={formData.moTaBanThan}
                 onChange={handlePartnerChange}
               />
             </div>
 
-            <div style={styles.card}>
-              <div style={styles.sectionTitle}>Xác thực hồ sơ</div>
-              <label style={styles.uploadArea}>
+            <div className="dkdt-card">
+              <div className="dkdt-sectiontitle">Xác thực hồ sơ</div>
+              <label className="dkdt-uploadarea">
                 Kéo thả file hoặc click để tải lên lý lịch tư pháp
                 <input
                   hidden
@@ -655,11 +712,11 @@ const uploadFaceToServer = async (file) => {
               </label>
 
               {formData.lyLichTuPhap && (
-                <p style={styles.fileText}>Đã tải lên: {formData.lyLichTuPhap}</p>
+                <p className="dkdt-filetext">Đã tải lên: {formData.lyLichTuPhap}</p>
               )}
             </div>
 
-            <label style={styles.checkboxWrap}>
+            <label className="dkdt-checkboxwrap">
               <input
                 type="checkbox"
                 name="camKet"
@@ -669,7 +726,7 @@ const uploadFaceToServer = async (file) => {
               Tôi cam kết thông tin cung cấp là chính xác và chịu trách nhiệm trước pháp luật.
             </label>
 
-            <button type="submit" style={styles.submit}>
+            <button type="submit" className="dkdt-submit">
               Đăng ký ngay
             </button>
           </form>
@@ -677,201 +734,6 @@ const uploadFaceToServer = async (file) => {
       </div>
     </div>
   );
-};
-
-const styles = {
-  page: {
-    minHeight: '100vh',
-    background: '#031b13',
-    padding: '30px',
-    color: '#fff'
-  },
-  container: {
-    maxWidth: '980px',
-    margin: '0 auto'
-  },
-  title: {
-    fontSize: '34px',
-    fontWeight: 800,
-    marginBottom: 10
-  },
-  desc: {
-    color: '#b8d8ca',
-    marginBottom: 20
-  },
-  stepBar: {
-    display: 'flex',
-    gap: 10,
-    marginBottom: 20,
-    flexWrap: 'wrap'
-  },
-  stepItem: {
-    padding: '10px 16px',
-    borderRadius: 999,
-    fontWeight: 700
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 20
-  },
-  card: {
-    background: '#06261b',
-    border: '1px solid #0c4a34',
-    borderRadius: 18,
-    padding: 20,
-    marginBottom: 20
-  },
-  uploadGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: 20
-  },
-  uploadBox: {
-    border: '1px solid #0c4a34',
-    borderRadius: 14,
-    padding: 16,
-    background: '#041f16'
-  },
-  label: {
-    display: 'block',
-    marginBottom: 8,
-    color: '#d6efe2',
-    fontWeight: 600
-  },
-  input: {
-    width: '100%',
-    padding: 12,
-    borderRadius: 10,
-    border: '1px solid #0c4a34',
-    background: '#031a12',
-    color: '#fff'
-  },
-  textarea: {
-    width: '100%',
-    minHeight: 120,
-    padding: 12,
-    borderRadius: 10,
-    border: '1px solid #0c4a34',
-    background: '#031a12',
-    color: '#fff'
-  },
-  previewImage: {
-    width: '100%',
-    maxWidth: '300px',
-    borderRadius: 12,
-    marginBottom: 12,
-    marginTop: 12,
-    display: 'block'
-  },
-  actionRow: {
-    display: 'flex',
-    gap: 12,
-    flexWrap: 'wrap',
-    marginTop: 12
-  },
-  button: {
-    padding: '10px 16px',
-    background: '#00c16a',
-    border: 'none',
-    borderRadius: 10,
-    color: '#fff',
-    cursor: 'pointer',
-    fontWeight: 700
-  },
-  buttonOutline: {
-    padding: '10px 16px',
-    background: 'transparent',
-    border: '1px solid #00c16a',
-    borderRadius: 10,
-    color: '#00c16a',
-    cursor: 'pointer',
-    fontWeight: 700
-  },
-  submit: {
-    marginTop: 16,
-    padding: '14px 20px',
-    background: '#00c16a',
-    border: 'none',
-    borderRadius: 12,
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 800,
-    cursor: 'pointer'
-  },
-  webcam: {
-    width: '100%',
-    maxWidth: 420,
-    borderRadius: 12,
-    background: '#000'
-  },
-  noteBox: {
-    background: '#093124',
-    border: '1px solid #0c4a34',
-    padding: 12,
-    borderRadius: 10,
-    marginTop: 10,
-    marginBottom: 12
-  },
-  messageBox: {
-    marginTop: 14,
-    padding: 12,
-    borderRadius: 10,
-    border: '1px solid',
-    background: '#09251b'
-  },
-  infoGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: 16
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: 700,
-    marginBottom: 16
-  },
-  locationRow: {
-    display: 'grid',
-    gridTemplateColumns: '2fr 1.2fr 1.2fr auto',
-    gap: 12,
-    marginBottom: 12,
-    alignItems: 'end'
-  },
-  addBtn: {
-    marginTop: 8,
-    background: 'transparent',
-    border: 'none',
-    color: '#00e57d',
-    fontWeight: 700,
-    cursor: 'pointer'
-  },
-  smallDanger: {
-    padding: '10px 12px',
-    background: '#5b1b1b',
-    border: 'none',
-    color: '#fff',
-    borderRadius: 10,
-    cursor: 'pointer'
-  },
-  uploadArea: {
-    display: 'block',
-    padding: '30px',
-    border: '1px dashed #0c8c5c',
-    borderRadius: 14,
-    color: '#9ce7bf',
-    textAlign: 'center',
-    cursor: 'pointer'
-  },
-  fileText: {
-    marginTop: 12,
-    color: '#9ce7bf'
-  },
-  checkboxWrap: {
-    display: 'flex',
-    gap: 10,
-    alignItems: 'flex-start',
-    marginBottom: 20
-  }
 };
 
 export default ContentDangKyDoiTac;

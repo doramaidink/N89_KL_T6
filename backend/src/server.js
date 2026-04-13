@@ -11,7 +11,7 @@ const { env } = require('process');
 
 dotenv.config();
 
-
+app.use('/imageDoiTac', express.static(path.join(__dirname, '../public/imageDoiTac')));
 ///HTTP logger
 app.use(express.json());
 

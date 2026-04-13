@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const mucGiaDiaDiemSchema = new Schema({
+const diaDiemGiaCaSchema = new Schema({
   diaDiem: {
     type: Schema.Types.ObjectId,
     ref: 'DiaDiem',
@@ -14,7 +14,7 @@ const mucGiaDiaDiemSchema = new Schema({
   kinhNghiem: {
     type: String,
     default: '',
-  },
+  }
 }, { _id: false });
 
 const DoiTac = new Schema({
@@ -28,6 +28,11 @@ const DoiTac = new Schema({
   slug: {
     type: String,
     unique: true,
+  },
+
+  soDienThoai: {
+    type: String,
+    default: '',
   },
 
   soCCCD: {
@@ -48,13 +53,6 @@ const DoiTac = new Schema({
     trim: true,
   },
 
-  tinhDangKy: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-
-  // ảnh đại diện HDV = ảnh khuôn mặt/selfie đã xác thực
   image: {
     type: String,
     default: '',
@@ -83,6 +81,12 @@ const DoiTac = new Schema({
   lyLichTuPhap: {
     type: String,
     default: '',
+  },
+
+  tinhDangKy: {
+    type: String,
+    required: true,
+    trim: true,
   },
 
   gioiThieuBanThan: {
@@ -123,7 +127,7 @@ const DoiTac = new Schema({
   ],
 
   diaDiemGiaCa: {
-    type: [mucGiaDiaDiemSchema],
+    type: [diaDiemGiaCaSchema],
     default: [],
   },
 
@@ -173,5 +177,3 @@ DoiTac.pre('save', function(next) {
   }
   next();
 });
-
-module.exports = mongoose.model('DoiTac', DoiTac);

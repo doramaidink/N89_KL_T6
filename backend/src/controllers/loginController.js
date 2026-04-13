@@ -134,8 +134,9 @@ class loginController{
           id: nd._id,
           email: nd.email,
            hoTen: nd.hoTen,
-          vaiTro: "nguoiDung",
-          slug: nd.slug || nd.email.toLowerCase().replace(/ /g, "-")
+           vaiTro: nd.vaiTro,
+          slug: nd.slug || nd.email.toLowerCase().replace(/ /g, "-"),
+          image: nd.image || "",
         }
       });
     }
