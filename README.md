@@ -22,11 +22,11 @@
    B1: vào từng thư mục frontend và backend sau đó chạy npm install
    B2: Tạo 1 file .env ở backend bên ngoài thư mục src
    B3: Vào file .env vừa tạo và dán code sau:
-   NODE_ENV=development
-   MONGODB_CONNECTIONSTRING =  mongodb+srv://vqthanh1999_db_user:6OsbfK3lpmqcgMk0@cluster0.twyp2qx.mongodb.net/?appName=Cluster0;
-   EMAIL_USER=vqthanh1999@gmail.com
-   EMAIL_PASS=udlpqydnjiqpqhgs
-   FRONTEND_URL=http://localhost:5173
+   + NODE_ENV=development
+   + MONGODB_CONNECTIONSTRING =  mongodb+srv://vqthanh1999_db_user:6OsbfK3lpmqcgMk0@cluster0.twyp2qx.mongodb.net/?appName=Cluster0;
+   + EMAIL_USER=vqthanh1999@gmail.com
+   + EMAIL_PASS=udlpqydnjiqpqhgs
+   + FRONTEND_URL=http://localhost:5173
    B4: chạy 2 thư mục đồng thời cùng 1 lúc và gõ npm run dev
 
    
