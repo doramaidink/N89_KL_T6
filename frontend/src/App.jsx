@@ -20,6 +20,8 @@ import Danhgia from './Pages/Nguoidungs/Danhgia';
 import Trangchunguoidung from './Pages/Nguoidungs/Trangchunguoidung';
 import Chitietdiadiem from './Pages/Nguoidungs/Chitietdiadiem';
 
+import Nhomchat from './Pages/Nguoidungs/Nhomchat';
+
 
 function App() {
 
@@ -61,6 +63,8 @@ function App() {
         <Route path='/nhom' element={<Nhom />} />
 
         <Route path='/danhgia' element={<Danhgia />} />
+
+        <Route path='/nhomchat' element={<Nhomchat/>} />
 
 
 

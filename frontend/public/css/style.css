@@ -3300,3 +3300,323 @@ input {
   }
 }
 /*---------------------------------------ContentChitietdiadiem------------------------------*/
+
+/*---------------------------------------ContentNhomchat----------------------------------*/
+/* ===== CONTAINER ===== */
+.nhomchat {
+  margin-top: 70px;
+  display: flex;
+  min-height: calc(100vh - 70px);
+  background: #021d16;
+  color: white;
+}
+
+/* ===== SIDEBAR (LEFT) ===== */
+.sidebar-nhomchat {
+  width: 250px;
+  padding: 20px;
+  background: #021d16;
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+/* HEADER SIDEBAR */
+.header-sidebar-nhomchat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.icon-group-nhomchat {
+  width: 40px;
+  height: 40px;
+  background: #0b2e24;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-nhomchat {
+  font-size: 11px;
+  color: #00ff9c;
+}
+
+/* SECTION */
+.section-nhomchat {
+  margin-bottom: 20px;
+}
+
+.title-nhomchat {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+/* ITEM */
+.item-nhomchat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  cursor: pointer;
+  color: #ccc;
+  transition: 0.2s;
+}
+
+.item-nhomchat:hover {
+  color: #00ff9c;
+}
+
+.item-nhomchat span {
+  font-size: 16px;
+}
+
+/* ===== CHAT ===== */
+.chat-nhomchat {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.date-nhomchat {
+  text-align: center;
+  font-size: 12px;
+  margin-bottom: 15px;
+  color: #aaa;
+}
+
+/* MESSAGE */
+.msg {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.msg img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.left-nhomchat {
+  justify-content: flex-start;
+}
+
+.right-nhomchat {
+  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.name-nhomchat {
+  font-size: 12px;
+  color: #00ff9c;
+}
+
+/* BUBBLE */
+.bubble-nhomchat {
+  background: #222;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-top: 5px;
+  max-width: 300px;
+}
+
+.bubble-nhomchat.me {
+  background: #00ff9c;
+  color: black;
+}
+
+/* TIME */
+.time-nhomchat {
+  font-size: 11px;
+  color: #888;
+}
+
+/* ===== RIGHT PANEL ===== */
+.info-nhomchat {
+  width: 280px;
+  padding: 20px;
+  border-left: 1px solid rgba(255,255,255,0.05);
+}
+
+/* BOX */
+.box-nhomchat {
+  background: rgba(16, 40, 30, 0.8);
+  padding: 18px;
+  border-radius: 15px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(0,255,156,0.08);
+  box-shadow: 0 0 10px rgba(0,255,156,0.05);
+}
+
+/* TITLE BOX */
+.title-box-nhomchat {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+/* ===== CHECK BUTTON ===== */
+.check-nhomchat {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-checkin-nhomchat {
+  flex: 1;
+  background: #00ff9c;
+  border: none;
+  padding: 15px;
+  border-radius: 14px;
+  color: black;
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-checkin-nhomchat:hover {
+  box-shadow: 0 0 10px #00ff9c;
+}
+
+.btn-checkout-nhomchat {
+  flex: 1;
+  background: #2a2a2a;
+  border: none;
+  padding: 15px;
+  border-radius: 14px;
+  color: #aaa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* ===== TRIP INFO ===== */
+.trip-item-nhomchat {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.icon-nhomchat {
+  width: 40px;
+  height: 40px;
+  background: #0b2e24;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trip-title-nhomchat {
+  font-size: 11px;
+  color: #888;
+}
+
+.trip-item-nhomchat h4 {
+  margin: 2px 0;
+}
+
+.trip-item-nhomchat span {
+  font-size: 12px;
+  color: #aaa;
+}
+
+/* ===== MEMBER ===== */
+.member-nhomchat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.member-nhomchat img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.member-nhomchat div {
+  flex: 1;
+  margin-left: 10px;
+}
+
+.member-nhomchat p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.member-nhomchat span {
+  font-size: 12px;
+  color: #888;
+}
+
+.leader-nhomchat {
+  color: #00ff9c;
+}
+
+/* STATUS DOT */
+.status-dot-nhomchat {
+  width: 10px;
+  height: 10px;
+  background: #00ff9c;
+  border-radius: 50%;
+}
+/* ===== CHAT WRAPPER FIX ===== */
+.chat-nhomchat {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* ===== INPUT CHAT ===== */
+.input-wrapper-nhomchat {
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  padding-top: 150px;
+  background: linear-gradient(to top, #021d16, transparent);
+}
+
+.input-nhomchat {
+  display: flex;
+  align-items: center;
+  background: #111;
+  border-radius: 30px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.input-nhomchat input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.input-nhomchat button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #00ff9c;
+  color: black;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+.input-nhomchat button:hover {
+  box-shadow: 0 0 10px #00ff9c;
+}
+/*---------------------------------------ContentNhomchat----------------------------------*/
