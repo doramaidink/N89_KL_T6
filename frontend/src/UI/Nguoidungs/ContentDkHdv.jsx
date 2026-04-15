@@ -1,740 +1,780 @@
-import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
-import Webcam from 'react-webcam';
-import * as faceapi from 'face-api.js';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "react-toastify";
 
+const NgaySinhSelector = ({ value, onChange }) => {
+  const [day, setDay] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
 
-const BACKEND_URL = 'http://localhost:5000';
-const MATCH_THRESHOLD = 0.45;
+  const days = useMemo(() => Array.from({ length: 31 }, (_, i) => i + 1), []);
+  const months = useMemo(() => Array.from({ length: 12 }, (_, i) => i + 1), []);
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 80 }, (_, i) => currentYear - i);
+  }, []);
 
-const ContentDangKyDoiTac = () => {
-  const webcamRef = useRef(null);
+  useEffect(() => {
+    if (value) {
+      const parts = value.split("-");
+      if (parts.length === 3) {
+        setYear(parts[0]);
+        setMonth(String(Number(parts[1])));
+        setDay(String(Number(parts[2])));
+      }
+    }
+  }, [value]);
 
+  useEffect(() => {
+    if (day && month && year) {
+      const formatted = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      onChange(formatted);
+    } else {
+      onChange("");
+    }
+  }, [day, month, year, onChange]);
+
+  return (
+    <div className="form-group">
+      <label>Ngày sinh</label>
+
+      <div className="grid grid-cols-3 gap-3">
+        <select
+          value={day}
+          onChange={(e) => setDay(e.target.value)}
+          className="w-full rounded-xl border border-emerald-700/60 bg-emerald-950/60 px-4 py-3 text-white outline-none transition duration-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/30"
+        >
+          <option value="" className="text-black">
+            Ngày
+          </option>
+          {days.map((d) => (
+            <option key={d} value={d} className="text-black">
+              {d}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          className="w-full rounded-xl border border-emerald-700/60 bg-emerald-950/60 px-4 py-3 text-white outline-none transition duration-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/30"
+        >
+          <option value="" className="text-black">
+            Tháng
+          </option>
+          {months.map((m) => (
+            <option key={m} value={m} className="text-black">
+              {m}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          className="w-full rounded-xl border border-emerald-700/60 bg-emerald-950/60 px-4 py-3 text-white outline-none transition duration-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/30"
+        >
+          <option value="" className="text-black">
+            Năm
+          </option>
+          {years.map((y) => (
+            <option key={y} value={y} className="text-black">
+              {y}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {value && (
+        <p className="mt-2 text-sm text-emerald-300">
+          Ngày đã chọn: {value.split("-").reverse().join("/")}
+        </p>
+      )}
+    </div>
+  );
+};
+
+const ContentDkHdv = () => {
   const [step, setStep] = useState(1);
-  const [modelsLoaded, setModelsLoaded] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [diaDiems, setDiaDiems] = useState([]);
 
-  const [captureTarget, setCaptureTarget] = useState('front');
-  const [cameraOpen, setCameraOpen] = useState(false);
+  const [previewFront, setPreviewFront] = useState("");
+  const [previewBack, setPreviewBack] = useState("");
+  const [previewSelfie, setPreviewSelfie] = useState("");
+  const [previewLyLich, setPreviewLyLich] = useState("");
 
-  const [cccdFrontFile, setCccdFrontFile] = useState(null);
-  const [cccdBackFile, setCccdBackFile] = useState(null);
-  const [faceFile, setFaceFile] = useState(null);
-
-  const [cccdFrontPreview, setCccdFrontPreview] = useState('');
-  const [cccdBackPreview, setCccdBackPreview] = useState('');
-  const [facePreview, setFacePreview] = useState('');
-
-  const [ocrLoading, setOcrLoading] = useState(false);
-  const [faceLoading, setFaceLoading] = useState(false);
-  const [verifyMessage, setVerifyMessage] = useState('');
-
-  const [cccdInfo, setCccdInfo] = useState({
-    hoTen: '',
-    soCCCD: '',
-    diaChi: '',
-    queQuan: '',
-    ngaySinh: '',
-    anhCCCDMatTruoc: '',
-    anhCCCDMatSau: ''
-  });
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    email: '',
-    soDienThoai: '',
-    hoTen: '',
-    soCCCD: '',
-    diaChi: '',
-    queQuan: '',
-    ngaySinh: '',
-    tinhDangKy: '',
-    soNamKinhNghiem: '',
-    ngonNgu: '',
-    moTaBanThan: '',
-    lyLichTuPhap: '',
-    anhCCCDMatTruoc: '',
-    anhCCCDMatSau: '',
-    anhKhuonMat: '',
-    faceMatched: false,
-    faceDistance: null,
-    verificationStatus: 'cho_xac_thuc',
+    hoTen: "",
+    soDienThoai: "",
+    soCCCD: "",
+    ngaySinh: "",
+    diaChi: "",
+    queQuan: "",
+    tinhDangKy: "",
+    gioiThieuBanThan: "",
+    kyNangDacBiet: "",
+    ngonNguHoTro: "",
+    kinhNghiem: "",
+    soNamKinhNghiem: "",
+    giaThue: "",
     diaDiemGiaCa: [
       {
-        diaDiem: '',
-        mucGia: '',
-        kinhNghiem: ''
-      }
+        diaDiem: "",
+        mucGia: "",
+        kinhNghiem: "",
+      },
     ],
-    camKet: false
+  });
+
+  const [files, setFiles] = useState({
+    anhCCCDMatTruoc: null,
+    anhCCCDMatSau: null,
+    anhKhuonMat: null,
+    lyLichTuPhap: null,
   });
 
   useEffect(() => {
-    const loadModels = async () => {
+    const fetchDiaDiem = async () => {
       try {
-        await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
-        await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-        await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-        setModelsLoaded(true);
+        const res = await fetch("http://localhost:5000/diadiem");
+        const data = await res.json();
+
+        if (res.ok && Array.isArray(data)) {
+          setDiaDiems(data);
+        } else {
+          setDiaDiems([]);
+        }
       } catch (error) {
-        console.error('Lỗi load model:', error);
+        console.log(error);
+        toast.error("Không tải được danh sách địa điểm");
       }
     };
 
-    loadModels();
+    fetchDiaDiem();
   }, []);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (step === 3) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+  }, [step]);
 
-    setFormData((prev) => ({
-      ...prev,
-      email: user.email || '',
-      soDienThoai: user.soDienThoai || '',
-    }));
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
   }, []);
 
-  const handlePartnerChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const startCamera = async () => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        toast.error("Trình duyệt không hỗ trợ camera");
+        return;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "user",
+        },
+        audio: false,
+      });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Không thể mở camera. Hãy cấp quyền camera cho trình duyệt.");
+    }
+  };
+
+  const stopCamera = () => {
+    const stream = videoRef.current?.srcObject;
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    }
+  };
+
+  const dataURLtoFile = (dataurl, filename) => {
+    const arr = dataurl.split(",");
+    const mime = arr[0].match(/:(.*?);/)?.[1] || "image/png";
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], filename, { type: mime });
+  };
+
+  const captureImage = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    if (!video || !canvas) {
+      toast.error("Không tìm thấy camera");
+      return;
+    }
+
+    const context = canvas.getContext("2d");
+    if (!context) {
+      toast.error("Không thể xử lý ảnh");
+      return;
+    }
+
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const dataUrl = canvas.toDataURL("image/png");
+    const selfieFile = dataURLtoFile(dataUrl, `selfie-${Date.now()}.png`);
+
+    setPreviewSelfie(dataUrl);
+    setFiles((prev) => ({
+      ...prev,
+      anhKhuonMat: selfieFile,
+    }));
+
+    stopCamera();
+    toast.success("Chụp ảnh selfie thành công");
+  };
+
+  const retakeSelfie = () => {
+    setPreviewSelfie("");
+    setFiles((prev) => ({
+      ...prev,
+      anhKhuonMat: null,
+    }));
+    startCamera();
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value,
     }));
   };
 
-  const handleLocationChange = (index, field, value) => {
+  const handleNgaySinhChange = (value) => {
+    setFormData((prev) => ({
+      ...prev,
+      ngaySinh: value,
+    }));
+  };
+
+  const handleDiaDiemGiaCaChange = (index, field, value) => {
     const updated = [...formData.diaDiemGiaCa];
     updated[index][field] = value;
+
     setFormData((prev) => ({
       ...prev,
-      diaDiemGiaCa: updated
+      diaDiemGiaCa: updated,
     }));
   };
 
-  const addLocationRow = () => {
+  const addDiaDiemGiaCa = () => {
     setFormData((prev) => ({
       ...prev,
       diaDiemGiaCa: [
         ...prev.diaDiemGiaCa,
-        { diaDiem: '', mucGia: '', kinhNghiem: '' }
-      ]
+        {
+          diaDiem: "",
+          mucGia: "",
+          kinhNghiem: "",
+        },
+      ],
     }));
   };
 
-  const removeLocationRow = (index) => {
-    const updated = formData.diaDiemGiaCa.filter((_, i) => i !== index);
+  const removeDiaDiemGiaCa = (index) => {
+    const updated = [...formData.diaDiemGiaCa];
+    updated.splice(index, 1);
+
     setFormData((prev) => ({
       ...prev,
-      diaDiemGiaCa: updated.length
-        ? updated
-        : [{ diaDiem: '', mucGia: '', kinhNghiem: '' }]
+      diaDiemGiaCa:
+        updated.length > 0
+          ? updated
+          : [
+              {
+                diaDiem: "",
+                mucGia: "",
+                kinhNghiem: "",
+              },
+            ],
     }));
   };
 
-  const handleUploadCCCD = (e, side) => {
-    const file = e.target.files[0];
+  const handleFileChange = (e) => {
+    const { name, files: inputFiles } = e.target;
+    const file = inputFiles[0];
     if (!file) return;
 
-    const preview = URL.createObjectURL(file);
+    setFiles((prev) => ({
+      ...prev,
+      [name]: file,
+    }));
 
-    if (side === 'front') {
-      setCccdFrontFile(file);
-      setCccdFrontPreview(preview);
-    } else {
-      setCccdBackFile(file);
-      setCccdBackPreview(preview);
+    if (name === "anhCCCDMatTruoc") {
+      setPreviewFront(URL.createObjectURL(file));
+    }
+    if (name === "anhCCCDMatSau") {
+      setPreviewBack(URL.createObjectURL(file));
+    }
+    if (name === "lyLichTuPhap") {
+      setPreviewLyLich(file.name);
     }
   };
 
-  const openCameraFor = (target) => {
-    setCaptureTarget(target);
-    setCameraOpen(true);
-  };
-
-  const closeCamera = () => {
-    setCameraOpen(false);
-  };
-
-  const captureImage = async () => {
-    const imageSrc = webcamRef.current?.getScreenshot();
-    if (!imageSrc) {
-      alert('Không chụp được ảnh');
-      return;
+  const validateStep1 = () => {
+    if (!formData.hoTen.trim()) {
+      toast.error("Vui lòng nhập họ tên");
+      return false;
+    }
+    if (!formData.soDienThoai.trim()) {
+      toast.error("Vui lòng nhập số điện thoại");
+      return false;
+    }
+    if (!formData.soCCCD.trim()) {
+      toast.error("Vui lòng nhập số CCCD");
+      return false;
+    }
+    if (!formData.ngaySinh) {
+      toast.error("Vui lòng chọn ngày sinh");
+      return false;
+    }
+    if (!formData.diaChi.trim()) {
+      toast.error("Vui lòng nhập địa chỉ");
+      return false;
+    }
+    if (!formData.tinhDangKy.trim()) {
+      toast.error("Vui lòng nhập tỉnh/thành đăng ký");
+      return false;
     }
 
-    const blob = await fetch(imageSrc).then((r) => r.blob());
-    const file = new File([blob], `${captureTarget}-${Date.now()}.jpg`, {
-      type: 'image/jpeg'
-    });
-
-    if (captureTarget === 'front') {
-      setCccdFrontFile(file);
-      setCccdFrontPreview(imageSrc);
-    } else if (captureTarget === 'back') {
-      setCccdBackFile(file);
-      setCccdBackPreview(imageSrc);
-    } else {
-      setFaceFile(file);
-      setFacePreview(imageSrc);
-      await uploadFaceToServer(file);
+    const validDiaDiem = formData.diaDiemGiaCa.some((item) => item.diaDiem);
+    if (!validDiaDiem) {
+      toast.error("Vui lòng chọn ít nhất 1 địa điểm hướng dẫn");
+      return false;
     }
 
-    setCameraOpen(false);
+    return true;
   };
 
-  const uploadFaceToServer = async (file) => {
+  const validateStep2 = () => {
+    if (!files.anhCCCDMatTruoc) {
+      toast.error("Vui lòng upload CCCD mặt trước");
+      return false;
+    }
+    if (!files.anhCCCDMatSau) {
+      toast.error("Vui lòng upload CCCD mặt sau");
+      return false;
+    }
+    if (!files.lyLichTuPhap) {
+      toast.error("Vui lòng upload lý lịch tư pháp");
+      return false;
+    }
+    return true;
+  };
+
+  const validateStep3 = () => {
+    if (!files.anhKhuonMat) {
+      toast.error("Vui lòng chụp ảnh selfie");
+      return false;
+    }
+    return true;
+  };
+
+  const nextStep = () => {
+    if (step === 1 && !validateStep1()) return;
+    if (step === 2 && !validateStep2()) return;
+    setStep((prev) => prev + 1);
+  };
+
+  const prevStep = () => {
+    setStep((prev) => prev - 1);
+  };
+
+  const handleSubmit = async () => {
+    if (!validateStep3()) return;
+
     try {
-      const data = new FormData();
-      data.append('faceImage', file);
-      data.append('hoTen', formData.hoTen || cccdInfo.hoTen || 'doi-tac');
+      setLoading(true);
 
-      const res = await axios.post(`${BACKEND_URL}/doitac/upload-face`, data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user.id) {
+        toast.error("Bạn cần đăng nhập trước");
+        return;
+      }
+
+      const cacDiaDiemDangKy = formData.diaDiemGiaCa
+        .map((item) => item.diaDiem)
+        .filter(Boolean);
+
+      const payload = new FormData();
+      payload.append("nguoiDung", user.id);
+      payload.append("hoTen", formData.hoTen);
+      payload.append("soDienThoai", formData.soDienThoai);
+      payload.append("soCCCD", formData.soCCCD);
+      payload.append("ngaySinh", formData.ngaySinh);
+      payload.append("diaChi", formData.diaChi);
+      payload.append("queQuan", formData.queQuan);
+      payload.append("tinhDangKy", formData.tinhDangKy);
+      payload.append("gioiThieuBanThan", formData.gioiThieuBanThan);
+      payload.append("kyNangDacBiet", formData.kyNangDacBiet);
+      payload.append("ngonNguHoTro", formData.ngonNguHoTro);
+      payload.append("kinhNghiem", formData.kinhNghiem);
+      payload.append("soNamKinhNghiem", formData.soNamKinhNghiem || 0);
+      payload.append("giaThue", formData.giaThue || 0);
+
+      payload.append("cacDiaDiemDangKy", JSON.stringify(cacDiaDiemDangKy));
+      payload.append("diaDiemGiaCa", JSON.stringify(formData.diaDiemGiaCa));
+
+      payload.append("anhCCCDMatTruoc", files.anhCCCDMatTruoc);
+      payload.append("anhCCCDMatSau", files.anhCCCDMatSau);
+      payload.append("anhKhuonMat", files.anhKhuonMat);
+      payload.append("lyLichTuPhap", files.lyLichTuPhap);
+
+      const response = await fetch("http://localhost:5000/doitac/dang-ky-huong-dan-vien", {
+        method: "POST",
+        body: payload,
       });
 
-      setFormData((prev) => ({
-        ...prev,
-        anhKhuonMat: res.data.imageUrl
-      }));
-    } catch (error) {
-      console.error(error);
-      alert('Lưu ảnh khuôn mặt thất bại');
-    }
-  };
+      const result = await response.json();
 
-  const handleReadCCCD = async () => {
-    try {
-      if (!cccdFrontFile || !cccdBackFile) {
-        alert('Bạn phải có đủ ảnh CCCD mặt trước và mặt sau');
+      if (!response.ok) {
+        toast.error(result.message || "Gửi hồ sơ thất bại");
         return;
       }
 
-      setOcrLoading(true);
-
-      const currentName = formData.hoTen || 'doi-tac';
-
-      const frontData = new FormData();
-      frontData.append('cccdImage', cccdFrontFile);
-      frontData.append('hoTen', currentName);
-
-      const backData = new FormData();
-      backData.append('cccdImage', cccdBackFile);
-      backData.append('hoTen', currentName);
-
-      const [frontRes, backRes] = await Promise.all([
-        axios.post(`${BACKEND_URL}/doitac/ocr-cccd-front`, frontData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        }),
-        axios.post(`${BACKEND_URL}/doitac/ocr-cccd-back`, backData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
-      ]);
-
-      const merged = {
-        hoTen: frontRes.data.data.hoTen || '',
-        soCCCD: frontRes.data.data.soCCCD || '',
-        diaChi: backRes.data.data.diaChi || '',
-        queQuan: backRes.data.data.queQuan || '',
-        ngaySinh: frontRes.data.data.ngaySinh || '',
-        anhCCCDMatTruoc: frontRes.data.imageUrl,
-        anhCCCDMatSau: backRes.data.imageUrl
-      };
-
-      setCccdInfo(merged);
-
-      setFormData((prev) => ({
-        ...prev,
-        hoTen: merged.hoTen,
-        soCCCD: merged.soCCCD,
-        diaChi: merged.diaChi,
-        queQuan: merged.queQuan,
-        ngaySinh: merged.ngaySinh,
-        anhCCCDMatTruoc: merged.anhCCCDMatTruoc,
-        anhCCCDMatSau: merged.anhCCCDMatSau
-      }));
-
-      setStep(2);
+      toast.success("Gửi hồ sơ đăng ký hướng dẫn viên thành công");
     } catch (error) {
-      console.error(error);
-      alert(error?.response?.data?.message || 'Đọc CCCD thất bại');
+      console.log(error);
+      toast.error("Lỗi server khi gửi hồ sơ");
     } finally {
-      setOcrLoading(false);
-    }
-  };
-
-  const confirmCCCDInfo = () => {
-    setStep(3);
-  };
-
-  const loadImageElement = (src) => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = src;
-    });
-  };
-
-  const cropPortraitFromCCCD = async (imageSrc) => {
-    const img = await loadImageElement(imageSrc);
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    const cropX = img.width * 0.03;
-    const cropY = img.height * 0.18;
-    const cropW = img.width * 0.33;
-    const cropH = img.height * 0.55;
-
-    canvas.width = cropW;
-    canvas.height = cropH;
-
-    ctx.drawImage(
-      img,
-      cropX, cropY, cropW, cropH,
-      0, 0, cropW, cropH
-    );
-
-    return canvas;
-  };
-
-  const getSingleFaceDescriptor = async (input) => {
-    return await faceapi
-      .detectSingleFace(input, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
-      .withFaceLandmarks()
-      .withFaceDescriptor();
-  };
-
-  const verifyFace = async () => {
-    try {
-      if (!modelsLoaded) {
-        alert('Model khuôn mặt chưa load xong');
-        return;
-      }
-
-      if (!cccdFrontPreview && !formData.anhCCCDMatTruoc) {
-        alert('Thiếu ảnh CCCD mặt trước');
-        return;
-      }
-
-      if (!facePreview || !faceFile) {
-        alert('Bạn chưa chụp khuôn mặt');
-        return;
-      }
-
-      setFaceLoading(true);
-      setVerifyMessage('');
-
-      const cccdSource = cccdFrontPreview || `${BACKEND_URL}${formData.anhCCCDMatTruoc}`;
-      const croppedFace = await cropPortraitFromCCCD(cccdSource);
-
-      const cccdFace = await getSingleFaceDescriptor(croppedFace);
-      if (!cccdFace) {
-        setVerifyMessage('Không lấy được khuôn mặt từ CCCD. Hãy chụp lại CCCD rõ hơn.');
-        setFormData((prev) => ({
-          ...prev,
-          faceMatched: false,
-          faceDistance: null,
-          verificationStatus: 'can_chup_lai'
-        }));
-        return;
-      }
-
-      const selfieImg = await loadImageElement(facePreview);
-      const selfieFace = await getSingleFaceDescriptor(selfieImg);
-
-      if (!selfieFace) {
-        setVerifyMessage('Không nhận diện được khuôn mặt. Vui lòng tháo kính, bỏ khẩu trang và chụp lại.');
-        setFormData((prev) => ({
-          ...prev,
-          faceMatched: false,
-          faceDistance: null,
-          verificationStatus: 'can_chup_lai'
-        }));
-        return;
-      }
-
-      const distance = faceapi.euclideanDistance(
-        cccdFace.descriptor,
-        selfieFace.descriptor
-      );
-
-      const matched = distance <= MATCH_THRESHOLD;
-
-      if (!matched) {
-        setVerifyMessage(`Khuôn mặt không khớp CCCD hoặc mắt bị che. Vui lòng tháo kính và chụp lại. Độ lệch: ${distance.toFixed(4)}`);
-        setFormData((prev) => ({
-          ...prev,
-          faceMatched: false,
-          faceDistance: Number(distance.toFixed(4)),
-          verificationStatus: 'khong_khop'
-        }));
-        return;
-      }
-
-      setVerifyMessage(`Xác thực thành công. Độ lệch: ${distance.toFixed(4)}`);
-      setFormData((prev) => ({
-        ...prev,
-        faceMatched: true,
-        faceDistance: Number(distance.toFixed(4)),
-        verificationStatus: 'da_xac_thuc'
-      }));
-
-      setStep(4);
-    } catch (error) {
-      console.error(error);
-      setVerifyMessage('Có lỗi khi xác thực khuôn mặt');
-    } finally {
-      setFaceLoading(false);
-    }
-  };
-
-  const handleUploadJudicialRecord = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    try {
-      const data = new FormData();
-      data.append('lyLichFile', file);
-      data.append('hoTen', formData.hoTen || cccdInfo.hoTen || 'doi-tac');
-
-      const res = await axios.post(`${BACKEND_URL}/doitac/upload-judicial-record`, data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
-      setFormData((prev) => ({
-        ...prev,
-        lyLichTuPhap: res.data.fileUrl
-      }));
-    } catch (error) {
-      console.error(error);
-      alert('Upload lý lịch tư pháp thất bại');
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.faceMatched || formData.verificationStatus !== 'da_xac_thuc') {
-      alert('Bạn phải xác thực khuôn mặt thành công');
-      return;
-    }
-
-    if (!formData.camKet) {
-      alert('Bạn phải xác nhận cam kết');
-      return;
-    }
-
-    try {
-      const payload = {
-        ...formData,
-        faceMatched: Boolean(formData.faceMatched),
-        camKet: Boolean(formData.camKet)
-      };
-
-      const res = await axios.post(`${BACKEND_URL}/doitac/create`, payload);
-      alert(res.data.message);
-      console.log(res.data);
-    } catch (error) {
-      console.error(error);
-      alert(error?.response?.data?.message || 'Đăng ký thất bại');
+      setLoading(false);
     }
   };
 
   return (
-    <div className="dkdt-page">
-      <div className="dkdt-container">
-        <h1 className="dkdt-title">Đăng ký trở thành Đối tác Hướng dẫn viên</h1>
-        <p className="dkdt-desc">Hoàn tất 4 bước để gửi hồ sơ đăng ký.</p>
-
-        <div className="dkdt-stepbar">
-          {[1, 2, 3, 4].map((s) => (
-            <div
-              key={s}
-              className={`dkdt-stepitem ${step === s ? 'active' : ''}`}
-            >
-              Bước {s}
-            </div>
-          ))}
+    <div className="content-dkhdv-page">
+      <div className="dkhdv-container">
+        <div className="dkhdv-header">
+          <h1>Đăng ký trở thành Đối tác Hướng dẫn viên</h1>
+          <p>Tham gia cộng đồng hướng dẫn viên bản địa chuyên nghiệp để chia sẻ vẻ đẹp Việt Nam.</p>
         </div>
 
-        {cameraOpen && (
-          <div className="dkdt-card">
-            <h3>Camera</h3>
-            <Webcam
-              ref={webcamRef}
-              screenshotFormat="image/jpeg"
-              videoConstraints={{ facingMode: 'user' }}
-              className="dkdt-webcam"
-            />
-            <div className="dkdt-actionrow">
-              <button type="button" className="dkdt-button" onClick={captureImage}>
-                Chụp ảnh
-              </button>
-              <button type="button" className="dkdt-button-outline" onClick={closeCamera}>
-                Đóng camera
-              </button>
-            </div>
+        <div className="step-bar">
+          <div className={`step-item ${step >= 1 ? "active" : ""}`}>
+            <div className="step-circle">1</div>
+            <div className="step-label">Điền thông tin</div>
           </div>
-        )}
+
+          <div className="step-line"></div>
+
+          <div className={`step-item ${step >= 2 ? "active" : ""}`}>
+            <div className="step-circle">2</div>
+            <div className="step-label">CCCD & Lý lịch tư pháp</div>
+          </div>
+
+          <div className="step-line"></div>
+
+          <div className={`step-item ${step >= 3 ? "active" : ""}`}>
+            <div className="step-circle">3</div>
+            <div className="step-label">Chụp selfie</div>
+          </div>
+        </div>
 
         {step === 1 && (
-          <div className="dkdt-card">
-            <h3>Bước 1: Chụp CCCD 2 mặt</h3>
+          <div className="dkhdv-card">
+            <h3>Thông tin cá nhân</h3>
 
-            <div className="dkdt-uploadgrid">
-              <div className="dkdt-uploadbox">
-                <p className="dkdt-label">CCCD mặt trước</p>
-                {cccdFrontPreview && (
-                  <img src={cccdFrontPreview} alt="CCCD trước" className="dkdt-previewimage" />
-                )}
-                <div className="dkdt-actionrow">
-                  <label className="dkdt-button">
-                    Upload ảnh
-                    <input
-                      hidden
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleUploadCCCD(e, 'front')}
-                    />
-                  </label>
-                  <button type="button" className="dkdt-button-outline" onClick={() => openCameraFor('front')}>
-                    Chụp ảnh
-                  </button>
-                </div>
-              </div>
-
-              <div className="dkdt-uploadbox">
-                <p className="dkdt-label">CCCD mặt sau</p>
-                {cccdBackPreview && (
-                  <img src={cccdBackPreview} alt="CCCD sau" className="dkdt-previewimage" />
-                )}
-                <div className="dkdt-actionrow">
-                  <label className="dkdt-button">
-                    Upload ảnh
-                    <input
-                      hidden
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleUploadCCCD(e, 'back')}
-                    />
-                  </label>
-                  <button type="button" className="dkdt-button-outline" onClick={() => openCameraFor('back')}>
-                    Chụp ảnh
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <button type="button" className="dkdt-submit" onClick={handleReadCCCD}>
-              {ocrLoading ? 'Đang đọc CCCD...' : 'Tiếp tục kiểm tra thông tin'}
-            </button>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="dkdt-card">
-            <h3>Bước 2: Kiểm tra thông tin</h3>
-
-            <div className="dkdt-infogrid">
-              <div>
-                <label className="dkdt-label">Họ tên</label>
+            <div className="dkhdv-grid two-col">
+              <div className="form-group">
+                <label>Họ và tên</label>
                 <input
-                  className="dkdt-input"
+                  name="hoTen"
                   value={formData.hoTen}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, hoTen: e.target.value }))}
+                  onChange={handleChange}
+                  placeholder="Nguyễn Văn A"
                 />
               </div>
 
-              <div>
-                <label className="dkdt-label">Số CCCD</label>
+              <NgaySinhSelector
+                value={formData.ngaySinh}
+                onChange={handleNgaySinhChange}
+              />
+
+              <div className="form-group">
+                <label>Số điện thoại</label>
                 <input
-                  className="dkdt-input"
+                  name="soDienThoai"
+                  value={formData.soDienThoai}
+                  onChange={handleChange}
+                  placeholder="0123456789"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Số CCCD</label>
+                <input
+                  name="soCCCD"
                   value={formData.soCCCD}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, soCCCD: e.target.value }))}
+                  onChange={handleChange}
+                  placeholder="Nhập số CCCD/CMND"
                 />
               </div>
 
-              <div>
-                <label className="dkdt-label">Địa chỉ</label>
+              <div className="form-group full-col">
+                <label>Địa chỉ</label>
                 <input
-                  className="dkdt-input"
+                  name="diaChi"
                   value={formData.diaChi}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, diaChi: e.target.value }))}
+                  onChange={handleChange}
+                  placeholder="Số nhà, tên đường, phường/xã..."
                 />
               </div>
 
-              <div>
-                <label className="dkdt-label">Quê quán</label>
+              <div className="form-group full-col">
+                <label>Quê quán</label>
                 <input
-                  className="dkdt-input"
+                  name="queQuan"
                   value={formData.queQuan}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, queQuan: e.target.value }))}
+                  onChange={handleChange}
+                  placeholder="Quê quán"
                 />
               </div>
 
-              <div>
-                <label className="dkdt-label">Ngày sinh</label>
+              <div className="form-group">
+                <label>Tỉnh/Thành đăng ký</label>
                 <input
-                  className="dkdt-input"
-                  value={formData.ngaySinh}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, ngaySinh: e.target.value }))}
-                />
-              </div>
-
-              <div>
-                <label className="dkdt-label">Tỉnh đăng ký hướng dẫn</label>
-                <input
-                  className="dkdt-input"
                   name="tinhDangKy"
                   value={formData.tinhDangKy}
-                  onChange={handlePartnerChange}
-                  placeholder="Ví dụ: Đà Nẵng"
+                  onChange={handleChange}
+                  placeholder="Đà Nẵng"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Số năm kinh nghiệm</label>
+                <input
+                  type="number"
+                  name="soNamKinhNghiem"
+                  value={formData.soNamKinhNghiem}
+                  onChange={handleChange}
+                  placeholder="2"
+                />
+              </div>
+
+              <div className="form-group full-col">
+                <label>Kỹ năng đặc biệt</label>
+                <input
+                  name="kyNangDacBiet"
+                  value={formData.kyNangDacBiet}
+                  onChange={handleChange}
+                  placeholder="Nhiếp ảnh gia, sơ cứu..."
+                />
+              </div>
+
+              <div className="form-group full-col">
+                <label>Giới thiệu bản thân</label>
+                <textarea
+                  name="gioiThieuBanThan"
+                  value={formData.gioiThieuBanThan}
+                  onChange={handleChange}
+                  rows="4"
+                  placeholder="Hãy chia sẻ thêm về phong cách hướng dẫn của bạn..."
                 />
               </div>
             </div>
 
-            <button type="button" className="dkdt-submit" onClick={confirmCCCDInfo}>
-              Xác nhận thông tin đúng
-            </button>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="dkdt-card">
-            <h3>Bước 3: Xác thực khuôn mặt</h3>
-
-            <div className="dkdt-notebox">
-              Vui lòng tháo kính, bỏ khẩu trang, không đội mũ và chụp nơi đủ sáng.
-            </div>
-
-            <div className="dkdt-actionrow">
-              <button type="button" className="dkdt-button" onClick={() => openCameraFor('face')}>
-                Chụp hình
-              </button>
-              <button type="button" className="dkdt-button-outline" onClick={verifyFace}>
-                {faceLoading ? 'Đang xác thực...' : 'Xác thực khuôn mặt'}
-              </button>
-            </div>
-
-            {facePreview && (
-              <img src={facePreview} alt="Selfie" className="dkdt-previewimage" />
-            )}
-
-            {verifyMessage && (
-              <div className={`dkdt-messagebox ${formData.faceMatched ? 'success' : 'error'}`}>
-                {verifyMessage}
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 4 && (
-          <form onSubmit={handleSubmit} className="dkdt-form">
-            <div className="dkdt-card">
-              <h3>Bước 4: Điền thông tin đối tác</h3>
-
-              <div className="dkdt-sectiontitle">Địa điểm & Giá cả</div>
+            <div className="dkhdv-card child-card" style={{ marginTop: 24 }}>
+              <h3>Địa điểm & Giá cả</h3>
 
               {formData.diaDiemGiaCa.map((item, index) => (
-                <div key={index} className="dkdt-locationrow">
-                  <input
-                    className="dkdt-input"
-                    placeholder="Địa điểm hướng dẫn"
-                    value={item.diaDiem}
-                    onChange={(e) => handleLocationChange(index, 'diaDiem', e.target.value)}
-                  />
-                  <input
-                    className="dkdt-input"
-                    placeholder="Mức giá (VNĐ/ngày)"
-                    value={item.mucGia}
-                    onChange={(e) => handleLocationChange(index, 'mucGia', e.target.value)}
-                  />
-                  <input
-                    className="dkdt-input"
-                    placeholder="Kinh nghiệm tại địa điểm này"
-                    value={item.kinhNghiem}
-                    onChange={(e) => handleLocationChange(index, 'kinhNghiem', e.target.value)}
-                  />
-                  <button type="button" className="dkdt-small-danger" onClick={() => removeLocationRow(index)}>
-                    Xóa
-                  </button>
+                <div className="dkhdv-grid three-col" key={index} style={{ marginBottom: 16 }}>
+                  <div className="form-group">
+                    <label>Địa điểm hướng dẫn</label>
+                    <select
+                      value={item.diaDiem}
+                      onChange={(e) =>
+                        handleDiaDiemGiaCaChange(index, "diaDiem", e.target.value)
+                      }
+                    >
+                      <option value="">-- Chọn địa điểm --</option>
+                      {diaDiems.map((diaDiem) => (
+                        <option key={diaDiem._id} value={diaDiem._id}>
+                          {diaDiem.tenDiaDiem}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Mức giá (VND/Ngày)</label>
+                    <input
+                      type="number"
+                      value={item.mucGia}
+                      onChange={(e) =>
+                        handleDiaDiemGiaCaChange(index, "mucGia", e.target.value)
+                      }
+                      placeholder="500000"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Kinh nghiệm</label>
+                    <input
+                      value={item.kinhNghiem}
+                      onChange={(e) =>
+                        handleDiaDiemGiaCaChange(index, "kinhNghiem", e.target.value)
+                      }
+                      placeholder="Ví dụ: 3 năm dẫn tour văn hóa"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <button
+                      type="button"
+                      className="btn-remove-dd"
+                      onClick={() => removeDiaDiemGiaCa(index)}
+                    >
+                      Xóa
+                    </button>
+                  </div>
                 </div>
               ))}
 
-              <button type="button" className="dkdt-addbtn" onClick={addLocationRow}>
+              <button type="button" className="btn-add-dd" onClick={addDiaDiemGiaCa}>
                 + Thêm địa điểm
               </button>
             </div>
 
-            <div className="dkdt-card">
-              <div className="dkdt-sectiontitle">Kỹ năng & Giới thiệu</div>
+            <div className="step-actions">
+              <button className="btn-next" onClick={nextStep}>
+                Tiếp theo
+              </button>
+            </div>
+          </div>
+        )}
 
-              <div className="dkdt-infogrid">
-                <div>
-                  <label className="dkdt-label">Số năm kinh nghiệm</label>
-                  <input
-                    className="dkdt-input"
-                    name="soNamKinhNghiem"
-                    value={formData.soNamKinhNghiem}
-                    onChange={handlePartnerChange}
-                  />
-                </div>
+        {step === 2 && (
+          <div className="dkhdv-card">
+            <h3>Bước 2: CCCD và Lý lịch tư pháp</h3>
 
-                <div>
-                  <label className="dkdt-label">Ngôn ngữ sử dụng</label>
-                  <input
-                    className="dkdt-input"
-                    name="ngonNgu"
-                    value={formData.ngonNgu}
-                    onChange={handlePartnerChange}
-                    placeholder="Ví dụ: vi, en"
-                  />
-                </div>
+            <div className="upload-grid">
+              <div className="upload-box">
+                <label>CCCD mặt trước</label>
+                <input
+                  type="file"
+                  name="anhCCCDMatTruoc"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+                {previewFront && (
+                  <img src={previewFront} alt="CCCD mặt trước" className="preview-img" />
+                )}
               </div>
 
-              <label className="dkdt-label">Mô tả bản thân</label>
-              <textarea
-                className="dkdt-textarea"
-                name="moTaBanThan"
-                value={formData.moTaBanThan}
-                onChange={handlePartnerChange}
-              />
-            </div>
-
-            <div className="dkdt-card">
-              <div className="dkdt-sectiontitle">Xác thực hồ sơ</div>
-              <label className="dkdt-uploadarea">
-                Kéo thả file hoặc click để tải lên lý lịch tư pháp
+              <div className="upload-box">
+                <label>CCCD mặt sau</label>
                 <input
-                  hidden
                   type="file"
-                  accept=".jpg,.jpeg,.png,.pdf"
-                  onChange={handleUploadJudicialRecord}
+                  name="anhCCCDMatSau"
+                  accept="image/*"
+                  onChange={handleFileChange}
                 />
-              </label>
-
-              {formData.lyLichTuPhap && (
-                <p className="dkdt-filetext">Đã tải lên: {formData.lyLichTuPhap}</p>
-              )}
+                {previewBack && (
+                  <img src={previewBack} alt="CCCD mặt sau" className="preview-img" />
+                )}
+              </div>
             </div>
 
-            <label className="dkdt-checkboxwrap">
+            <div className="upload-box" style={{ marginTop: 20 }}>
+              <label>Lý lịch tư pháp</label>
               <input
-                type="checkbox"
-                name="camKet"
-                checked={formData.camKet}
-                onChange={handlePartnerChange}
+                type="file"
+                name="lyLichTuPhap"
+                accept=".jpg,.jpeg,.png,.webp,.pdf"
+                onChange={handleFileChange}
               />
-              Tôi cam kết thông tin cung cấp là chính xác và chịu trách nhiệm trước pháp luật.
-            </label>
+              {previewLyLich && <p className="file-name-preview">{previewLyLich}</p>}
+            </div>
 
-            <button type="submit" className="dkdt-submit">
-              Đăng ký ngay
-            </button>
-          </form>
+            <div className="step-actions">
+              <button className="btn-back" onClick={prevStep}>
+                Quay lại
+              </button>
+              <button className="btn-next" onClick={nextStep}>
+                Tiếp theo
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="dkhdv-card">
+            <h3>Bước 3: Chụp ảnh selfie</h3>
+
+            <div className="flex flex-col items-center gap-4">
+              {!previewSelfie && (
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full max-w-md rounded-xl border border-emerald-700"
+                />
+              )}
+
+              {previewSelfie && (
+                <img
+                  src={previewSelfie}
+                  alt="Selfie"
+                  className="w-full max-w-md rounded-xl border border-emerald-700"
+                />
+              )}
+
+              <canvas ref={canvasRef} className="hidden" />
+
+              <div className="flex gap-3">
+                {!previewSelfie ? (
+                  <button type="button" className="btn-next" onClick={captureImage}>
+                    📸 Chụp ảnh
+                  </button>
+                ) : (
+                  <button type="button" className="btn-back" onClick={retakeSelfie}>
+                    🔄 Chụp lại
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="step-actions">
+              <button className="btn-back" onClick={prevStep}>
+                Quay lại
+              </button>
+              <button className="btn-submit" onClick={handleSubmit} disabled={loading}>
+                {loading ? "Đang gửi hồ sơ..." : "Gửi đăng ký làm HDV"}
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>
   );
 };
 
-export default ContentDangKyDoiTac;
+export default ContentDkHdv;

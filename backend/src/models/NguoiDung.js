@@ -12,7 +12,7 @@ const NguoiDung = new Schema({
   vaiTro: { type: String,  enum: ['nguoiDung', 'doiTac', 'quanTriVien'], default: 'nguoiDung' },
   trangThai: { type: String, default: 'active' },
   soDienThoai: { type: String, default: "" },
-  image: { type: String },
+  image: { type: String, default: "" },
   slug: { type: String, unique: true },
   daDongYDieuKhoan: { type: Boolean, required: true, default: false },
   thoiDiemDongYDieuKhoan: { type: Date, default: null },
@@ -33,7 +33,7 @@ resetPasswordExpires: { type: Date, default: null },
 });
 
 
-NguoiDung.pre('save', function(next) {
+NguoiDung.pre('save', function() {
   if (!this.slug) {
     this.slug = this._id.toString();
   }

@@ -1,18 +1,21 @@
 const express = require('express');
 const router = express.Router();
 
-const {
-  doiTacController,
-  uploadFront,
-  uploadBack,
-  uploadFace,
-  uploadJudicial,
-} = require('../controllers/doiTacController');
+const doiTacController = require('../controllers/doiTacController');
+const uploadHuongDanVien = require('../middlewares/uploadHuongDanVien');
 
-router.post('/ocr-cccd-front', uploadFront.single('cccdImage'), doiTacController.ocrCCCDFront);
-router.post('/ocr-cccd-back', uploadBack.single('cccdImage'), doiTacController.ocrCCCDBack);
-router.post('/upload-face', uploadFace.single('faceImage'), doiTacController.uploadFace);
-router.post('/upload-judicial-record', uploadJudicial.single('lyLichFile'), doiTacController.uploadJudicialRecord);
-router.post('/create', doiTacController.create);
+router.post(
+  '/dang-ky-huong-dan-vien',
+  uploadHuongDanVien.fields([
+    { name: 'anhCCCDMatTruoc', maxCount: 1 },
+    { name: 'anhCCCDMatSau', maxCount: 1 },
+    { name: 'anhKhuonMat', maxCount: 1 },
+    { name: 'lyLichTuPhap', maxCount: 1 },
+  ]),
+  doiTacController.dangKyHuongDanVien
+);
+
+router.get('/theo-dia-diem/:diaDiemId', doiTacController.layHuongDanVienTheoDiaDiem);
+router.put('/duyet/:id', doiTacController.duyetHoSoHuongDanVien);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const HeaderTaikhoan = ({ user }) => {
+const HeaderTaikhoanHuongDanVien = ({ user }) => {
   const navigate = useNavigate();
   const hoTen = user?.hoTen || "Người dùng";
 
@@ -32,8 +32,8 @@ const HeaderTaikhoan = ({ user }) => {
       </div>
 
       <div className="nav-taikhoan">
-        <span
-          className="active-taikhoan"
+          <span
+        
           onClick={goTrangChuUser}
           style={{ cursor: "pointer" }}
         >
@@ -41,6 +41,7 @@ const HeaderTaikhoan = ({ user }) => {
         </span>
 
         <span
+        
           onClick={() => navigate(`/${encodeURIComponent(hoTen)}/khamphauser`)}
           style={{ cursor: "pointer" }}
         >
@@ -48,6 +49,7 @@ const HeaderTaikhoan = ({ user }) => {
         </span>
 
         <span
+          className="active-taikhoan"
           onClick={() => navigate(`/${encodeURIComponent(hoTen)}/huongdanvienuser`)}
           style={{ cursor: "pointer" }}
         >
@@ -73,4 +75,4 @@ const HeaderTaikhoan = ({ user }) => {
   );
 };
 
-export default HeaderTaikhoan;
+export default HeaderTaikhoanHuongDanVien;

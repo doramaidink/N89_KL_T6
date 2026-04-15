@@ -11,7 +11,6 @@ const { env } = require('process');
 
 dotenv.config();
 
-app.use('/imageDoiTac', express.static(path.join(__dirname, '../public/imageDoiTac')));
 ///HTTP logger
 app.use(express.json());
 
@@ -20,7 +19,7 @@ app.use(express.urlencoded({
 }));
 
 app.use(cors({origin: "http://localhost:5173"}));
-
+app.use('/img', express.static(path.join(__dirname, '../public/img')));
 
 
 //route init => khởi tạo đường tuyến

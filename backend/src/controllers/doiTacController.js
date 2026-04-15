@@ -1,322 +1,189 @@
-const path = require('path');
-const fs = require('fs');
-const multer = require('multer');
-
-const NguoiDung = require('../models/NguoiDung');
 const DoiTac = require('../models/DoiTac');
-const DiaDiem = require('../models/DiaDiem');
-
-const {
-  detectText,
-  parseFrontCCCD,
-  parseBackCCCD,
-} = require('../services/cccdOcrService');
-
-function removeVietnamese(str = '') {
-  return str
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'D');
-}
-
-function toFolderSafeName(name = 'doi-tac') {
-  return removeVietnamese(name)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'doi-tac';
-}
-
-function ensureDir(dirPath) {
-  fs.mkdirSync(dirPath, { recursive: true });
-}
-
-function getPartnerFolder(req) {
-  const hoTen = (
-    req.body.hoTen ||
-    req.query.hoTen ||
-    req.headers['x-partner-name'] ||
-    'doi-tac'
-  ).trim();
-
-  const folderName = toFolderSafeName(hoTen);
-  const relativeDir = `/imageDoiTac/${folderName}`;
-  const absoluteDir = path.join(__dirname, '../../public', relativeDir);
-
-  ensureDir(absoluteDir);
-
-  return { folderName, relativeDir, absoluteDir };
-}
-
-function createStorage(prefix) {
-  return multer.diskStorage({
-    destination: function (req, file, cb) {
-      const { absoluteDir } = getPartnerFolder(req);
-      cb(null, absoluteDir);
-    },
-    filename: function (req, file, cb) {
-      const ext = path.extname(file.originalname || '.jpg');
-      cb(null, `${prefix}-${Date.now()}${ext}`);
-    }
-  });
-}
-
-const imageFileFilter = (req, file, cb) => {
-  if (!file.mimetype.startsWith('image/')) {
-    return cb(new Error('Chỉ cho phép file ảnh'));
-  }
-  cb(null, true);
-};
-
-const pdfOrImageFilter = (req, file, cb) => {
-  const ok = file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf';
-  if (!ok) {
-    return cb(new Error('Chỉ cho phép ảnh hoặc PDF'));
-  }
-  cb(null, true);
-};
-
-const uploadFront = multer({
-  storage: createStorage('cccd-front'),
-  fileFilter: imageFileFilter,
-});
-
-const uploadBack = multer({
-  storage: createStorage('cccd-back'),
-  fileFilter: imageFileFilter,
-});
-
-const uploadFace = multer({
-  storage: createStorage('face'),
-  fileFilter: imageFileFilter,
-});
-
-const uploadJudicial = multer({
-  storage: createStorage('ly-lich-tu-phap'),
-  fileFilter: pdfOrImageFilter,
-});
+const NguoiDung = require('../models/NguoiDung');
 
 class doiTacController {
-  async ocrCCCDFront(req, res) {
+  async dangKyHuongDanVien(req, res) {
     try {
-      if (!req.file) {
-        return res.status(400).json({ message: 'Không có ảnh CCCD mặt trước' });
+      const {
+        nguoiDung,
+        hoTen,
+        soDienThoai,
+        soCCCD,
+        ngaySinh,
+        diaChi,
+        queQuan,
+        tinhDangKy,
+        gioiThieuBanThan,
+        kyNangDacBiet,
+        ngonNguHoTro,
+        kinhNghiem,
+        soNamKinhNghiem,
+        giaThue,
+        cacDiaDiemDangKy,
+        diaDiemGiaCa
+      } = req.body;
+
+      if (!nguoiDung) {
+        return res.status(400).json({ message: 'Thiếu id người dùng' });
       }
 
-      const { relativeDir } = getPartnerFolder(req);
-      const imageUrl = `${relativeDir}/${req.file.filename}`;
-
-      const rawText = await detectText(req.file.path);
-      const data = parseFrontCCCD(rawText);
-
-      return res.status(200).json({
-        message: 'Đọc CCCD mặt trước thành công',
-        imageUrl,
-        data,
-        rawText,
-      });
-    } catch (error) {
-      console.log('ocrCCCDFront error:', error);
-      return res.status(500).json({ message: 'Không thể đọc CCCD mặt trước' });
-    }
-  }
-
-  async ocrCCCDBack(req, res) {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: 'Không có ảnh CCCD mặt sau' });
-      }
-
-      const { relativeDir } = getPartnerFolder(req);
-      const imageUrl = `${relativeDir}/${req.file.filename}`;
-
-      const rawText = await detectText(req.file.path);
-      const data = parseBackCCCD(rawText);
-
-      return res.status(200).json({
-        message: 'Đọc CCCD mặt sau thành công',
-        imageUrl,
-        data,
-        rawText,
-      });
-    } catch (error) {
-      console.log('ocrCCCDBack error:', error);
-      return res.status(500).json({ message: 'Không thể đọc CCCD mặt sau' });
-    }
-  }
-
-  async uploadFace(req, res) {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: 'Thiếu ảnh khuôn mặt' });
-      }
-
-      const { relativeDir } = getPartnerFolder(req);
-
-      return res.status(200).json({
-        message: 'Upload ảnh khuôn mặt thành công',
-        imageUrl: `${relativeDir}/${req.file.filename}`,
-      });
-    } catch (error) {
-      console.log('uploadFace error:', error);
-      return res.status(500).json({ message: 'Lỗi upload ảnh khuôn mặt' });
-    }
-  }
-
-  async uploadJudicialRecord(req, res) {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: 'Thiếu file lý lịch tư pháp' });
-      }
-
-      const { relativeDir } = getPartnerFolder(req);
-
-      return res.status(200).json({
-        message: 'Upload lý lịch tư pháp thành công',
-        fileUrl: `${relativeDir}/${req.file.filename}`,
-      });
-    } catch (error) {
-      console.log('uploadJudicialRecord error:', error);
-      return res.status(500).json({ message: 'Lỗi upload lý lịch tư pháp' });
-    }
-  }
-
-  async create(req, res) {
-    try {
-      const data = req.body;
-      const email = (data.email || '').trim().toLowerCase();
-
-      if (!email) {
-        return res.status(400).json({ message: 'Thiếu email tài khoản hiện tại' });
-      }
-
-      const user = await NguoiDung.findOne({ email });
+      const user = await NguoiDung.findById(nguoiDung);
       if (!user) {
-        return res.status(404).json({ message: 'Không tìm thấy tài khoản người dùng' });
+        return res.status(404).json({ message: 'Không tìm thấy người dùng' });
       }
 
-      if (!data.soCCCD || !data.diaChi || !data.tinhDangKy) {
-        return res.status(400).json({
-          message: 'Thiếu thông tin bắt buộc: số CCCD, địa chỉ, tỉnh đăng ký'
-        });
+      const daCoHoSo = await DoiTac.findOne({ nguoiDung });
+      if (daCoHoSo) {
+        return res.status(400).json({ message: 'Bạn đã gửi hồ sơ hướng dẫn viên rồi' });
       }
 
-      if (!data.anhCCCDMatTruoc || !data.anhCCCDMatSau || !data.anhKhuonMat) {
-        return res.status(400).json({
-          message: 'Thiếu ảnh CCCD hoặc ảnh khuôn mặt xác thực'
-        });
+      if (!req.files?.anhCCCDMatTruoc?.[0]) {
+        return res.status(400).json({ message: 'Thiếu ảnh CCCD mặt trước' });
       }
 
-      if (data.verificationStatus !== 'da_xac_thuc' || data.faceMatched !== true) {
-        return res.status(400).json({
-          message: 'Bạn chưa xác thực khuôn mặt thành công'
-        });
+      if (!req.files?.anhCCCDMatSau?.[0]) {
+        return res.status(400).json({ message: 'Thiếu ảnh CCCD mặt sau' });
       }
 
-      if (data.camKet !== true) {
-        return res.status(400).json({
-          message: 'Bạn phải xác nhận cam kết'
-        });
+      if (!req.files?.anhKhuonMat?.[0]) {
+        return res.status(400).json({ message: 'Thiếu ảnh selfie' });
       }
 
-      const diaDiemGiaCaRaw = Array.isArray(data.diaDiemGiaCa) ? data.diaDiemGiaCa : [];
-      const tenDiaDiems = diaDiemGiaCaRaw
-        .map(item => (item?.diaDiem || '').trim())
-        .filter(Boolean);
+      const anhCCCDMatTruoc = `/img/huongdanvien/${req.files.anhCCCDMatTruoc[0].filename}`;
+      const anhCCCDMatSau = `/img/huongdanvien/${req.files.anhCCCDMatSau[0].filename}`;
+      const anhKhuonMat = `/img/huongdanvien/${req.files.anhKhuonMat[0].filename}`;
+      const lyLichTuPhap = req.files?.lyLichTuPhap?.[0]
+        ? `/img/huongdanvien/${req.files.lyLichTuPhap[0].filename}`
+        : '';
 
-      if (!tenDiaDiems.length) {
-        return res.status(400).json({
-          message: 'Bạn phải nhập ít nhất 1 địa điểm hướng dẫn'
-        });
-      }
-
-      const diaDiems = await DiaDiem.find({
-        tenDiaDiem: { $in: tenDiaDiems }
-      });
-
-      const diaDiemMap = new Map(diaDiems.map(d => [d.tenDiaDiem, d]));
-
-      const diaDiemGiaCa = diaDiemGiaCaRaw
-        .filter(item => item?.diaDiem && diaDiemMap.has(item.diaDiem.trim()))
-        .map(item => ({
-          diaDiem: diaDiemMap.get(item.diaDiem.trim())._id,
-          mucGia: Number(item.mucGia || 0),
-          kinhNghiem: item.kinhNghiem || '',
-        }));
-
-      if (!diaDiemGiaCa.length) {
-        return res.status(400).json({
-          message: 'Không tìm thấy địa điểm hợp lệ trong database'
-        });
-      }
-
-      user.hoTen = data.hoTen || user.hoTen;
-      user.soDienThoai = data.soDienThoai || user.soDienThoai;
-      if (data.ngaySinh) {
-        const parts = data.ngaySinh.split('/');
-        if (parts.length === 3) {
-          user.ngaysinh = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+      let dsDiaDiem = [];
+      if (cacDiaDiemDangKy) {
+        if (typeof cacDiaDiemDangKy === 'string') {
+          try {
+            dsDiaDiem = JSON.parse(cacDiaDiemDangKy);
+          } catch (error) {
+            dsDiaDiem = [];
+          }
+        } else {
+          dsDiaDiem = cacDiaDiemDangKy;
         }
       }
-      user.image = data.anhKhuonMat || user.image;
-      user.vaiTro = 'doiTac';
-      await user.save();
 
-      let doiTac = await DoiTac.findOne({ nguoiDung: user._id });
-      if (!doiTac) {
-        doiTac = new DoiTac({ nguoiDung: user._id });
+      let dsKyNang = [];
+      if (kyNangDacBiet) {
+        dsKyNang = typeof kyNangDacBiet === 'string'
+          ? kyNangDacBiet.split(',').map(item => item.trim()).filter(Boolean)
+          : kyNangDacBiet;
       }
 
-      const folderName = toFolderSafeName(user.hoTen || 'doi-tac');
+      let dsNgonNgu = [];
+      if (ngonNguHoTro) {
+        dsNgonNgu = typeof ngonNguHoTro === 'string'
+          ? ngonNguHoTro.split(',').map(item => item.trim()).filter(Boolean)
+          : ngonNguHoTro;
+      }
 
-      doiTac.soDienThoai = user.soDienThoai || '';
-      doiTac.soCCCD = data.soCCCD;
-      doiTac.diaChi = data.diaChi;
-      doiTac.queQuan = data.queQuan || '';
-      doiTac.tinhDangKy = data.tinhDangKy;
+      let dsDiaDiemGiaCa = [];
+      if (diaDiemGiaCa) {
+        if (typeof diaDiemGiaCa === 'string') {
+          try {
+            dsDiaDiemGiaCa = JSON.parse(diaDiemGiaCa);
+          } catch (error) {
+            dsDiaDiemGiaCa = [];
+          }
+        } else {
+          dsDiaDiemGiaCa = diaDiemGiaCa;
+        }
+      }
 
-      doiTac.image = data.anhKhuonMat;
-      doiTac.thuMucAnh = `/imageDoiTac/${folderName}`;
-      doiTac.anhCCCDMatTruoc = data.anhCCCDMatTruoc;
-      doiTac.anhCCCDMatSau = data.anhCCCDMatSau;
-      doiTac.anhKhuonMat = data.anhKhuonMat;
-      doiTac.lyLichTuPhap = data.lyLichTuPhap || '';
+      const hoSo = await DoiTac.create({
+        nguoiDung,
+        hoTen: hoTen || user.hoTen || '',
+        soDienThoai: soDienThoai || user.soDienThoai || '',
+        soCCCD,
+        ngaySinh: ngaySinh || null,
+        diaChi,
+        queQuan,
+        tinhDangKy,
+        gioiThieuBanThan,
+        kyNangDacBiet: dsKyNang,
+        ngonNguHoTro: dsNgonNgu,
+        kinhNghiem,
+        soNamKinhNghiem: Number(soNamKinhNghiem || 0),
+        giaThue: Number(giaThue || 0),
 
-      doiTac.gioiThieuBanThan = data.moTaBanThan || '';
-      doiTac.ngonNguHoTro = (data.ngonNgu || '')
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean);
+        cacDiaDiemDangKy: dsDiaDiem,
+        diaDiemGiaCa: dsDiaDiemGiaCa,
 
-      doiTac.soNamKinhNghiem = Number(data.soNamKinhNghiem || 0);
-      doiTac.kinhNghiem = data.moTaBanThan || '';
+        image: anhKhuonMat,
+        thuMucAnh: 'img/huongdanvien',
+        anhCCCDMatTruoc,
+        anhCCCDMatSau,
+        anhKhuonMat,
+        lyLichTuPhap,
 
-      doiTac.faceMatched = data.faceMatched === true;
-      doiTac.faceDistance = data.faceDistance ?? null;
-      doiTac.verificationStatus = data.verificationStatus || 'cho_xac_thuc';
-
-      doiTac.trangThaiHoSo = 'cho_duyet';
-      doiTac.cacDiaDiemDangKy = diaDiemGiaCa.map(item => item.diaDiem);
-      doiTac.diaDiemGiaCa = diaDiemGiaCa;
-      doiTac.giaThue = diaDiemGiaCa[0]?.mucGia || 0;
-
-      await doiTac.save();
+        verificationStatus: 'cho_xac_thuc',
+        trangThaiHoSo: 'cho_duyet',
+      });
 
       return res.status(201).json({
-        message: 'Đăng ký hướng dẫn viên thành công, hồ sơ đang chờ duyệt',
-        doiTac,
+        message: 'Gửi hồ sơ thành công',
+        data: hoSo
       });
     } catch (error) {
-      console.log('create doiTac error:', error);
-      return res.status(500).json({ message: 'Lỗi server khi tạo hồ sơ đối tác' });
+      console.log(error);
+      return res.status(500).json({
+        message: 'Lỗi server khi đăng ký hướng dẫn viên'
+      });
+    }
+  }
+
+  async duyetHoSoHuongDanVien(req, res) {
+    try {
+      const { id } = req.params;
+
+      const hoSo = await DoiTac.findById(id);
+      if (!hoSo) {
+        return res.status(404).json({ message: 'Không tìm thấy hồ sơ' });
+      }
+
+      hoSo.trangThaiHoSo = 'da_duyet';
+      hoSo.ngayDuyet = new Date();
+      await hoSo.save();
+
+      await NguoiDung.findByIdAndUpdate(hoSo.nguoiDung, {
+        vaiTro: 'doiTac',
+        image: hoSo.image
+      });
+
+      return res.status(200).json({
+        message: 'Duyệt hồ sơ thành công',
+        data: hoSo
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: 'Lỗi server khi duyệt hồ sơ' });
+    }
+  }
+
+  async layHuongDanVienTheoDiaDiem(req, res) {
+    try {
+      const { diaDiemId } = req.params;
+
+      const ds = await DoiTac.find({
+        trangThaiHoSo: 'da_duyet',
+        cacDiaDiemDangKy: diaDiemId
+      })
+        .populate('nguoiDung', 'hoTen email image')
+        .populate('cacDiaDiemDangKy', 'tenDiaDiem image')
+        .sort({ createdAt: -1 });
+
+      return res.status(200).json(ds);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: 'Lỗi server khi lấy hướng dẫn viên theo địa điểm' });
     }
   }
 }
 
-module.exports = {
-  doiTacController: new doiTacController(),
-  uploadFront,
-  uploadBack,
-  uploadFace,
-  uploadJudicial,
-};
+module.exports = new doiTacController();

@@ -21,6 +21,8 @@ import Trangchunguoidung from './Pages/Nguoidungs/Trangchunguoidung';
 import Chitietdiadiem from './Pages/Nguoidungs/Chitietdiadiem';
 import Quenmatkhau from './Pages/Nguoidungs/Quenmatkhau';
 import Datlaimatkhau from './Pages/Nguoidungs/Datlaimatkhau';
+import Khamphauser from './Pages/Nguoidungs/Khamphauser';
+import Huongdanvienuser from './Pages/Nguoidungs/Huongdanvienuser';
 
 import Nhomchat from './Pages/Nguoidungs/Nhomchat';
 
@@ -41,15 +43,19 @@ function App() {
 
         <Route path='/' element={<Trangchu />} />
 
-        <Route path='/:hoten' element={<Trangchunguoidung/>} />
-      <Route path="/quen-mat-khau" element={<Quenmatkhau />} />
-<Route path="/dat-lai-mat-khau" element={<Datlaimatkhau />} />
+   
+        <Route path="/quen-mat-khau" element={<Quenmatkhau />} />
+         <Route path="/dat-lai-mat-khau" element={<Datlaimatkhau />} />
 
         <Route path='/khampha' element={<Khampha />} />
 
         <Route path='/Huongdanvien' element={<Huongdanvien />} />
 
-        <Route path='/taikhoan' element={<Taikhoan />} />
+        <Route path='/:hoten' element={<Trangchunguoidung/>} />
+
+        <Route path='/:hoten/khamphauser' element={<Khamphauser/>} />
+        
+        <Route path='/:hoten/huongdanvienuser' element={<Huongdanvienuser />} />
 
         <Route path='/dangkihuongdanvien' element={<Dangkihuongdanvien />} />
 

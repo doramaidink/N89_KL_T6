@@ -1,4 +1,5 @@
 const DiaDiem = require('../models/DiaDiem');
+const DoiTac = require('../models/DoiTac');
 class homeController{
   async home(req,res){
     try{
@@ -37,6 +38,28 @@ async khampha(req,res){
     });
     }catch(err){     
       console.error('homeController.khampha error:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+      }
+}
+async huongdanvien(req,res){
+  try {
+    const huongdanviens = await DoiTac.find({
+      trangThaiHoSo: 'da_duyet',
+    })
+      .populate({
+        path: 'diaDiemGiaCa.diaDiem',
+        select: 'tenDiaDiem image images khuVuc slug',
+      })
+      .populate({
+        path: 'cacDiaDiemDangKy',
+        select: 'tenDiaDiem image images khuVuc slug',
+      });
+
+    return res.status(200).json({
+      huongdanviens,
+    });
+    }catch(err){     
+      console.error('homeController.huongdanvien error:', error);
       return res.status(500).json({ error: 'Internal server error' });
       }
 }

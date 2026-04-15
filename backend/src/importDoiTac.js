@@ -1,130 +1,186 @@
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
+const mongoose = require('mongoose');
+require('dotenv').config();
 
-const NguoiDung = require("./models/NguoiDung");
-const DoiTac = require("./models/DoiTac");
-const DiaDiem = require("./models/DiaDiem");
+const NguoiDung = require('./models/NguoiDung');
+const DoiTac = require('./models/DoiTac');
 
-dotenv.config();
-
-const dataDoiTac = [
-  {
-    hoTen: "Nguyễn Đinh Hài",
-    email: "haidayne123@gmail.com",
-    matKhau: "123456",
-    soDienThoai: "0905903621",
-
-    soCCCD: "201999999829",
-    diaChi: "08 Cách Mạng Tháng Tám - Pleiku - Gia Lai",
-    tinhDangKy: "Gia Lai",
-    gioiThieuBanThan: "Hướng dẫn viên chuyên tour tây nguyên",
-    kyNangDacBiet: ["tour nhóm", "hướng dẫn dễ hiểu"],
-    ngonNguHoTro: ["vi"],
-    kinhNghiem: "15 năm dẫn tour tại Gia Lai",
-    soNamKinhNghiem: 15,
-    giaThue: 300000,
-
-    tenDiaDiems: ["Thác K50","Chư Nâm"],
+async function connectDB() {
+  try {
+    await mongoose.connect(process.env.MONGODB_CONNECTIONSTRING);
+    console.log('✅ Kết nối MongoDB thành công');
+  } catch (err) {
+    console.error('❌ Lỗi kết nối MongoDB:', err);
+    process.exit(1);
   }
-];
+}
 
 async function importData() {
   try {
-    await mongoose.connect(process.env.MONGODB_CONNECTIONSTRING);
-    console.log("✅ Kết nối MongoDB thành công");
+    await connectDB();
 
-    for (const item of dataDoiTac) {
-      const diaDiems = await DiaDiem.find({
-        tenDiaDiem: { $in: item.tenDiaDiems }
-      });
+    // =========================
+    // TẠO NGƯỜI DÙNG 1
+    // =========================
+    const nguoiDung1Id = new mongoose.Types.ObjectId();
+    const doiTac1Id = new mongoose.Types.ObjectId();
 
-      if (diaDiems.length !== item.tenDiaDiems.length) {
-        const timThay = diaDiems.map(d => d.tenDiaDiem);
-        const chuaThay = item.tenDiaDiems.filter(
-          ten => !timThay.includes(ten)
-        );
+    const nguoiDung1 = await NguoiDung.create({
+      _id: nguoiDung1Id,
+      slug: nguoiDung1Id.toString(),
 
-        console.log(`❌ Không tìm thấy địa điểm cho ${item.email}:`, chuaThay);
-        continue;
-      }
+      hoTen: 'Mai Lên Tuấn Kiệt',
+      email: 'maikiet@gmail.com',
+      matKhau: '123456',
+      ngaysinh: new Date('1995-05-12'),
+      vaiTro: 'doiTac',
+      trangThai: 'active',
+      soDienThoai: '0901634267',
+      image: 'img/huongdanvien/huongdanvien7/face.jpg',
 
-      let user = await NguoiDung.findOne({ email: item.email });
+      daDongYDieuKhoan: true,
+      thoiDiemDongYDieuKhoan: new Date(),
+      phienBanDieuKhoan: 'v1.0',
+    });
 
-      // Nếu chưa có user thì tạo mới
-      if (!user) {
-        user = await NguoiDung.create({
-          hoTen: item.hoTen,
-          email: item.email,
-          matKhau: item.matKhau,
-          soDienThoai: item.soDienThoai,
-          vaiTro: "doiTac",
-          trangThai: "active",
-          slug: new mongoose.Types.ObjectId().toString(),
-        });
+    await DoiTac.create({
+      _id: doiTac1Id,
+      slug: doiTac1Id.toString(),
 
-        console.log(`✔️ Đã tạo tài khoản mới: ${item.email}`);
-      } else {
-        // Nếu đã có user thì cập nhật thành đối tác
-        user.hoTen = item.hoTen || user.hoTen;
-        user.soDienThoai = item.soDienThoai || user.soDienThoai;
-        user.vaiTro = "doiTac";
+      nguoiDung: nguoiDung1._id,
 
-        if (!user.slug) {
-          user.slug = new mongoose.Types.ObjectId().toString();
-        }
+      hoTen: 'Mai Lê tuần Kiệt',
+      soDienThoai: '0901634267',
+      soCCCD: '063254155789',
+      ngaySinh: new Date('1995-05-12'),
+      diaChi: '23 Nguyễn Văn Trỗi - Đà Nẵng',
+      queQuan: 'Đà Nẵng',
+      tinhDangKy: 'Thanh Hóa',
 
-        await user.save();
-        console.log(`✔️ Đã cập nhật tài khoản thành đối tác: ${item.email}`);
-      }
+      image: 'img/huongdanvien/huongdanvien7/face.jpg',
+      thuMucAnh: 'img/huongdanvien',
+      anhCCCDMatTruoc: 'img/huongdanvien/huongdanvien7/face.jpg',
+      anhCCCDMatSau: 'img/huongdanvien/huongdanvien7/face.jpg',
+      anhKhuonMat: 'img/huongdanvien/huongdanvien7/face.jpg',
 
-      // Kiểm tra đã có hồ sơ đối tác chưa
-      const doiTacDaTonTai = await DoiTac.findOne({ nguoiDung: user._id });
+      lyLichTuPhap: '',
+      gioiThieuBanThan: 'Hướng dẫn viên chuyên trekking',
+      kyNangDacBiet: ['leo núi', 'nhiếp ảnh'],
+      ngonNguHoTro: ['Tiếng Việt', 'English'],
+      kinhNghiem: '5 năm dẫn tour miền Trung',
+      soNamKinhNghiem: 5,
+      giaThue: 500000,
 
-      if (doiTacDaTonTai) {
-        doiTacDaTonTai.soCCCD = item.soCCCD;
-        doiTacDaTonTai.diaChi = item.diaChi;
-        doiTacDaTonTai.tinhDangKy = item.tinhDangKy;
-        doiTacDaTonTai.gioiThieuBanThan = item.gioiThieuBanThan;
-        doiTacDaTonTai.kyNangDacBiet = item.kyNangDacBiet;
-        doiTacDaTonTai.ngonNguHoTro = item.ngonNguHoTro;
-        doiTacDaTonTai.kinhNghiem = item.kinhNghiem;
-        doiTacDaTonTai.soNamKinhNghiem = item.soNamKinhNghiem;
-        doiTacDaTonTai.giaThue = item.giaThue;
-        doiTacDaTonTai.cacDiaDiemDangKy = diaDiems.map(d => d._id);
-        doiTacDaTonTai.trangThaiHoSo = "da_duyet";
+      cacDiaDiemDangKy: [
+        new mongoose.Types.ObjectId('69dbbfcb0e54fe3dc1444f9e'),
+        new mongoose.Types.ObjectId('69dbbfcb0e54fe3dc1444f9f'),
+      ],
 
-        await doiTacDaTonTai.save();
-        console.log(`✔️ Đã cập nhật hồ sơ đối tác: ${item.email}`);
-      } else {
-        await DoiTac.create({
-          nguoiDung: user._id,
-          slug: new mongoose.Types.ObjectId().toString(),
-          soCCCD: item.soCCCD,
-          diaChi: item.diaChi,
-          tinhDangKy: item.tinhDangKy,
-          gioiThieuBanThan: item.gioiThieuBanThan,
-          kyNangDacBiet: item.kyNangDacBiet,
-          ngonNguHoTro: item.ngonNguHoTro,
-          kinhNghiem: item.kinhNghiem,
-          soNamKinhNghiem: item.soNamKinhNghiem,
-          giaThue: item.giaThue,
-          cacDiaDiemDangKy: diaDiems.map(d => d._id),
-          trangThaiHoSo: "da_duyet",
-         
-        });
+      diaDiemGiaCa: [
+        {
+          diaDiem: new mongoose.Types.ObjectId('69dbbfcb0e54fe3dc1444f9e'),
+          mucGia: 200000,
+          kinhNghiem: 'Đã dẫn 3 tour',
+        },
+        {
+          diaDiem: new mongoose.Types.ObjectId('69dbbfcb0e54fe3dc1444f9f'),
+          mucGia: 500000,
+          kinhNghiem: 'Đã dẫn 5 tour',
+        },      
+      ],
 
-        console.log(`✔️ Đã tạo hồ sơ đối tác: ${item.email}`);
-      }
-    }
+      faceMatched: true,
+      faceDistance: 0.3,
+      verificationStatus: 'da_xac_thuc',
+      trangThaiHoSo: 'da_duyet',
+      lyDoTuChoi: '',
+      ngayDuyet: new Date(),
+    });
 
-    console.log("🎉 Import đối tác thành công");
-    process.exit();
-  } catch (error) {
-    console.error("❌ Lỗi import:", error);
+    // =========================
+    // TẠO NGƯỜI DÙNG 2
+    // =========================
+    const nguoiDung2Id = new mongoose.Types.ObjectId();
+    const doiTac2Id = new mongoose.Types.ObjectId();
+
+    const nguoiDung2 = await NguoiDung.create({
+      _id: nguoiDung2Id,
+      slug: nguoiDung2Id.toString(),
+
+      hoTen: 'Trần Thế Đức',
+      email: 'trantheduc@gmail.com',
+      matKhau: '123456',
+      ngaysinh: new Date('1996-08-20'),
+      vaiTro: 'doiTac',
+      trangThai: 'active',
+      soDienThoai: '0222366668',
+      image: 'img/huongdanvien/huongdanvien8/face.jpg',
+
+      daDongYDieuKhoan: true,
+      thoiDiemDongYDieuKhoan: new Date(),
+      phienBanDieuKhoan: 'v1.0',
+    });
+
+    await DoiTac.create({
+      _id: doiTac2Id,
+      slug: doiTac2Id.toString(),
+
+      nguoiDung: nguoiDung2._id,
+
+      hoTen: 'Trần Thế Đức',
+      soDienThoai: '0222366668',
+      soCCCD: '065654321098',
+      ngaySinh: new Date('1996-08-20'),
+      diaChi: '56 Thái Bằng- Quảng trị',
+      queQuan: 'Quảng Trị',
+      tinhDangKy: 'Ninh Thuận',
+
+      image: 'img/huongdanvien/huongdanvien8/face.jpg',
+      thuMucAnh: 'img/huongdanvien',
+      anhCCCDMatTruoc: 'img/huongdanvien/huongdanvien8/face.jpg',
+      anhCCCDMatSau: 'img/huongdanvien/huongdanvien8/face.jpg',
+      anhKhuonMat: 'img/huongdanvien/huongdanvien8/face.jpg',
+
+      lyLichTuPhap: '',
+      gioiThieuBanThan: 'Chuyên tour sinh thái',
+      kyNangDacBiet: ['hướng dẫn sinh tồn'],
+      ngonNguHoTro: ['Tiếng Việt'],
+      kinhNghiem: '3 năm',
+      soNamKinhNghiem: 3,
+      giaThue: 400000,
+
+      cacDiaDiemDangKy: [
+        new mongoose.Types.ObjectId('69dbc317beca0978b9c19bde'),
+         new mongoose.Types.ObjectId('69dbbd91b00ae5b5b701a34a'),
+     
+      ],
+
+      diaDiemGiaCa: [
+        {
+          diaDiem: new mongoose.Types.ObjectId('69dbc317beca0978b9c19bde'),
+          mucGia: 200000,
+          kinhNghiem: 'Đã dẫn 5+ tour',
+        },
+        {
+          diaDiem: new mongoose.Types.ObjectId('69dbbd91b00ae5b5b701a34a'),
+          mucGia: 300000,
+          kinhNghiem: 'Đã dẫn 5+ tour',
+        },
+      ],
+
+      faceMatched: true,
+      faceDistance: 0.25,
+      verificationStatus: 'da_xac_thuc',
+      trangThaiHoSo: 'da_duyet',
+      lyDoTuChoi: '',
+      ngayDuyet: new Date(),
+    });
+
+    console.log('🎉 Import NguoiDung + DoiTac thành công');
+    process.exit(0);
+  } catch (err) {
+    console.error('❌ Lỗi import:', err);
     process.exit(1);
   }
 }
 
 importData();
-
-// chạy: node src/importDoiTac.js

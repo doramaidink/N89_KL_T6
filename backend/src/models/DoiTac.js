@@ -17,7 +17,7 @@ const diaDiemGiaCaSchema = new Schema({
   }
 }, { _id: false });
 
-const DoiTac = new Schema({
+const DoiTacSchema = new Schema({
   nguoiDung: {
     type: Schema.Types.ObjectId,
     ref: 'NguoiDung',
@@ -30,15 +30,27 @@ const DoiTac = new Schema({
     unique: true,
   },
 
+  hoTen: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+
   soDienThoai: {
     type: String,
-    default: '',
+    required: true,
+    trim: true,
   },
 
   soCCCD: {
     type: String,
     required: true,
     trim: true,
+  },
+
+  ngaySinh: {
+    type: Date,
+    default: null,
   },
 
   diaChi: {
@@ -53,6 +65,12 @@ const DoiTac = new Schema({
     trim: true,
   },
 
+  tinhDangKy: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+
   image: {
     type: String,
     default: '',
@@ -60,33 +78,27 @@ const DoiTac = new Schema({
 
   thuMucAnh: {
     type: String,
-    default: '',
+    default: 'img/huongdanvien',
   },
 
   anhCCCDMatTruoc: {
     type: String,
-    default: '',
+    required: true,
   },
 
   anhCCCDMatSau: {
     type: String,
-    default: '',
+    required: true,
   },
 
   anhKhuonMat: {
     type: String,
-    default: '',
+    required: true,
   },
 
   lyLichTuPhap: {
     type: String,
     default: '',
-  },
-
-  tinhDangKy: {
-    type: String,
-    required: true,
-    trim: true,
   },
 
   gioiThieuBanThan: {
@@ -131,11 +143,6 @@ const DoiTac = new Schema({
     default: [],
   },
 
-  giayChungNhan: {
-    type: [String],
-    default: [],
-  },
-
   faceMatched: {
     type: Boolean,
     default: false,
@@ -171,9 +178,11 @@ const DoiTac = new Schema({
   timestamps: true,
 });
 
-DoiTac.pre('save', function(next) {
+DoiTacSchema.pre('save', function() {
   if (!this.slug) {
     this.slug = this._id.toString();
   }
-  next();
+
 });
+
+module.exports = mongoose.model('DoiTac', DoiTacSchema);
