@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ContentHuongdanvien = ({ user = null }) => {
+  const navigate = useNavigate();
+
   const [huongdanviens, setHuongdanviens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
@@ -81,6 +84,32 @@ const ContentHuongdanvien = ({ user = null }) => {
       return matchKeyword && matchLanguage && matchPrice;
     });
   }, [huongdanviens, keyword, selectedLanguage, selectedPrice]);
+  const handleDangKyThueTheoDiaDiem = (guide, place) => {
+    if (!user) {
+      setShowLoginNotice(true);
+      setTimeout(() => {
+        setShowLoginNotice(false);
+      }, 2500);
+      return;
+    }
+
+    const selectedGuideForPayment = {
+      ...guide,
+      giaThue: place?.mucGia || guide?.giaThue || 0,
+      diaDiemDuocChon: {
+        _id: place?.diaDiem?._id || "",
+        tenDiaDiem: place?.diaDiem?.tenDiaDiem || "",
+        khuVuc: place?.diaDiem?.khuVuc || "",
+        image: place?.diaDiem?.image || "",
+        images: place?.diaDiem?.images || [],
+        slug: place?.diaDiem?.slug || "",
+      },
+      kinhNghiemTaiDiaDiem: place?.kinhNghiem || "",
+    };
+
+    localStorage.setItem("selectedGuide", JSON.stringify(selectedGuideForPayment));
+    navigate("/thanhtoan");
+  };
 
   const handleDangKyThue = () => {
     if (!user) {
@@ -91,7 +120,13 @@ const ContentHuongdanvien = ({ user = null }) => {
       return;
     }
 
-    console.log("Đã đăng nhập, cho phép thuê:", selectedGuide);
+    // Có thể lưu tạm guide đang chọn để test thanh toán
+    if (selectedGuide) {
+      localStorage.setItem("selectedGuide", JSON.stringify(selectedGuide));
+    }
+
+    // Chuyển thẳng sang trang thanh toán để test
+    navigate("/thanhtoan");
   };
 
   if (loading) {
@@ -185,10 +220,6 @@ const ContentHuongdanvien = ({ user = null }) => {
                   </div>
 
                   <div className="hdv-card-bottom">
-                    <div>
-                      <div className="hdv-card-price">{formatPrice(item.giaThue)}</div>
-                      <div className="hdv-card-unit">/ngày</div>
-                    </div>
 
                     <button
                       className="hdv-card-btn"
@@ -228,9 +259,7 @@ const ContentHuongdanvien = ({ user = null }) => {
                 <h3>{selectedGuide.hoTen}</h3>
                 <p>{selectedGuide.tinhDangKy || selectedGuide.queQuan}</p>
 
-                <button className="hdv-hire-btn" onClick={handleDangKyThue}>
-                  Đăng ký thuê
-                </button>
+                
 
                 <div className="hdv-profile-mini">
                   <div>
@@ -307,6 +336,13 @@ const ContentHuongdanvien = ({ user = null }) => {
                           <p className="hdv-place-exp">
                             {place.kinhNghiem || "Chưa có mô tả kinh nghiệm"}
                           </p>
+
+                          <button
+                            className="hdv-place-hire-btn"
+                            onClick={() => handleDangKyThueTheoDiaDiem(selectedGuide, place)}
+                          >
+                            Đăng ký thuê
+                          </button>
                         </div>
                       </div>
                     ))

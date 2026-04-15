@@ -8,7 +8,6 @@ import Dangki from './Pages/Nguoidungs/Dangki';
 import Dangnhap from './Pages/Nguoidungs/Dangnhap';
 import Khampha from './Pages/Nguoidungs/Khampha';
 import Huongdanvien from './Pages/Nguoidungs/Huongdanvien';
-import Taikhoan from './Pages/Nguoidungs/Taikhoan';
 import Dangkihuongdanvien from './Pages/Nguoidungs/Dangkihuongdanvien';
 import Thongtintaikhoan from './Pages/Nguoidungs/Thongtintaikhoan';
 import Thongbao from './Pages/Nguoidungs/Thongbao';
@@ -23,6 +22,11 @@ import Quenmatkhau from './Pages/Nguoidungs/Quenmatkhau';
 import Datlaimatkhau from './Pages/Nguoidungs/Datlaimatkhau';
 import Khamphauser from './Pages/Nguoidungs/Khamphauser';
 import Huongdanvienuser from './Pages/Nguoidungs/Huongdanvienuser';
+import Chitietdiadiemuser from './Pages/Nguoidungs/Chitietdiadiemuser'
+import Chonloainhom from './Pages/Nguoidungs/Chonloainhom';
+import Chonnhom from './Pages/Nguoidungs/Chonnhom';
+import Thanhtoan from './Pages/Nguoidungs/Thanhtoan';
+
 
 import Nhomchat from './Pages/Nguoidungs/Nhomchat';
 
@@ -67,6 +71,12 @@ function App() {
 
         <Route path='/lichsuchuyendi' element={<Lichsuchuyendi />} />
 
+         <Route path='/chonloainhom' element={<Chonloainhom />} />
+
+          <Route path='/chonnhom' element={<Chonnhom />} />
+
+         <Route path='/thanhtoan' element={<Thanhtoan />} />
+
         <Route path='/hoadon' element={<Hoadon />} />
 
         <Route path='/baocao' element={<Baocao/>} />
@@ -80,6 +90,8 @@ function App() {
 
 
         <Route path='/chitietdiadiem/:slug' element={<Chitietdiadiem />} />
+       <Route path = '/:hoten/chitietdiadiemuser/:slug' element ={<Chitietdiadiemuser />} />
+
 
       </Routes>
 

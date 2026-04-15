@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
-import Header from '../../UI/Nguoidungs/Headers/HeaderTaiKhoankhampha'
 import Footer from '../../UI/Nguoidungs/Footer'
-import ContentKhamphauser from '../../UI/Nguoidungs/ComntentKhamphauser'
+import HeaderTaikhoan from '../../UI/Nguoidungs/Headers/HeaderTaikhoan'
+import ContentChitietdiadiem from '../../UI/Nguoidungs/ContentChitietdiadiem'
 
- const Khampha = () => {
-  const [user, setUser] = useState(null);
+ const Chitietdiadiem = () => {
+   const [user, setUser] = useState(null);
 
   useEffect(() => {
     const savedUser =
@@ -19,11 +18,10 @@ import ContentKhamphauser from '../../UI/Nguoidungs/ComntentKhamphauser'
   }, []);
   return (
     <div>
-        <Header user={user}/>
-        <div style={{ height: "20px" }}></div>
-        <ContentKhamphauser user={user}/>
+        <HeaderTaikhoan user={user}/>
+        <ContentChitietdiadiem user={user}/>
         <Footer/>
     </div>
   )
 }
-export default Khampha;
+export default Chitietdiadiem;

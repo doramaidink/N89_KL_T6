@@ -1,12 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
-const ContentChitietdiadiem = () => {
+const ContentChitietdiadiem = ({ user = null }) => {
   const { slug } = useParams();
+  const navigate = useNavigate();
 
   const [diaDiem, setDiaDiem] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [allGuides, setAllGuides] = useState([]);
+  const [loadingGuides, setLoadingGuides] = useState(false);
+  const [showGuideModal, setShowGuideModal] = useState(false);
 
   useEffect(() => {
     const getChiTietDiaDiem = async () => {
@@ -22,6 +28,72 @@ const ContentChitietdiadiem = () => {
 
     if (slug) getChiTietDiaDiem();
   }, [slug]);
+
+  const fetchGuides = async () => {
+    try {
+      setLoadingGuides(true);
+      const res = await axios.get("http://localhost:5000/huongdanvien");
+      setAllGuides(res.data.huongdanviens || []);
+      setShowGuideModal(true);
+    } catch (error) {
+      console.error("Lỗi lấy hướng dẫn viên:", error);
+      toast.error("Không thể tải danh sách hướng dẫn viên.");
+    } finally {
+      setLoadingGuides(false);
+    }
+  };
+
+  const guidesByPlace = useMemo(() => {
+    if (!diaDiem?._id) return [];
+
+    return allGuides.filter((guide) => {
+      const inCacDiaDiemDangKy = (guide.cacDiaDiemDangKy || []).some(
+        (item) => String(item?._id || item) === String(diaDiem._id)
+      );
+
+      const inDiaDiemGiaCa = (guide.diaDiemGiaCa || []).some(
+        (item) => String(item?.diaDiem?._id || item?.diaDiem) === String(diaDiem._id)
+      );
+
+      return inCacDiaDiemDangKy || inDiaDiemGiaCa;
+    });
+  }, [allGuides, diaDiem]);
+
+  const handleOpenGuideModal = () => {
+    fetchGuides();
+  };
+
+  const handleHireGuide = (guide) => {
+    if (!user) {
+      toast.warning("Bạn cần đăng nhập để thuê hướng dẫn viên.");
+      return;
+    }
+
+    localStorage.setItem("selectedGuide", JSON.stringify(guide));
+    navigate("/thanhtoan");
+  };
+
+  const getGuidePrice = (guide) => {
+    const giaTheoDiaDiem = (guide.diaDiemGiaCa || []).find(
+      (item) => String(item?.diaDiem?._id || item?.diaDiem) === String(diaDiem?._id)
+    );
+
+    if (giaTheoDiaDiem?.mucGia) return giaTheoDiaDiem.mucGia;
+    if (guide.giaThue) return guide.giaThue;
+    return 0;
+  };
+
+  const formatPrice = (price) => {
+    if (!price && price !== 0) return "Liên hệ";
+    return `${Number(price).toLocaleString("vi-VN")}đ/ngày`;
+  };
+
+  const getImageUrl = (image) => {
+    if (!image) return "/img/default-user.jpg";
+    if (image.startsWith("http")) return image;
+    if (image.startsWith("/")) return image;
+    return `/${image}`;
+  };
 
   if (loading) {
     return <div className="chitiet-loading">Đang tải dữ liệu...</div>;
@@ -82,8 +154,16 @@ const ContentChitietdiadiem = () => {
               </div>
 
               <div className="hero-right">
-                <button className="btn-hero">Thuê Hướng Dẫn Viên</button>
-                <button className="btn-hero btn-hero-outline">Chia sẻ địa điểm</button>
+                <button
+                  className="btn-hero"
+                  onClick={handleOpenGuideModal}
+                  disabled={loadingGuides}
+                >
+                  {loadingGuides ? "Đang tải..." : "Thuê Hướng Dẫn Viên"}
+                </button>
+                <button className="btn-hero btn-hero-outline">
+                  Chia sẻ địa điểm
+                </button>
               </div>
             </div>
           </div>
@@ -188,6 +268,97 @@ const ContentChitietdiadiem = () => {
           </div>
         </section>
       </div>
+
+      {showGuideModal && (
+        <div
+          className="guide-place-modal-overlay"
+          onClick={() => setShowGuideModal(false)}
+        >
+          <div
+            className="guide-place-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="guide-place-header">
+              <div>
+                <span className="guide-place-subtitle">
+                  DỊCH VỤ BACKPACKING VIỆT NAM
+                </span>
+                <h2>Danh sách Hướng dẫn viên tại {diaDiem.tenDiaDiem}</h2>
+                <p>
+                  Tìm kiếm người bản địa đồng hành bên bạn, am hiểu sâu sắc về hệ sinh
+                  thái địa phương.
+                </p>
+              </div>
+
+              <button
+                className="guide-place-close"
+                onClick={() => setShowGuideModal(false)}
+              >
+                ×
+              </button>
+            </div>
+
+         
+
+            <div className="guide-place-list">
+              {guidesByPlace.length > 0 ? (
+                guidesByPlace.map((guide) => (
+                  <div className="guide-place-card" key={guide._id}>
+                    <div className="guide-place-left">
+                      <img
+                        src={getImageUrl(guide.image)}
+                        alt={guide.hoTen}
+                        className="guide-place-avatar"
+                      />
+
+                      <div className="guide-place-info">
+                        <div className="guide-place-name-row">
+                          <h3>{guide.hoTen}</h3>
+                          {guide.verificationStatus === "da_xac_thuc" && (
+                            <span className="guide-place-badge">ĐÃ XÁC MINH</span>
+                          )}
+                        </div>
+
+                        <div className="guide-place-meta">
+                          <span>📍 {guide.tinhDangKy || guide.queQuan || "Chưa cập nhật"}</span>
+                          <span>
+                            ⏱ {guide.soNamKinhNghiem || 0} năm kinh nghiệm
+                          </span>
+                        </div>
+
+                        <div className="guide-place-rating">
+                          ★★★★★ <span>(52 đánh giá)</span>
+                        </div>
+
+                        <div className="guide-place-price">
+                          <span>GIÁ THUÊ</span>
+                          <strong>{formatPrice(getGuidePrice(guide))}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="guide-place-right">
+                      <button
+                        className="guide-place-action"
+                        onClick={() => handleHireGuide({
+                          ...guide,
+                          giaThue: getGuidePrice(guide),
+                        })}
+                      >
+                        Thuê
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="guide-place-empty">
+                  Hiện chưa có hướng dẫn viên đăng ký tại địa điểm này.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
