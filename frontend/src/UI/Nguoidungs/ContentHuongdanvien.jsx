@@ -259,7 +259,7 @@ const ContentHuongdanvien = ({ user = null }) => {
                 <h3>{selectedGuide.hoTen}</h3>
                 <p>{selectedGuide.tinhDangKy || selectedGuide.queQuan}</p>
 
-                
+
 
                 <div className="hdv-profile-mini">
                   <div>

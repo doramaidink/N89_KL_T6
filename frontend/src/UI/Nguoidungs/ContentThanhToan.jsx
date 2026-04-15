@@ -130,9 +130,7 @@ const ContentThanhToan = () => {
 
             <div className="payment-note-custom">
               <span>ⓘ</span>
-              <p>
-                Vui lòng quét mã QR bằng ứng dụng ngân hàng để thực hiện thanh toán.
-              </p>
+              <p>Vui lòng quét mã QR bằng ứng dụng ngân hàng để thực hiện thanh toán.</p>
             </div>
           </div>
 
@@ -171,12 +169,14 @@ const ContentThanhToan = () => {
                 <strong>{formatPrice(guide?.giaThue)}</strong>
               </div>
             </div>
+
             <div className="payment-info-item-custom">
               <span>ĐỊA ĐIỂM</span>
               <div className="payment-box-line-custom">
                 <strong>{guide?.diaDiemDuocChon?.tenDiaDiem || "Chưa có dữ liệu"}</strong>
               </div>
             </div>
+
             <div className="payment-info-item-custom">
               <span>KHU VỰC</span>
               <div className="payment-box-line-custom">

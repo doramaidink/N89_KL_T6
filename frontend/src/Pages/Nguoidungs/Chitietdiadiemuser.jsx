@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Footer from '../../UI/Nguoidungs/Footer'
-import HeaderTaikhoan from '../../UI/Nguoidungs/Headers/HeaderTaikhoan'
+import Headerkhampha from '../../UI/Nguoidungs/Headers/HeaderKhamPha'
 import ContentChitietdiadiem from '../../UI/Nguoidungs/ContentChitietdiadiem'
 
  const Chitietdiadiem = () => {
@@ -18,7 +18,7 @@ import ContentChitietdiadiem from '../../UI/Nguoidungs/ContentChitietdiadiem'
   }, []);
   return (
     <div>
-        <HeaderTaikhoan user={user}/>
+        <Headerkhampha user={user}/>
         <ContentChitietdiadiem user={user}/>
         <Footer/>
     </div>
