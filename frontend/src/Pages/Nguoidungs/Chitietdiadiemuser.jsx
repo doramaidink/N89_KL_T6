@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Footer from '../../UI/Nguoidungs/Footer'
-import Headerkhampha from '../../UI/Nguoidungs/Headers/HeaderKhamPha'
+import Headerkhampha from '../../UI/Nguoidungs/Headers/HeaderTaiKhoankhampha'
 import ContentChitietdiadiem from '../../UI/Nguoidungs/ContentChitietdiadiem'
 
  const Chitietdiadiem = () => {
