@@ -1,17 +1,40 @@
-import React, { useState, useEffect,useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
-const ContentTrangchu = ({data}) => {
-  const {diaDiemnoibat = []} = data||{};
+const ContentTrangchu = ({ data, user = null }) => {
+  const { diaDiemnoibat = [] } = data || {};
   const navigate = useNavigate();
+
+  const [searchKeyword, setSearchKeyword] = useState("");
+
+  const handleDiKhamPha = () => {
+    if (user) {
+      navigate(`/${encodeURIComponent(user.hoTen)}/khamphauser`);
+    } else {
+      navigate("/khampha");
+    }
+  };
+
+  const handleTimKiem = () => {
+    const keyword = searchKeyword.trim();
+
+    if (user) {
+      navigate(`/${encodeURIComponent(user.hoTen)}/khamphauser`, {
+        state: { keyword }
+      });
+    } else {
+      navigate("/khampha", {
+        state: { keyword }
+      });
+    }
+  };
+
   const filteredDiaDiem = useMemo(() => {
     return diaDiemnoibat.filter(item => item.hot);
-  } , [diaDiemnoibat]);
+  }, [diaDiemnoibat]);
 
   return (
     <div className="home">
-
-      {/* HERO */}
       <section className="tieude-trangchu">
         <h1>Khám phá vẻ đẹp tiềm<br /> ẩn của Việt Nam</h1>
         <p>
@@ -20,17 +43,31 @@ const ContentTrangchu = ({data}) => {
         </p>
 
         <div className="timkiem-trangchu">
-          <input placeholder="Bạn muốn đi đâu hôm nay?" />
-          <button>Tìm kiếm</button>
-
+          <input
+            placeholder="Bạn muốn đi đâu hôm nay?"
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleTimKiem();
+            }}
+          />
+          <button type="button" onClick={handleTimKiem}>
+            Tìm kiếm
+          </button>
         </div>
       </section>
 
       <section className="gioithieu-trangchu">
         <div className="container-trangchu">
-          {/* LEFT */}
           <div className="left-trangchu">
-            <span className="badge-trangchu"><img className="vechungtoi-contenttrangchu" src="/public/img/chu y.png" alt="" /> Về chúng tôi</span>
+            <span className="badge-trangchu">
+              <img
+                className="vechungtoi-contenttrangchu"
+                src="/public/img/chu y.png"
+                alt=""
+              />
+              Về chúng tôi
+            </span>
 
             <h1>
               Về Backpacking <br /> VietNam
@@ -54,7 +91,6 @@ const ContentTrangchu = ({data}) => {
             </div>
           </div>
 
-          {/* RIGHT */}
           <div className="right-trangchu">
             <div className="grid-trangchu">
               <div className="card-trangchu large-trangchu">
@@ -79,11 +115,9 @@ const ContentTrangchu = ({data}) => {
             </div>
           </div>
         </div>
-
       </section>
 
       <section className="diemnoibat-trangchu">
-        {/* HEADER */}
         <div className="header-trangchu">
           <div>
             <h2>Điểm Đến Nổi Bật</h2>
@@ -92,53 +126,62 @@ const ContentTrangchu = ({data}) => {
             </p>
           </div>
 
-          <a href="#" className="all-trangchu">
+          <button
+            type="button"
+            className="all-trangchu"
+            onClick={handleDiKhamPha}
+          >
             Xem tất cả →
-          </a>
+          </button>
         </div>
 
-        {/* GRID */}
         <div className="luoi-trangchu">
-          {/* CARD 1 */}
-            {diaDiemnoibat.map(item =>(
-          <div key={item._id}  onClick={() => navigate(`/chitietdiadiem/${item.slug}`)} className="place-card-trangchu">
-        
-            <div className="image-trangchu">
-              <img src={item.image} alt="" />
+          {filteredDiaDiem.map(item => (
+            <div
+              key={item._id}
+              onClick={() => navigate(`/chitietdiadiem/${item.slug}`)}
+              className="place-card-trangchu"
+            >
+              <div className="image-trangchu">
+                <img src={item.image} alt="" />
 
-            <div className="tags-trangchu">
-            {item.dacDiemDiaDanh?.slice(0, 2).map((tag, index) => (
-            <span key={index} className="tag-item">
-            {tag.toUpperCase()}
-            </span>
-            ))}
-            </div>
-            </div>
+                <div className="tags-trangchu">
+                  {item.dacDiemDiaDanh?.slice(0, 2).map((tag, index) => (
+                    <span key={index} className="tag-item">
+                      {tag.toUpperCase()}
+                    </span>
+                  ))}
+                </div>
+              </div>
 
-            <div className="info-trangchu">
-              <span className="location-trangchu"><img className="poin-trangchu" src="/public/img/poin.png" alt="" /> {item.khuVuc}</span>
-              <h3>{item.tenDiaDiem}</h3>
-              <div className="rating-trangchu">
-                <img className="sao-trangchu" src="/public/img/saovang.png" alt="" /> 4.8 <span>(500 đánh giá)</span>
+              <div className="info-trangchu">
+                <span className="location-trangchu">
+                  <img className="poin-trangchu" src="/public/img/poin.png" alt="" />
+                  {item.khuVuc}
+                </span>
+                <h3>{item.tenDiaDiem}</h3>
+                <div className="rating-trangchu">
+                  <img className="sao-trangchu" src="/public/img/saovang.png" alt="" />
+                  4.8 <span>(500 đánh giá)</span>
+                </div>
               </div>
             </div>
-         
-          </div>
-      ))}
-          {/* CTA CARD */}
+          ))}
+
           <div className="cta-card-trangchu">
-            <div className="icon-trangchu"><img className="bando-trangchu" src="/public/img/address.png" alt="" /></div>
+            <div className="icon-trangchu">
+              <img className="bando-trangchu" src="/public/img/address.png" alt="" />
+            </div>
             <h3>Địa Điểm Nổi Bật</h3>
             <p>Xem tất cả các địa điểm nổi bật.</p>
-            <button>Xem địa điểm</button>
+            <button type="button" onClick={handleDiKhamPha}>
+              Xem địa điểm
+            </button>
           </div>
-
         </div>
       </section>
 
       <section className="why-trangchu">
-
-        {/* CTA BANNER */}
         <div className="cta-banner-trangchu">
           <div className="cta-left-trangchu">
             <h2>Kết nối cùng Hướng Dẫn Viên Bản Địa</h2>
@@ -163,17 +206,16 @@ const ContentTrangchu = ({data}) => {
           </div>
         </div>
 
-        {/* TITLE */}
         <div className="why-title-trangchu">
           <h2>Lý do nên chọn chúng tôi</h2>
           <div className="line-trangchu"></div>
         </div>
 
-        {/* CARDS */}
         <div className="why-grid-trangchu">
-
           <div className="why-card-trangchu">
-            <div className="icon-trangchu"><img className="kefooter-trangchu" src="/public/img/prestige.png" alt="" /></div>
+            <div className="icon-trangchu">
+              <img className="kefooter-trangchu" src="/public/img/prestige.png" alt="" />
+            </div>
             <h3>Uy tín</h3>
             <p>
               Mọi dịch vụ và hội nhóm đều được kiểm duyệt nghiêm ngặt đảm bảo an
@@ -182,7 +224,9 @@ const ContentTrangchu = ({data}) => {
           </div>
 
           <div className="why-card-trangchu">
-            <div className="icon-trangchu"><img className="kefooter-trangchu" src="/public/img/nui.png" alt="" /></div>
+            <div className="icon-trangchu">
+              <img className="kefooter-trangchu" src="/public/img/nui.png" alt="" />
+            </div>
             <h3>Vô vàn địa điểm</h3>
             <p>
               Khám phá kho tàng các địa điểm hoang sơ, từ những cánh rừng già Tây
@@ -191,17 +235,17 @@ const ContentTrangchu = ({data}) => {
           </div>
 
           <div className="why-card-trangchu">
-            <div className="icon-trangchu"><img className="kefooter-trangchu" src="/public/img/hotro.png" alt="" /></div>
+            <div className="icon-trangchu">
+              <img className="kefooter-trangchu" src="/public/img/hotro.png" alt="" />
+            </div>
             <h3>Hỗ trợ 24/7</h3>
             <p>
               Đội ngũ hỗ trợ và cộng đồng Backpacking luôn sẵn sàng giúp bạn trên
               mọi cung đường bất kể ngày đêm.
             </p>
           </div>
-
         </div>
       </section>
-
     </div>
   );
 };

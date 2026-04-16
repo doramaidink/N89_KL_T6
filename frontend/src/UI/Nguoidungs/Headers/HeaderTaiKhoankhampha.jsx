@@ -15,6 +15,15 @@ const HeaderTaikhoanKhamPha = ({ user }) => {
       (words[0][0] || "") + (words[words.length - 1][0] || "")
     ).toUpperCase();
   };
+  const getImageUrl = (image) => {
+    if (!image) return "";
+    if (image.startsWith("http")) return image;
+    if (image.startsWith("/uploads") || image.startsWith("/img")) {
+      return `http://localhost:5000${image}`;
+    }
+    if (image.startsWith("/")) return image;
+    return `http://localhost:5000/${image}`;
+  };
 
   const goTrangChuUser = () => {
     navigate(`/${encodeURIComponent(hoTen)}`);
@@ -32,7 +41,7 @@ const HeaderTaikhoanKhamPha = ({ user }) => {
       </div>
 
       <div className="nav-taikhoan">
-         <span
+        <span
           onClick={goTrangChuUser}
           style={{ cursor: "pointer" }}
         >
@@ -57,7 +66,17 @@ const HeaderTaikhoanKhamPha = ({ user }) => {
 
       <div className="user-menu-taikhoan">
         <div className="user-info-taikhoan">
-          <div className="avatar-taikhoan">{getAvatarText(hoTen)}</div>
+          <div className="avatar-taikhoan">
+            {user?.image ? (
+              <img
+                src={getImageUrl(user.image)}
+                alt={hoTen}
+                className="avatar-img-header"
+              />
+            ) : (
+              <span>{getAvatarText(hoTen)}</span>
+            )}
+          </div>
           <span>{hoTen}</span>
           <span className="arrow-taikhoan"></span>
         </div>
@@ -67,6 +86,7 @@ const HeaderTaikhoanKhamPha = ({ user }) => {
           <div><a href="/thongtintaikhoan">Quản lý tài khoản</a></div>
           <div><a href="/baocao">Báo cáo</a></div>
           <div><a href="/nhom">Group của tôi</a></div>
+          <div><a href="/#">Đăng Xuất</a></div>
         </div>
       </div>
     </div>

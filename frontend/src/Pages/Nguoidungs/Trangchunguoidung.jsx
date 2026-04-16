@@ -34,7 +34,7 @@ const Trangchunguoidung = () => {
     return (
         <div>
             <HeaderTaikhoan  user={data.user}/>
-            <ContentTrangchu data={data} />
+            <ContentTrangchu data={data} user={data.user} />
             <Footer />
         </div>
     )

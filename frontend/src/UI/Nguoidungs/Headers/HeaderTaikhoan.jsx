@@ -3,21 +3,43 @@ import { useNavigate } from "react-router-dom";
 
 const HeaderTaikhoan = ({ user }) => {
   const navigate = useNavigate();
-  const hoTen = user?.hoTen || "Người dùng";
+  const hoTen = user?.hoTen || "";
 
   const getAvatarText = (name) => {
     if (!name) return "ND";
     const words = name.trim().split(" ");
-    if (words.length === 1) {
-      return words[0].substring(0, 2).toUpperCase();
+    if (words.length === 1) return words[0].substring(0, 2).toUpperCase();
+    return ((words[0][0] || "") + (words[words.length - 1][0] || "")).toUpperCase();
+  };
+
+  const getImageUrl = (image) => {
+    if (!image) return "";
+    if (image.startsWith("http")) return image;
+    if (image.startsWith("/uploads") || image.startsWith("/img")) {
+      return `http://localhost:5000${image}`;
     }
-    return (
-      (words[0][0] || "") + (words[words.length - 1][0] || "")
-    ).toUpperCase();
+    if (image.startsWith("/")) return image;
+    return `http://localhost:5000/${image}`;
   };
 
   const goTrangChuUser = () => {
+    if (!hoTen) return;
     navigate(`/${encodeURIComponent(hoTen)}`);
+  };
+
+  const goKhamPhaUser = () => {
+    if (!hoTen) return;
+    navigate(`/${encodeURIComponent(hoTen)}/khamphauser`);
+  };
+
+  const goHuongDanVienUser = () => {
+    if (!hoTen) return;
+    navigate(`/${encodeURIComponent(hoTen)}/huongdanvienuser`);
+  };
+
+  const goDangKyHuongDanVien = () => {
+    if (!hoTen) return;
+    navigate(`/${encodeURIComponent(hoTen)}/dangkihuongdanvien`);
   };
 
   return (
@@ -32,41 +54,52 @@ const HeaderTaikhoan = ({ user }) => {
       </div>
 
       <div className="nav-taikhoan">
-        <span
-          className="active-taikhoan"
-          onClick={goTrangChuUser}
-          style={{ cursor: "pointer" }}
-        >
+        <span className="active-taikhoan" onClick={goTrangChuUser} style={{ cursor: "pointer" }}>
           Trang Chủ
         </span>
 
-        <span
-          onClick={() => navigate(`/${encodeURIComponent(hoTen)}/khamphauser`)}
-          style={{ cursor: "pointer" }}
-        >
+        <span onClick={goKhamPhaUser} style={{ cursor: "pointer" }}>
           Khám Phá
         </span>
 
-        <span
-          onClick={() => navigate(`/${encodeURIComponent(hoTen)}/huongdanvienuser`)}
-          style={{ cursor: "pointer" }}
-        >
+        <span onClick={goHuongDanVienUser} style={{ cursor: "pointer" }}>
           Hướng Dẫn Viên
         </span>
       </div>
 
       <div className="user-menu-taikhoan">
         <div className="user-info-taikhoan">
-          <div className="avatar-taikhoan">{getAvatarText(hoTen)}</div>
-          <span>{hoTen}</span>
+          <div className="avatar-taikhoan">
+            {user?.image ? (
+              <img
+                src={getImageUrl(user.image)}
+                alt={hoTen}
+                className="avatar-img-header"
+              />
+            ) : (
+              <span>{getAvatarText(hoTen)}</span>
+            )}
+          </div>
+
+          <span>{hoTen || "Người dùng"}</span>
           <span className="arrow-taikhoan"></span>
         </div>
 
         <div className="dropdown-taikhoan">
-          <div><a href="/dangkihuongdanvien">Đăng ký làm đối tác</a></div>
-          <div><a href="/thongtintaikhoan">Quản lý tài khoản</a></div>
-          <div><a href="/baocao">Báo cáo</a></div>
-          <div><a href="/nhom">Group của tôi</a></div>
+          <div onClick={() => navigate(`/${encodeURIComponent(hoTen)}/dangkihuongdanvien`)}>Đăng ký làm đối tác</div>
+          <div onClick={() => navigate("/thongtintaikhoan")}>Quản lý tài khoản</div>
+          <div onClick={() => navigate("/baocao")}>Báo cáo</div>
+          <div onClick={() => navigate("/nhom")}>Group của tôi</div>
+          <div
+            onClick={() => {
+              localStorage.removeItem("user");
+              localStorage.removeItem("authUser");
+              localStorage.removeItem("currentUser");
+              navigate("/");
+            }}
+          >
+            Đăng Xuất
+          </div>
         </div>
       </div>
     </div>
@@ -74,3 +107,4 @@ const HeaderTaikhoan = ({ user }) => {
 };
 
 export default HeaderTaikhoan;
+

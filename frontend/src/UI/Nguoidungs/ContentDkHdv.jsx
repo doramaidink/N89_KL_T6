@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 const NgaySinhSelector = ({ value, onChange }) => {
@@ -17,10 +17,17 @@ const NgaySinhSelector = ({ value, onChange }) => {
     if (value) {
       const parts = value.split("-");
       if (parts.length === 3) {
-        setYear(parts[0]);
-        setMonth(String(Number(parts[1])));
-        setDay(String(Number(parts[2])));
+        if (
+          parts[0] !== year ||
+          String(Number(parts[1])) !== month ||
+          String(Number(parts[2])) !== day
+        ) {
+          setYear(parts[0]);
+          setMonth(String(Number(parts[1])));
+          setDay(String(Number(parts[2])));
+        }
       }
+
     }
   }, [value]);
 
@@ -267,12 +274,12 @@ const ContentDkHdv = () => {
     }));
   };
 
-  const handleNgaySinhChange = (value) => {
-    setFormData((prev) => ({
+  const handleNgaySinhChange = useCallback((value) => {
+    setFormData(prev => ({
       ...prev,
-      ngaySinh: value,
+      ngaySinh: value
     }));
-  };
+  }, []);
 
   const handleDiaDiemGiaCaChange = (index, field, value) => {
     const updated = [...formData.diaDiemGiaCa];
@@ -308,12 +315,12 @@ const ContentDkHdv = () => {
         updated.length > 0
           ? updated
           : [
-              {
-                diaDiem: "",
-                mucGia: "",
-                kinhNghiem: "",
-              },
-            ],
+            {
+              diaDiem: "",
+              mucGia: "",
+              kinhNghiem: "",
+            },
+          ],
     }));
   };
 

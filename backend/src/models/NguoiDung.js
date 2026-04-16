@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 
 const NguoiDung = new Schema({
  hoTen: { type: String, required: true, trim: true },
-   email: { type: String, required: true, unique: true, trim: true, lowercase: true },
+  email: { type: String, required: true, unique: true, trim: true, lowercase: true },
   matKhau: { type: String },
   ngaysinh: { type: Date },
   vaiTro: { type: String,  enum: ['nguoiDung', 'doiTac', 'quanTriVien'], default: 'nguoiDung' },
@@ -19,7 +19,7 @@ const NguoiDung = new Schema({
   phienBanDieuKhoan: { type: String, default: null },
   soLanViPham: { type: Number, default: 0 },
   resetPasswordToken: { type: String, default: null },
-resetPasswordExpires: { type: Date, default: null },
+  resetPasswordExpires: { type: Date, default: null },
   danhSachViPham: [
       {
         loai: { type: String, default: "" }, // spam, toxic, lua_dao...

@@ -16,6 +16,28 @@ const ContentChitietdiadiem = ({ user = null }) => {
 
   const [openCreateGroup, setOpenCreateGroup] = useState(false);
   const [stepGroup, setStepGroup] = useState(1);
+  const [reviewData, setReviewData] = useState({
+    thongKe: {
+      tongDanhGia: 0,
+      diemTrungBinh: 0,
+    },
+    danhGias: [],
+  });
+  useEffect(() => {
+    const getDanhGiaMoiNhat = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/danhgia/diadiem/${slug}?limit=2`);
+        setReviewData({
+          thongKe: res.data.thongKe || { tongDanhGia: 0, diemTrungBinh: 0 },
+          danhGias: res.data.danhGias || [],
+        });
+      } catch (error) {
+        console.error("Lỗi lấy đánh giá:", error);
+      }
+    };
+
+    if (slug) getDanhGiaMoiNhat();
+  }, [slug]);
 
   useEffect(() => {
     const getChiTietDiaDiem = async () => {
@@ -31,6 +53,13 @@ const ContentChitietdiadiem = ({ user = null }) => {
 
     if (slug) getChiTietDiaDiem();
   }, [slug]);
+  const handleXemTatCaDanhGia = () => {
+    if (user?.hoTen) {
+      navigate(`/${encodeURIComponent(user.hoTen)}/chitietdiadiemuser/${slug}/danhgia`);
+    } else {
+      navigate(`/chitietdiadiem/${slug}/danhgia`);
+    }
+  };
 
   const fetchGuides = async () => {
     try {
@@ -119,24 +148,8 @@ const ContentChitietdiadiem = ({ user = null }) => {
     return <div className="chitiet-loading">Không tìm thấy địa điểm.</div>;
   }
 
-  const mockDanhGia = [
-    {
-      ten: "Hoàng Tuấn Anh",
-      thoiGian: "1 tháng trước",
-      noiDung:
-        "Tuyệt vời nếu bạn thích khám phá! Khung cảnh hùng vĩ và không khí trong lành.",
-      anh1: "/img/rungdau/rungdau1.jpg",
-      anh2: "/img/rungdau/rungdau2.jpg",
-    },
-    {
-      ten: "Trần Minh Thư",
-      thoiGian: "1 tuần trước",
-      noiDung:
-        "Cảm giác rất đã, thích hợp trekking và chụp ảnh. Nên đi buổi sáng để có ánh sáng đẹp.",
-      anh1: "/img/dinhbanco/dinhbanco1.jpg",
-      anh2: "/img/dinhbanco/dinhbanco2.jpg",
-    },
-  ];
+  console.log("diaDiem:", diaDiem);
+  console.log("dacDiemDiaDanh:", diaDiem?.dacDiemDiaDanh);
 
   const mockNhom = [
     {
@@ -158,8 +171,18 @@ const ContentChitietdiadiem = ({ user = null }) => {
         >
           <div className="hero-overlay">
             <div className="hero-tags">
-              {diaDiem.dacDiemDiaDanh?.slice(0, 3).map((tag, index) => (
-                <span key={index}>{tag}</span>
+              {(diaDiem.dacDiemDiaDanh || []).slice(0, 3).map((tag, index) => (
+                <span
+                  key={index}
+                  className={`hero-tag-pill ${index === 0
+                      ? "hero-tag-green"
+                      : index === 1
+                        ? "hero-tag-gray"
+                        : "hero-tag-red"
+                    }`}
+                >
+                  {tag}
+                </span>
               ))}
             </div>
 
@@ -219,30 +242,58 @@ const ContentChitietdiadiem = ({ user = null }) => {
 
             <div className="card-chitiet">
               <div className="section-title-row">
-                <h3>Đánh giá từ cộng đồng</h3>
-                <span className="more-link">Xem tất cả</span>
+                <h3>
+                  Đánh giá từ cộng đồng
+                  {reviewData.thongKe?.tongDanhGia > 0 && (
+                    <span style={{ marginLeft: 10, color: "#00d26a", fontSize: 16 }}>
+                      {reviewData.thongKe.diemTrungBinh} ★
+                    </span>
+                  )}
+                </h3>
+
+                <span className="more-link" onClick={handleXemTatCaDanhGia}>
+                  Xem tất cả
+                </span>
               </div>
 
               <div className="review-grid">
-                {mockDanhGia.map((item, index) => (
-                  <div className="review-card" key={index}>
-                    <div className="review-header">
-                      <div className="avatar-review">{item.ten.charAt(0)}</div>
-                      <div>
-                        <h4>{item.ten}</h4>
-                        <span>{item.thoiGian}</span>
+                {reviewData.danhGias.length > 0 ? (
+                  reviewData.danhGias.map((item) => (
+                    <div className="review-card" key={item._id}>
+                      <div className="review-header">
+                        <img
+                          src={item.nguoiDung?.image || "/img/default-user.jpg"}
+                          alt={item.nguoiDung?.hoTen || "avatar"}
+                          className="review-avatar-img"
+                        />
+                        <div>
+                          <h4>{item.nguoiDung?.hoTen || "Người dùng"}</h4>
+                          <span>
+                            {"★".repeat(item.soSao || 5)}
+                            {"☆".repeat(5 - (item.soSao || 5))}
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    <p>{item.noiDung}</p>
+                      <p>{item.noiDung || "Người dùng chưa nhập nội dung đánh giá."}</p>
 
-                    <div className="review-images">
-                      <img src={item.anh1} alt="" />
-                      <img src={item.anh2} alt="" />
-                      <div className="more-photos">+2 ảnh</div>
+                      {item.hinhAnh?.length > 0 && (
+                        <div className="review-images">
+                          {item.hinhAnh.slice(0, 2).map((img, index) => (
+                            <img key={index} src={img} alt={`review-${index}`} />
+                          ))}
+                          {item.hinhAnh.length > 2 && (
+                            <div className="more-photos">+{item.hinhAnh.length - 2} ảnh</div>
+                          )}
+                        </div>
+                      )}
                     </div>
+                  ))
+                ) : (
+                  <div className="review-empty-box">
+                    Chưa có đánh giá nào cho địa điểm này.
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>

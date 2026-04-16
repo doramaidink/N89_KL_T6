@@ -1,4 +1,4 @@
-import{Toaster, toast} from 'sonner';
+import { Toaster, toast } from 'sonner';
 import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -26,6 +26,7 @@ import Chitietdiadiemuser from './Pages/Nguoidungs/Chitietdiadiemuser'
 import Chonloainhom from './Pages/Nguoidungs/Chonloainhom';
 import Chonnhom from './Pages/Nguoidungs/Chonnhom';
 import Thanhtoan from './Pages/Nguoidungs/Thanhtoan';
+import Danhgiavanglai from './Pages/Nguoidungs/Danhgiavanglai';
 
 
 import Nhomchat from './Pages/Nguoidungs/Nhomchat';
@@ -34,36 +35,34 @@ import Nhomchat from './Pages/Nguoidungs/Nhomchat';
 function App() {
 
   return <>
-     <ToastContainer position="top-right" autoClose={2000} />
+    <ToastContainer position="top-right" autoClose={2000} />
     <BrowserRouter>
 
       <Routes>
         <Route path='*' element={<Notfound />} />
 
         <Route path='/dangki' element={<Dangki />} />
-       
+
 
         <Route path='/dangnhap' element={<Dangnhap />} />
 
         <Route path='/' element={<Trangchu />} />
 
-   
+
         <Route path="/quen-mat-khau" element={<Quenmatkhau />} />
-         <Route path="/dat-lai-mat-khau" element={<Datlaimatkhau />} />
+        <Route path="/dat-lai-mat-khau" element={<Datlaimatkhau />} />
 
         <Route path='/khampha' element={<Khampha />} />
 
-        <Route path='/Huongdanvien' element={<Huongdanvien />} />
+        <Route path='/h0uongdanvien' element={<Huongdanvien />} />
 
-        <Route path='/:hoten' element={<Trangchunguoidung/>} />
+        <Route path='/:hoten' element={<Trangchunguoidung />} />
 
-        <Route path='/:hoten/khamphauser' element={<Khamphauser/>} />
-        
+        <Route path='/:hoten/khamphauser' element={<Khamphauser />} />
+
         <Route path='/:hoten/huongdanvienuser' element={<Huongdanvienuser />} />
 
-        <Route path='/dangkihuongdanvien' element={<Dangkihuongdanvien />} />
-
-        <Route path='/thongtintaikhoan' element={<Thongtintaikhoan />} />
+        <Route path='/:hoten/dangkihuongdanvien' element={<Dangkihuongdanvien />} />
 
         <Route path='/thongtintaikhoan' element={<Thongtintaikhoan />} />
 
@@ -71,26 +70,27 @@ function App() {
 
         <Route path='/lichsuchuyendi' element={<Lichsuchuyendi />} />
 
-         <Route path='/chonloainhom' element={<Chonloainhom />} />
+        <Route path='/chonloainhom' element={<Chonloainhom />} />
 
-          <Route path='/chonnhom' element={<Chonnhom />} />
+        <Route path='/chonnhom' element={<Chonnhom />} />
 
-         <Route path='/thanhtoan' element={<Thanhtoan />} />
+        <Route path='/thanhtoan' element={<Thanhtoan />} />
 
         <Route path='/hoadon' element={<Hoadon />} />
 
-        <Route path='/baocao' element={<Baocao/>} />
+        <Route path='/baocao' element={<Baocao />} />
 
         <Route path='/nhom' element={<Nhom />} />
 
-        <Route path='/danhgia' element={<Danhgia />} />
+        <Route path='/chitietdiadiem/:slug/danhgia' element={<Danhgiavanglai />} />
+        <Route path='/:hoten/chitietdiadiemuser/:slug/danhgia' element={<Danhgia />} />
 
-        <Route path='/nhomchat' element={<Nhomchat/>} />
+        <Route path='/nhomchat' element={<Nhomchat />} />
 
 
 
         <Route path='/chitietdiadiem/:slug' element={<Chitietdiadiem />} />
-       <Route path = '/:hoten/chitietdiadiemuser/:slug' element ={<Chitietdiadiemuser />} />
+        <Route path='/:hoten/chitietdiadiemuser/:slug' element={<Chitietdiadiemuser />} />
 
 
       </Routes>

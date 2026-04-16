@@ -1,14 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const ContentKhampha = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [diaDiems, setDiaDiems] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(location.state?.keyword || "");
   const [selectedTinh, setSelectedTinh] = useState("");
   const [selectedDoKho, setSelectedDoKho] = useState("");
   const [selectedNganSach, setSelectedNganSach] = useState("");
@@ -28,6 +29,12 @@ const ContentKhampha = () => {
     fetchDiaDiems();
   }, []);
 
+  useEffect(() => {
+    if (location.state?.keyword !== undefined) {
+      setKeyword(location.state.keyword || "");
+    }
+  }, [location.state]);
+
   const danhSachTinh = useMemo(() => {
     const list = diaDiems.map((item) => item.tinh).filter(Boolean);
     return [...new Set(list)];
@@ -45,9 +52,10 @@ const ContentKhampha = () => {
 
   const filteredDiaDiems = useMemo(() => {
     return diaDiems.filter((item) => {
-      const keywordLower = keyword.toLowerCase();
+      const keywordLower = keyword.toLowerCase().trim();
 
       const matchKeyword =
+        !keywordLower ||
         item.tenDiaDiem?.toLowerCase().includes(keywordLower) ||
         item.tinh?.toLowerCase().includes(keywordLower) ||
         item.moTa?.toLowerCase().includes(keywordLower);
