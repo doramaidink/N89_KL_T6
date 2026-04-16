@@ -39,6 +39,8 @@ function App() {
     <BrowserRouter>
 
       <Routes>
+
+        {/* Người dùng */}
         <Route path='*' element={<Notfound />} />
 
         <Route path='/dangki' element={<Dangki />} />
@@ -92,6 +94,111 @@ function App() {
         <Route path='/chitietdiadiem/:slug' element={<Chitietdiadiem />} />
         <Route path='/:hoten/chitietdiadiemuser/:slug' element={<Chitietdiadiemuser />} />
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+             {/* Đối tác */}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+             {/* Quản trị viên */}
 
       </Routes>
 
