@@ -31,6 +31,21 @@ import Danhgiavanglai from './Pages/Nguoidungs/Danhgiavanglai';
 
 import Nhomchat from './Pages/Nguoidungs/Nhomchat';
 
+import ThongKe from './Pages/Quantriviens/Thongke';
+import ThongKeNguoiDung from './Pages/Quantriviens/ThongKeNguoiDung';
+import DuyetDiaDiem from './Pages/Quantriviens/DuyetDiaDiem';
+import QuanLyBaoCao from './Pages/Quantriviens/QuanLyBaoCao';
+import ThongBaoHeThong from './Pages/Quantriviens/ThongBaoHeThong';
+import QuanLyDiaDiem from './Pages/Quantriviens/QuanLyDiaDiem';
+import DonDangKy from './Pages/Quantriviens/DonDangKy';
+
+
+import Bangdieukhien from './Pages/Doitacs/Bangdieukhien';
+import Hoso from './Pages/Doitacs/Hoso';
+import Themdiadiem from './Pages/Doitacs/Themdiadiem';
+import Loimoinhom from './Pages/Doitacs/Loimoinhom';
+import Groupchat from './Pages/Doitacs/Groupchat';
+
 
 function App() {
 
@@ -95,6 +110,9 @@ function App() {
         <Route path='/:hoten/chitietdiadiemuser/:slug' element={<Chitietdiadiemuser />} />
 
 
+        
+
+
 
 
 
@@ -139,6 +157,16 @@ function App() {
 
       
              {/* Đối tác */}
+
+             <Route path='/bangdieukhien' element={<Bangdieukhien />} />
+
+             <Route path='/hoso' element={<Hoso />} />
+
+             <Route path='/themdiadiem' element={<Themdiadiem />} />
+
+             <Route path='/loimoinhom' element={<Loimoinhom />} />
+
+             <Route path='/groupchat' element={<Groupchat />} /> 
 
 
 
@@ -200,7 +228,22 @@ function App() {
 
              {/* Quản trị viên */}
 
+        <Route path='/thongke' element={<ThongKe/>} />
+
+        <Route path='/thongkenguoidung' element={<ThongKeNguoiDung/>} />
+
+        <Route path='/duyetdiadiem' element={<DuyetDiaDiem/>} />
+
+        <Route path='/quanlybaocao' element={<QuanLyBaoCao/>} />
+
+        <Route path='/quanlydiadiem' element={<QuanLyDiaDiem/>} />
+
+        <Route path='/thongbaohethong' element={<ThongBaoHeThong/>} />
+
+        <Route path='/dondangky' element={<DonDangKy/>} />
+
       </Routes>
+
 
     </BrowserRouter>
   </>
