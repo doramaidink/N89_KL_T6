@@ -14,6 +14,14 @@ const ContentTrangchu = ({ data, user = null }) => {
       navigate("/khampha");
     }
   };
+  ///chitietdiadiem/${item.slug}
+    const handleChiTietDiaDiem = (slug) => {
+    if (user) {
+      navigate(`/${encodeURIComponent(user.hoTen)}/chitietdiadiemuser/${slug}`);
+    } else {
+      navigate(`/chitietdiadiem/${slug}`);
+    }
+  };
 
   const handleTimKiem = () => {
     const keyword = searchKeyword.trim();
@@ -139,7 +147,7 @@ const ContentTrangchu = ({ data, user = null }) => {
           {filteredDiaDiem.map(item => (
             <div
               key={item._id}
-              onClick={() => navigate(`/chitietdiadiem/${item.slug}`)}
+              onClick={() => handleChiTietDiaDiem(item.slug)}
               className="place-card-trangchu"
             >
               <div className="image-trangchu">

@@ -71,7 +71,7 @@ function App() {
 
         <Route path='/khampha' element={<Khampha />} />
 
-        <Route path='/h0uongdanvien' element={<Huongdanvien />} />
+        <Route path='/huongdanvien' element={<Huongdanvien />} />
 
         <Route path='/:hoten' element={<Trangchunguoidung />} />
 
