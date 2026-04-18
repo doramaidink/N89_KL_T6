@@ -1,102 +1,111 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+
+const formatMoney = (n = 0) => Number(n || 0).toLocaleString("vi-VN");
 
 const ContentBangdieukhien = () => {
-    return (
-      <div className="doitac-content-bangdieukhien">
-        {/* TITLE */}
-        <div className="doitac-title">
-            <h2>Chào Minh Quang</h2>
-            <p className="doitac-subtitle">
-                Dưới đây là tổng quan về hoạt động kinh doanh của bạn hôm nay.
-            </p>
+  const { slug } = useParams();
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch(`http://localhost:5000/doitac/${slug}/dashboard`);
+      const result = await res.json();
+      if (res.ok) setData(result);
+    };
+    if (slug) fetchData();
+  }, [slug]);
+
+  const maxChart = useMemo(() => {
+    if (!data?.miniChart?.length) return 1;
+    return Math.max(...data.miniChart.map(x => x.value || 0), 1);
+  }, [data]);
+
+  if (!data) return <div className="doitac-content-bangdieukhien">Đang tải...</div>;
+
+  return (
+    <div className="doitac-content-bangdieukhien">
+      <div className="doitac-title">
+        <h2>Chào {data.doiTac?.hoTen || "Đối tác"}</h2>
+        <p className="doitac-subtitle">
+          Dưới đây là tổng quan về hoạt động kinh doanh của bạn hôm nay.
+        </p>
+      </div>
+
+      <div className="doitac-stats">
+        <div className="doitac-card income-card">
+          <div className="doitac-income-card-header">
+            <p className="doitac-card-label">TỔNG THU NHẬP THÁNG NÀY</p>
+            <span className="doitac-card-growth">Thực tế</span>
+          </div>
+          <h2 className="doitac-card-value">
+            {formatMoney(data.stats?.tongThuNhapThang)} <span className="doitac-unit">VND</span>
+          </h2>
+          <div className="doitac-mini-chart">
+            {(data.miniChart || []).map((item, idx) => {
+              const h = `${Math.max((item.value / maxChart) * 100, 10)}%`;
+              return <div key={idx} className={`bar ${idx === data.miniChart.length - 1 ? "active" : ""}`} style={{ height: h }}></div>;
+            })}
+          </div>
         </div>
-  
-        {/* Stats Cards */}
-        <div className="doitac-stats">
-          <div className="doitac-card income-card">
-            <div className="doitac-income-card-header">
-              <p className="doitac-card-label">TỔNG THU NHẬP THÁNG NÀY</p>            
-              <span className="doitac-card-growth">+12.5%</span>
-            </div> 
-            <h2 className="doitac-card-value">19.500.000 <span className="doitac-unit">VND</span></h2> 
-            <div className="doitac-mini-chart">
-              <div className="bar" style={{ height: '30%' }}></div>
-              <div className="bar" style={{ height: '50%' }}></div>
-              <div className="bar" style={{ height: '40%' }}></div>
-              <div className="bar active" style={{ height: '90%' }}></div>
-              <div className="bar" style={{ height: '65%' }}></div>
-              <div className="bar" style={{ height: '45%' }}></div>
-            </div>
-          </div>
-  
-          <div className="doitac-card rating-card">
-            <p className="doitac-card-label">ĐÁNH GIÁ</p>           
-            <h2 className="doitac-card-value">4.9 <span className="doitac-stars">★★★★★</span></h2>                         
-            <span className="doitac-card-rate">Dựa trên 128 lượt đánh giá</span>
-            <div className="doitac-avatar-group">
-              <img src="/img/user1.jpg" alt="user" />
-              <img src="/img/user2.jpg" alt="user" />
-              <img src="/img/user3.jpg" alt="user" />
-              <div className="doitac-avatar-more">+12</div>
-            </div>
-          </div>
-  
-          <div className="doitac-card request-card">
-            <div className="doitac-request-icon-box"> 
-              <span className="doitac-icon">📋</span>
-              <span className="doitac-request-text">Yêu cầu mới</span>            
-            </div>
-            <div className="doitac-request-main">
-              <h2 className="doitac-card-value-orange" >08 <span className="doitac-status-tag-orange">Khẩn cấp</span></h2>             
-            </div>
-            <p className="doitac-card-subtext">Cần phản hồi trong 24h</p>
-          </div>         
+
+        <div className="doitac-card rating-card">
+          <p className="doitac-card-label">ĐÁNH GIÁ</p>
+          <h2 className="doitac-card-value">
+            {data.stats?.diemTrungBinh || 0} <span className="doitac-stars">★★★★★</span>
+          </h2>
+          <span className="doitac-card-rate">Dựa trên {data.stats?.tongDanhGia || 0} lượt đánh giá</span>
         </div>
-  
-        {/* Table */}
-        <div className="doitac-table-container">
-          <div className="doitac-table-header">
-            <h3>Yêu cầu thuê gần đây</h3>
-            <button className="btn-more">...</button>
+
+        <div className="doitac-card request-card">
+          <div className="doitac-request-icon-box">
+            <span className="doitac-icon">📋</span>
+            <span className="doitac-request-text">Yêu cầu mới</span>
           </div>
-
-          <div className="doitac-table-yeucau">
-            {/* Header */}
-            <div className="doitac-row header-yeucau">
-              <div>Khách hàng</div>
-              <div>Vị trí</div>
-              <div>Ngày đặt</div>
-              <div>Trạng thái</div>           
-              <div>Hành động</div>
-            </div>        
-
-            {/* Row 1 */}
-            <div className="doitac-row-yeucau">
-              <div className="user-info">
-                <div className="user-avatar-small">AN</div>
-                <span>An Nguyễn</span>
-              </div>
-              <div>Rừng Dâu, Sơn Trà, Đà Nẵng</div>
-              <div>15/04/2024</div>          
-              <div><span className="status-yeucau-pending">Đang chờ</span></div>
-              <div><button className="btn-chitiet-yeucau">Chi tiết</button></div>
-            </div>
-
-            {/* Row 2 */}
-            <div className="doitac-row-yeucau">
-              <div className="user-info">
-                <div className="user-avatar-small">TH</div>
-                <span>Trần Hưng</span>
-              </div>
-              <div>Bãi Đá Đen, Đà Nẵng</div>
-              <div>14/04/2024</div>          
-              <div><span className="status-yeucau-done">Đã xác nhận</span></div>
-              <div><button className="btn-chitiet-yeucau">Chi tiết</button></div>
-            </div>            
+          <div className="doitac-request-main">
+            <h2 className="doitac-card-value-orange">
+              {String(data.stats?.yeuCauMoi || 0).padStart(2, "0")}
+            </h2>
           </div>
+          <p className="doitac-card-subtext">Cần phản hồi trong 24h</p>
         </div>
       </div>
-    );
-  }
+
+      <div className="doitac-table-container">
+        <div className="doitac-table-header">
+          <h3>Yêu cầu thuê gần đây</h3>
+          <button className="btn-more">...</button>
+        </div>
+
+        <div className="doitac-table-yeucau">
+          <div className="doitac-row header-yeucau">
+            <div>Khách hàng</div>
+            <div>Vị trí</div>
+            <div>Ngày đặt</div>
+            <div>Trạng thái</div>
+            <div>Hành động</div>
+          </div>
+
+          {(data.yeuCauGanDay || []).map((item) => (
+            <div className="doitac-row-yeucau" key={item.id}>
+              <div className="user-info">
+                <div className="user-avatar-small">#{String(item.khachHang).slice(-2)}</div>
+                <span>{item.khachHang}</span>
+              </div>
+              <div>{item.viTri}</div>
+              <div>{item.ngayDat}</div>
+              <div>
+                <span className={item.trangThai === "Đang chờ" ? "status-yeucau-pending" : "status-yeucau-done"}>
+                  {item.trangThai}
+                </span>
+              </div>
+              <div><button className="btn-chitiet-yeucau">Chi tiết</button></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default ContentBangdieukhien;

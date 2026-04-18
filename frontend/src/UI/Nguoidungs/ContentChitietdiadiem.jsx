@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 
 const ContentChitietdiadiem = ({ user = null }) => {
   const { slug } = useParams();
+
+  
   const navigate = useNavigate();
 
   const [diaDiem, setDiaDiem] = useState(null);

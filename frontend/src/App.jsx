@@ -110,7 +110,6 @@ function App() {
         <Route path='/:hoten/chitietdiadiemuser/:slug' element={<Chitietdiadiemuser />} />
 
 
-        
 
 
 
@@ -129,7 +128,6 @@ function App() {
 
 
 
-      
 
 
 
@@ -155,18 +153,17 @@ function App() {
 
 
 
-      
-             {/* Đối tác */}
 
-             <Route path='/bangdieukhien' element={<Bangdieukhien />} />
 
-             <Route path='/hoso' element={<Hoso />} />
 
-             <Route path='/themdiadiem' element={<Themdiadiem />} />
+        {/* Đối tác */}
 
-             <Route path='/loimoinhom' element={<Loimoinhom />} />
+        <Route path='/doitac/:slug' element={<Bangdieukhien />} />
+        <Route path='/doitac/:slug/hoso' element={<Hoso />} />
+        <Route path='/doitac/:slug/themdiadiem' element={<Themdiadiem />} />
+        <Route path='/doitac/:slug/loimoinhom' element={<Loimoinhom />} />
+        <Route path='/doitac/:slug/groupchat' element={<Groupchat />} />
 
-             <Route path='/groupchat' element={<Groupchat />} /> 
 
 
 
@@ -225,22 +222,15 @@ function App() {
 
 
 
+        {/* Quản trị viên */}
 
-             {/* Quản trị viên */}
-
-        <Route path='/thongke' element={<ThongKe/>} />
-
-        <Route path='/thongkenguoidung' element={<ThongKeNguoiDung/>} />
-
-        <Route path='/duyetdiadiem' element={<DuyetDiaDiem/>} />
-
-        <Route path='/quanlybaocao' element={<QuanLyBaoCao/>} />
-
-        <Route path='/quanlydiadiem' element={<QuanLyDiaDiem/>} />
-
-        <Route path='/thongbaohethong' element={<ThongBaoHeThong/>} />
-
-        <Route path='/dondangky' element={<DonDangKy/>} />
+        <Route path='/admin/:slug' element={<ThongKe />} />
+        <Route path='/admin/:slug/thongkenguoidung' element={<ThongKeNguoiDung />} />
+        <Route path='/admin/:slug/duyetdiadiem' element={<DuyetDiaDiem />} />
+        <Route path='/admin/:slug/quanlybaocao' element={<QuanLyBaoCao />} />
+        <Route path='/admin/:slug/quanlydiadiem' element={<QuanLyDiaDiem />} />
+        <Route path='/admin/:slug/thongbaohethong' element={<ThongBaoHeThong />} />
+        <Route path='/admin/:slug/dondangky' element={<DonDangKy />} />
 
       </Routes>
 

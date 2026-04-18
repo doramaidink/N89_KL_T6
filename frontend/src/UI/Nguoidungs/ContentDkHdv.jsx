@@ -1,6 +1,56 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
+const API_TINH = "https://provinces.open-api.vn/api";
+
+const MIEN_TRUNG_KEYWORDS = [
+  "thanh hoa",
+  "nghe an",
+  "ha tinh",
+  "quang binh",
+  "quang tri",
+  "thua thien hue",
+  "hue",
+  "da nang",
+  "quang nam",
+  "quang ngai",
+  "binh dinh",
+  "phu yen",
+  "khanh hoa",
+  "ninh thuan",
+  "binh thuan",
+];
+
+const normalizeVietnamese = (str = "") =>
+  str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .trim();
+
+const isMienTrungProvince = (provinceName = "") => {
+  const normalized = normalizeVietnamese(provinceName);
+  return MIEN_TRUNG_KEYWORDS.some((item) => normalized.includes(item));
+};
+
+const buildFullAddress = ({
+  street = "",
+  provinceName = "",
+  districtName = "",
+  wardName = "",
+}) => {
+  return [street, wardName, districtName, provinceName].filter(Boolean).join(", ");
+};
+
+const buildQueQuan = ({
+  provinceName = "",
+  districtName = "",
+  wardName = "",
+}) => {
+  return [wardName, districtName, provinceName].filter(Boolean).join(", ");
+};
+
 const NgaySinhSelector = ({ value, onChange }) => {
   const [day, setDay] = useState("");
   const [month, setMonth] = useState("");
@@ -27,9 +77,8 @@ const NgaySinhSelector = ({ value, onChange }) => {
           setDay(String(Number(parts[2])));
         }
       }
-
     }
-  }, [value]);
+  }, [value, year, month, day]);
 
   useEffect(() => {
     if (day && month && year) {
@@ -50,13 +99,9 @@ const NgaySinhSelector = ({ value, onChange }) => {
           onChange={(e) => setDay(e.target.value)}
           className="w-full rounded-xl border border-emerald-700/60 bg-emerald-950/60 px-4 py-3 text-white outline-none transition duration-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/30"
         >
-          <option value="" className="text-black">
-            Ngày
-          </option>
+          <option value="" className="text-black">Ngày</option>
           {days.map((d) => (
-            <option key={d} value={d} className="text-black">
-              {d}
-            </option>
+            <option key={d} value={d} className="text-black">{d}</option>
           ))}
         </select>
 
@@ -65,13 +110,9 @@ const NgaySinhSelector = ({ value, onChange }) => {
           onChange={(e) => setMonth(e.target.value)}
           className="w-full rounded-xl border border-emerald-700/60 bg-emerald-950/60 px-4 py-3 text-white outline-none transition duration-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/30"
         >
-          <option value="" className="text-black">
-            Tháng
-          </option>
+          <option value="" className="text-black">Tháng</option>
           {months.map((m) => (
-            <option key={m} value={m} className="text-black">
-              {m}
-            </option>
+            <option key={m} value={m} className="text-black">{m}</option>
           ))}
         </select>
 
@@ -80,13 +121,9 @@ const NgaySinhSelector = ({ value, onChange }) => {
           onChange={(e) => setYear(e.target.value)}
           className="w-full rounded-xl border border-emerald-700/60 bg-emerald-950/60 px-4 py-3 text-white outline-none transition duration-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/30"
         >
-          <option value="" className="text-black">
-            Năm
-          </option>
+          <option value="" className="text-black">Năm</option>
           {years.map((y) => (
-            <option key={y} value={y} className="text-black">
-              {y}
-            </option>
+            <option key={y} value={y} className="text-black">{y}</option>
           ))}
         </select>
       </div>
@@ -100,10 +137,185 @@ const NgaySinhSelector = ({ value, onChange }) => {
   );
 };
 
+const AddressSelector = ({
+  title,
+  value,
+  onChange,
+  provinces,
+  showStreet = false,
+}) => {
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [loadingWards, setLoadingWards] = useState(false);
+
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (!value.provinceCode) {
+        setDistricts([]);
+        return;
+      }
+
+      try {
+        setLoadingDistricts(true);
+        const res = await fetch(`${API_TINH}/p/${value.provinceCode}?depth=2`);
+        const data = await res.json();
+        setDistricts(data?.districts || []);
+      } catch (error) {
+        console.log(error);
+        setDistricts([]);
+      } finally {
+        setLoadingDistricts(false);
+      }
+    };
+
+    fetchDistricts();
+  }, [value.provinceCode]);
+
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (!value.districtCode) {
+        setWards([]);
+        return;
+      }
+
+      try {
+        setLoadingWards(true);
+        const res = await fetch(`${API_TINH}/d/${value.districtCode}?depth=2`);
+        const data = await res.json();
+        setWards(data?.wards || []);
+      } catch (error) {
+        console.log(error);
+        setWards([]);
+      } finally {
+        setLoadingWards(false);
+      }
+    };
+
+    fetchWards();
+  }, [value.districtCode]);
+
+  const handleProvinceChange = (e) => {
+    const code = e.target.value;
+    const province = provinces.find((item) => String(item.code) === String(code));
+
+    onChange({
+      ...value,
+      provinceCode: code,
+      provinceName: province?.name || "",
+      districtCode: "",
+      districtName: "",
+      wardCode: "",
+      wardName: "",
+    });
+  };
+
+  const handleDistrictChange = (e) => {
+    const code = e.target.value;
+    const district = districts.find((item) => String(item.code) === String(code));
+
+    onChange({
+      ...value,
+      districtCode: code,
+      districtName: district?.name || "",
+      wardCode: "",
+      wardName: "",
+    });
+  };
+
+  const handleWardChange = (e) => {
+    const code = e.target.value;
+    const ward = wards.find((item) => String(item.code) === String(code));
+
+    onChange({
+      ...value,
+      wardCode: code,
+      wardName: ward?.name || "",
+    });
+  };
+
+  return (
+    <div className="form-group full-col">
+      <label>{title}</label>
+
+      <div className="dkhdv-grid three-col" style={{ marginTop: 8 }}>
+        {showStreet && (
+          <div className="form-group">
+            <label>Số nhà / tên đường</label>
+            <input
+              value={value.street || ""}
+              onChange={(e) => onChange({ ...value, street: e.target.value })}
+              placeholder="Ví dụ: 123 Nguyễn Văn Linh"
+            />
+          </div>
+        )}
+
+        <div className="form-group">
+          <label>Tỉnh / Thành</label>
+          <select value={value.provinceCode || ""} onChange={handleProvinceChange}>
+            <option value="">-- Chọn tỉnh/thành --</option>
+            {provinces.map((province) => (
+              <option key={province.code} value={province.code}>
+                {province.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Quận / Huyện</label>
+          <select
+            value={value.districtCode || ""}
+            onChange={handleDistrictChange}
+            disabled={!value.provinceCode || loadingDistricts}
+          >
+            <option value="">
+              {loadingDistricts ? "Đang tải..." : "-- Chọn quận/huyện --"}
+            </option>
+            {districts.map((district) => (
+              <option key={district.code} value={district.code}>
+                {district.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Phường / Xã</label>
+          <select
+            value={value.wardCode || ""}
+            onChange={handleWardChange}
+            disabled={!value.districtCode || loadingWards}
+          >
+            <option value="">
+              {loadingWards ? "Đang tải..." : "-- Chọn phường/xã --"}
+            </option>
+            {wards.map((ward) => (
+              <option key={ward.code} value={ward.code}>
+                {ward.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {(showStreet
+        ? buildFullAddress(value)
+        : buildQueQuan(value)) && (
+          <p className="mt-2 text-sm text-emerald-300">
+            Đã chọn: {showStreet ? buildFullAddress(value) : buildQueQuan(value)}
+          </p>
+        )}
+    </div>
+  );
+};
+
 const ContentDkHdv = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [diaDiems, setDiaDiems] = useState([]);
+  const [allProvinces, setAllProvinces] = useState([]);
+  const [mienTrungProvinces, setMienTrungProvinces] = useState([]);
 
   const [previewFront, setPreviewFront] = useState("");
   const [previewBack, setPreviewBack] = useState("");
@@ -112,6 +324,25 @@ const ContentDkHdv = () => {
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+
+  const [diaChiData, setDiaChiData] = useState({
+    street: "",
+    provinceCode: "",
+    provinceName: "",
+    districtCode: "",
+    districtName: "",
+    wardCode: "",
+    wardName: "",
+  });
+
+  const [queQuanData, setQueQuanData] = useState({
+    provinceCode: "",
+    provinceName: "",
+    districtCode: "",
+    districtName: "",
+    wardCode: "",
+    wardName: "",
+  });
 
   const [formData, setFormData] = useState({
     hoTen: "",
@@ -160,8 +391,45 @@ const ContentDkHdv = () => {
       }
     };
 
+    const fetchProvinces = async () => {
+      try {
+        const res = await fetch(`${API_TINH}/p/`);
+        const data = await res.json();
+
+        if (Array.isArray(data)) {
+          setAllProvinces(data);
+
+          const filtered = data.filter((item) => isMienTrungProvince(item.name));
+          setMienTrungProvinces(filtered);
+        } else {
+          setAllProvinces([]);
+          setMienTrungProvinces([]);
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Không tải được danh sách tỉnh/thành");
+      }
+    };
+
     fetchDiaDiem();
+    fetchProvinces();
   }, []);
+
+  useEffect(() => {
+    const fullAddress = buildFullAddress(diaChiData);
+    setFormData((prev) => ({
+      ...prev,
+      diaChi: fullAddress,
+    }));
+  }, [diaChiData]);
+
+  useEffect(() => {
+    const fullQueQuan = buildQueQuan(queQuanData);
+    setFormData((prev) => ({
+      ...prev,
+      queQuan: fullQueQuan,
+    }));
+  }, [queQuanData]);
 
   useEffect(() => {
     if (step === 3) {
@@ -275,9 +543,9 @@ const ContentDkHdv = () => {
   };
 
   const handleNgaySinhChange = useCallback((value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      ngaySinh: value
+      ngaySinh: value,
     }));
   }, []);
 
@@ -362,12 +630,28 @@ const ContentDkHdv = () => {
       toast.error("Vui lòng chọn ngày sinh");
       return false;
     }
-    if (!formData.diaChi.trim()) {
-      toast.error("Vui lòng nhập địa chỉ");
+
+    if (
+      !diaChiData.street.trim() ||
+      !diaChiData.provinceCode ||
+      !diaChiData.districtCode ||
+      !diaChiData.wardCode
+    ) {
+      toast.error("Vui lòng chọn đầy đủ địa chỉ hiện tại");
       return false;
     }
+
+    if (
+      !queQuanData.provinceCode ||
+      !queQuanData.districtCode ||
+      !queQuanData.wardCode
+    ) {
+      toast.error("Vui lòng chọn đầy đủ quê quán");
+      return false;
+    }
+
     if (!formData.tinhDangKy.trim()) {
-      toast.error("Vui lòng nhập tỉnh/thành đăng ký");
+      toast.error("Vui lòng chọn tỉnh/thành đăng ký");
       return false;
     }
 
@@ -544,34 +828,36 @@ const ContentDkHdv = () => {
                 />
               </div>
 
-              <div className="form-group full-col">
-                <label>Địa chỉ</label>
-                <input
-                  name="diaChi"
-                  value={formData.diaChi}
-                  onChange={handleChange}
-                  placeholder="Số nhà, tên đường, phường/xã..."
-                />
-              </div>
+              <AddressSelector
+                title="Địa chỉ hiện tại"
+                value={diaChiData}
+                onChange={setDiaChiData}
+                provinces={allProvinces}
+                showStreet={true}
+              />
 
-              <div className="form-group full-col">
-                <label>Quê quán</label>
-                <input
-                  name="queQuan"
-                  value={formData.queQuan}
-                  onChange={handleChange}
-                  placeholder="Quê quán"
-                />
-              </div>
+              <AddressSelector
+                title="Quê quán"
+                value={queQuanData}
+                onChange={setQueQuanData}
+                provinces={allProvinces}
+                showStreet={false}
+              />
 
               <div className="form-group">
                 <label>Tỉnh/Thành đăng ký</label>
-                <input
+                <select
                   name="tinhDangKy"
                   value={formData.tinhDangKy}
                   onChange={handleChange}
-                  placeholder="Đà Nẵng"
-                />
+                >
+                  <option value="">-- Chọn tỉnh/thành miền Trung --</option>
+                  {mienTrungProvinces.map((province) => (
+                    <option key={province.code} value={province.name}>
+                      {province.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-group">

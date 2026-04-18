@@ -1,8 +1,8 @@
 const NguoiDungs = require('../models/NguoiDung')
 const crypto = require("crypto");
 const sendMail = require("../utils/sendMail");
-// const DoanhNghieps = require('../models/DoanhNghiep')
-// const QuanTriViens = require('../models/QuanTriVien')
+const QuanTriViens = require('../models/QuanTriVien');
+const DoiTac = require('../models/DoiTac');
 
 class loginController{
  async dangky(req, res) {
@@ -96,58 +96,82 @@ class loginController{
     }
   }
    async dangnhap(req, res) {
-    try {
-    const { email, passWord } = req.body;
-    
+  try {
+    const email = (req.body.email || "").trim().toLowerCase();
+    const { passWord } = req.body;
+    // 1. CHECK ADMIN
+    const admin = await QuanTriViens.findOne({ email });
 
-    // 1. Kiểm tra quản trị viên
-    // let admin = await QuanTriViens.findOne({ soDienThoai });
-    // if (admin && admin.matKhau === passWord) {
-    //   return res.status(200).json({
-    //     user: {
-    //       id: admin._id,
-    //       soDienThoai: admin.soDienThoai,
-    //       vaiTro: "quanTriVien",
-    //       slug: admin.slug || admin.soDienThoai.toLowerCase().replace(/ /g, "-")
-    //     }
-    //   });
-    // }
+    if (admin) {
+      if (admin.matKhau !== passWord) {
+        return res.status(400).json({
+          message: "Sai email hoặc mật khẩu!"
+        });
+      }
+       admin.lanDangNhapCuoi = new Date();
+      await admin.save();
 
-    // // 2. Kiểm tra doanh nghiệp
-    // let dn = await DoanhNghieps.findOne({ soDienThoai });
-    // if (dn && dn.matKhau === passWord) {
-    //   return res.status(200).json({
-    //     user: {
-    //       id: dn._id,
-    //       soDienThoai: dn.soDienThoai,
-    //       vaiTro: "doanhNghiep",
-    //       slug: dn.slug || dn.soDienThoai.toLowerCase().replace(/ /g, "-")
-    //     }
-    //   });
-    // }
-
-    // 3. Kiểm tra người dùng
-    let nd = await NguoiDungs.findOne({ email });
-    if (nd && nd.matKhau === passWord) {
       return res.status(200).json({
         user: {
-          id: nd._id,
-          email: nd.email,
-           hoTen: nd.hoTen,
-           vaiTro: nd.vaiTro,
-          slug: nd.slug || nd.email.toLowerCase().replace(/ /g, "-"),
-          image: nd.image || "",
+          id: admin._id,
+          email: admin.email,
+          hoTen: admin.hoTen,
+          vaiTro: "quanTriVien",
+          slug: admin.slug,
         }
       });
     }
+    // 2. CHECK USER
+    // 2. Người dùng
+    const nd = await NguoiDungs.findOne({ email });
+    if (!nd) {
+      return res.status(400).json({ message: "Sai email hoặc mật khẩu!" });
+    }
 
-    return res.status(400).json({ message: "Sai email hoặc mật khẩu!" });
+    if (nd.matKhau !== passWord) {
+      return res.status(400).json({ message: "Sai email hoặc mật khẩu!" });
+    }
+
+    // 3. Nếu user đã là đối tác thì lấy hồ sơ đối tác
+    if (nd.vaiTro === "doiTac") {
+      const doiTac = await DoiTac.findOne({
+        nguoiDung: nd._id,
+        trangThaiHoSo: "da_duyet"
+      });
+
+      if (doiTac) {
+        return res.status(200).json({
+          user: {
+            id: nd._id,
+            email: nd.email,
+            hoTen: doiTac.hoTen || nd.hoTen,
+            vaiTro: "doiTac",
+            slug: doiTac.slug,
+            image: doiTac.image || nd.image || "",
+            doiTacId: doiTac._id,
+          }
+        });
+      }
+    }
+
+    // 4. User thường
+    return res.status(200).json({
+      user: {
+        id: nd._id,
+        email: nd.email,
+        hoTen: nd.hoTen,
+        vaiTro: nd.vaiTro,
+        slug: nd.slug || nd.email.toLowerCase().replace(/ /g, "-"),
+        image: nd.image || "",
+      }
+    });
 
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Lỗi server!" });
+    return res.status(500).json({ message: "Lỗi server!" });
   }
-  }
+}
+/*---------------Quên mật khẩu----------------------*/
   async quenMatKhau(req, res) {
     try {
       const email = (req.body.email || "").trim().toLowerCase();
@@ -199,6 +223,7 @@ class loginController{
     }
   }
 
+/*---------------Kiểm tra xác nhận email----------------------*/
   async kiemTraResetToken(req, res) {
     try {
       const token = req.query.token;
