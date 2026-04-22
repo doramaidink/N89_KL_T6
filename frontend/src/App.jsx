@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Toaster, toast } from 'sonner';
 import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -48,6 +49,16 @@ import Groupchat from './Pages/Doitacs/Groupchat';
 
 
 function App() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Lấy thông tin user từ localStorage khi trang web load
+    const savedUser = JSON.parse(localStorage.getItem("user")) ||
+      JSON.parse(localStorage.getItem("authUser"));
+    if (savedUser) {
+      setUser(savedUser);
+    }
+  }, []);
 
   return <>
     <ToastContainer position="top-right" autoClose={2000} />
@@ -102,11 +113,11 @@ function App() {
         <Route path='/chitietdiadiem/:slug/danhgia' element={<Danhgiavanglai />} />
         <Route path='/:hoten/chitietdiadiemuser/:slug/danhgia' element={<Danhgia />} />
 
-        <Route path='/nhomchat' element={<Nhomchat />} />
+        <Route path='/nhomchat/:groupId' element={<Nhomchat user={user} />} />
 
 
 
-        <Route path='/chitietdiadiem/:slug' element={<Chitietdiadiem />} />
+        <Route path='/chitietdiadiem/:slug' element={<Chitietdiadiem user={user} />} />
         <Route path='/:hoten/chitietdiadiemuser/:slug' element={<Chitietdiadiemuser />} />
 
 

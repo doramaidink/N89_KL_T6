@@ -1,79 +1,99 @@
-import React from "react";
+//
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const Nhom = () => {
+const ContentNhom = ({ user }) => {
+  const [myGroups, setMyGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const handleNavigateToExplore = () => {
+    if (user?.hoTen) {
+      // Điều hướng theo định dạng: /tên-người-dùng/khamphauser
+      navigate(`/${encodeURIComponent(user.hoTen)}/khamphauser`);
+    } else {
+      // Phòng hờ trường hợp không có tên người dùng thì về trang khám phá mặc định
+      navigate('/khampha');
+    }
+  };
+
+  // const getImageUrl = (image) => {
+  //   if (!image) return "/img/default-trekking.jpg";
+
+  //   // Nếu image là một chuỗi đường dẫn (vừa lấy từ database)
+  //   if (typeof image === 'string') {
+  //     if (image.startsWith("http")) return image;
+  //     const cleanPath = image.startsWith('/') ? image.slice(1) : image;
+  //     return `http://localhost:5000/${cleanPath}`;
+  //   }
+  //   return "/img/default-trekking.jpg";
+  // };
+
+  useEffect(() => {
+    const fetchMyGroups = async () => {
+      if (!user) return;
+      try {
+        // Gọi API lấy nhóm theo ID người dùng
+        const res = await axios.get(`http://localhost:5000/nhom/user/${user.id || user._id}`);
+        setMyGroups(res.data.nhoms);
+      } catch (error) {
+        console.error("Lỗi lấy danh sách nhóm của tôi:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMyGroups();
+  }, [user]);
+
+  if (loading) return <div className="loading">Đang tải danh sách nhóm...</div>;
+
   return (
     <div className="nhom">
-
-      {/* HEADER */}
       <div className="header-nhom">
         <h2>Group của tôi</h2>
-        <p>
-          Quản lý các nhóm trekking bạn đang tham gia. Kết nối cùng đồng đội cho những chuyến đi sắp tới.
-        </p>
+        <p>Quản lý các nhóm trekking bạn đang tham gia. Kết nối cùng đồng đội cho những chuyến đi sắp tới.</p>
       </div>
 
-      {/* GRID */}
       <div className="grid-nhom">
-
-        {/* CREATE CARD */}
-        <div className="create-card-nhom">
+        {/* Nút Tạo Nhóm mới - Giữ nguyên logic UI của bạn */}
+        <div className="create-card-nhom" onClick={handleNavigateToExplore}>
           <div className="plus-nhom">＋</div>
           <h3>Tạo Nhóm mới</h3>
-          <p>Tạo chuyến đi kết hợp cùng bạn bè và đối tác.</p>
+          <p>Tìm địa điểm và tạo chuyến đi cùng bạn bè.</p>
         </div>
+        {/* Hiển thị danh sách nhóm thực tế */}
+        {myGroups.length > 0 ? (
+          myGroups.map((group) => (
+            <div className="card-nhom" key={group._id}>
+              <div className="image-nhom">
+                {/* Lấy ảnh từ địa điểm hoặc ảnh mặc định */}
+                <img src={group.diaDiemId?.image || "/img/default-trekking.jpg"} alt={group.ten} />
+                <span className={`badge ${group.nguoiTao.id === (user.id || user._id) ? "leader" : "active"}`}>
+                  {group.nguoiTao.id === (user.id || user._id) ? "TRƯỞNG NHÓM" : "ĐÃ THAM GIA"}
+                </span>
+              </div>
 
-        {/* CARD 1 */}
-        <div className="card-nhom">
-          <div className="image-nhom">
-            <img src="/img/person.jpg" alt="" />
-            <span className="badge active">ĐANG DIỄN RA</span>
-          </div>
+              <div className="info-nhom">
+                <h3>{group.ten}</h3>
+                {/* ✅ SỬA TẠI ĐÂY: Dùng group.diaDiem thay vì group.diaDiemId */}
+                <p>📍 {group.diaDiem?.tenDiaDiem || "Địa điểm chưa xác định"}</p>
+                <p>👥 {group.thanhVien?.length || 0} thành viên</p>
 
-          <div className="info-nhom">
-            <h3>Chinh phục Rừng Dầu</h3>
-            <p>📍 Vườn quốc gia Tà Đùng</p>
-            <p>👥 12 thành viên</p>
-
-            <button>Vào nhóm →</button>
-          </div>
-        </div>
-
-        {/* CARD 2 */}
-        <div className="card-nhom">
-          <div className="image-nhom">
-            <img src="/img/forest.jpg" alt="" />
-            <span className="badge-nhom hot-nhom">HOT</span>
-          </div>
-
-          <div className="info-nhom">
-            <h3>Trekking Tà Năng - Phan Dũng</h3>
-            <p>📅 25/10/2023</p>
-            <p>📍 Bình Thuận</p>
-
-            <button>Vào nhóm →</button>
-          </div>
-        </div>
-
-        {/* CARD 3 */}
-        <div className="card-nhom">
-          <div className="image-nhom">
-            <img src="/img/girl.jpg" alt="" />
-            <span className="badge-nhom done-nhom">ĐÃ HOÀN THÀNH</span>
-          </div>
-
-          <div className="info-nhom">
-            <h3>Chạm đỉnh Fansipan</h3>
-            <p>📍 Lào Cai</p>
-            <p>⭐ Hoàn thành 100%</p>
-
-            <button>Xem lại</button>
-          </div>
-        </div>
-
+                <button onClick={() => navigate(`/nhomchat/${group._id}`)}>
+                  Vào nhóm →
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p style={{ color: '#888', gridColumn: '1/-1', textAlign: 'center', marginTop: '20px' }}>
+            Bạn chưa tham gia nhóm nào. Hãy khám phá và kết nối ngay!
+          </p>
+        )}
       </div>
-
     </div>
   );
 };
 
-export default Nhom;
+export default ContentNhom;

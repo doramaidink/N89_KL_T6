@@ -1,13 +1,13 @@
 import React from 'react'
-import Footer from '../../UI/Nguoidungs/Footer'
-import HeaderTaikhoan from '../../UI/Nguoidungs/Headers/HeaderTaikhoan'
+import Footer from '../../UI/Nguoidungs/Footer' 
 import ContentNhomchat from '../../UI/Nguoidungs/ContentNhomchat'
+import HeaderChat from '../../UI/Nguoidungs/Headers/HeaderChat'
 
- const Nhomchat = () => {
+ const Nhomchat = ({ user }) => {
   return (
     <div>
-        <HeaderTaikhoan/>
-        <ContentNhomchat/>
+        <HeaderChat user={user}/>
+        <ContentNhomchat user={user}/>
         <Footer/>
     </div>
   )

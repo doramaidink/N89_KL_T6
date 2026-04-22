@@ -1,29 +1,44 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
-const HeaderKhamPha = () => {
+const HeaderKhamPha = ({ user }) => { // 1. Nhận user từ props
+  const navigate = useNavigate();
+
   return (
-
     <div className="header-home">
-
-      {/* LEFT */}
       <div className="logo-group-header">
-        <img src="public/img/logo.jpeg" className="logo-trangchu-header" />
+        <img src="/img/logo.jpeg" className="logo-trangchu-header" alt="Logo" />
         <span className="brand-name-header">Backpacking VietNam</span>
       </div>
 
-      {/* CENTER */}
       <div className="nav-header">
-        <a href="/" className="btntrangchu-headerkhampha">Trang Chủ</a>
-        <a href="/khampha" className="btnkhampha-headerkhampha" >Khám Phá</a>
-        <a href="/Huongdanvien" >Hướng Dẫn Viên</a>
+        <a href="/">Trang Chủ</a>
+        <a href="/khampha">Khám Phá</a>
+        <a href="/Huongdanvien">Hướng Dẫn Viên</a>
       </div>
 
-      {/* RIGHT */}
       <div className="actions-trangchu-header">
-       <a href="/dangnhap" className="btn-outline-header">Đăng Nhập</a>
-        <a href="/dangki"className="btn-primary-header">Tham Gia</a>
+        {/* 2. Kiểm tra nếu có user thì hiện tên, không thì hiện nút đăng nhập */}
+        {user ? (
+          <div className="user-info-header" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontWeight: 'bold' }}>Chào, {user.hoTen}</span>
+            <button
+              onClick={() => {
+                localStorage.clear();
+                window.location.href = "/";
+              }}
+              className="btn-outline-header"
+            >
+              Đăng xuất
+            </button>
+          </div>
+        ) : (
+          <>
+            <a href="/dangnhap" className="btn-outline-header">Đăng Nhập</a>
+            <a href="/dangki" className="btn-primary-header">Tham Gia</a>
+          </>
+        )}
       </div>
-
     </div>
   );
 };
