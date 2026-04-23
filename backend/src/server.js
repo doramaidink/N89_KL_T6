@@ -2,39 +2,38 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 const express = require('express');
-const http = require('http'); // [MỚI] Thư viện http để chạy Socket.io
-const { Server } = require("socket.io"); // [MỚI] Socket.io
+const http = require('http');
+const { Server } = require("socket.io");
 
 const port = 5000;
 const app = express();
 const db = require('./config/db');
 const route = require('./routes');
-const { env } = require('process');
 
-// [MỚI] Import Model Chat để lưu tin nhắn vào Database
+// Import Model Chat
 const Chat = require('./models/Chat');
 
 dotenv.config();
 
-// Middleware
+// --- MIDDLEWARE ---
 app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({
-  extended: true
-}));
-
+app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: "http://localhost:5173" }));
 
-// Cấu hình Static Files
+// --- CẤU HÌNH STATIC FILES (SỬA LẠI TẠI ĐÂY) ---
+// Đảm bảo rằng đường dẫn này trỏ thẳng đến thư mục chứa các folder 'chư nâm', 'núi bằng am'
+// Nếu thư mục 'public' nằm ngang hàng với thư mục 'src', dùng path.join(__dirname, '../public')
+app.use(express.static(path.join(__dirname, '../public')));
+
+//truy cập trực tiếp qua /img/... như trong database
 app.use('/img', express.static(path.join(__dirname, '../public/img')));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
-// Khởi tạo Routes
+// --- KHỞI TẠO ROUTES ---
 route(app);
 
-// [CẤU HÌNH QUAN TRỌNG]: Tạo HTTP Server để bọc App Express
+// Tạo HTTP Server và Socket.io
 const server = http.createServer(app);
-
-// [CẤU HÌNH QUAN TRỌNG]: Khởi tạo Socket.io trên Server này
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
@@ -42,20 +41,17 @@ const io = new Server(server, {
   }
 });
 
-// --- LOGIC SOCKET.IO (CHAT REALTIME) ---
+// --- LOGIC SOCKET.IO ---
 io.on("connection", (socket) => {
   console.log("⚡ Người dùng kết nối:", socket.id);
 
-  // Tham gia vào phòng chat riêng của từng nhóm (Room)
   socket.on("join_room", (groupId) => {
     socket.join(groupId);
     console.log(`👤 User vào phòng nhóm: ${groupId}`);
   });
 
-  // Xử lý gửi tin nhắn và LƯU VÀO MONGODB
   socket.on("send_message", async (data) => {
     try {
-      // data: { groupId, senderId, senderName, message }
       const newChat = await Chat.create({
         nhomId: data.groupId,
         senderId: data.senderId,
@@ -63,17 +59,13 @@ io.on("connection", (socket) => {
         noiDung: data.message,
         thoiGian: new Date()
       });
-
-      // Phát tin nhắn realtime tới tất cả người dùng trong phòng đó
       io.to(data.groupId).emit("receive_message", newChat);
-      console.log(`📩 Tin nhắn từ ${data.senderName} gửi đến phòng ${data.groupId}`);
     } catch (err) {
       console.error("Lỗi lưu tin nhắn:", err);
     }
-
   });
+
   socket.on("new_member_joined", (data) => {
-    // data: { groupId }
     io.to(data.groupId).emit("update_member_list");
   });
 
@@ -82,9 +74,9 @@ io.on("connection", (socket) => {
   });
 });
 
-// Kết nối DB và chạy Server (Sử dụng server.listen thay vì app.listen)
+// --- KẾT NỐI DB VÀ CHẠY SERVER ---
 db.connectDB().then(() => {
   server.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`✅ Server đang chạy tại: http://localhost:${port}`);
   });
 });

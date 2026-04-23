@@ -33,7 +33,6 @@ const ContentChitietdiadiem = ({ user = null }) => {
     danhGias: [],
   });
 
-  // ✅ PHẦN SỬA: State quản lý dữ liệu form tạo nhóm
   const [groupForm, setGroupForm] = useState({
     ten: "",
     moTa: "",
@@ -53,7 +52,6 @@ const ContentChitietdiadiem = ({ user = null }) => {
     }
   });
 
-  // ✅ PHẦN SỬA: Hàm xử lý nhập liệu chung
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setGroupForm((prev) => ({ ...prev, [name]: value }));
@@ -117,7 +115,6 @@ const ContentChitietdiadiem = ({ user = null }) => {
     }
   };
 
-  // ✅ PHẦN SỬA: Logic tạo nhóm (gửi dữ liệu từ state)
   const handleCreateGroup = async () => {
     if (!user) {
       toast.warning("Bạn cần đăng nhập để tạo nhóm");
@@ -130,25 +127,61 @@ const ContentChitietdiadiem = ({ user = null }) => {
 
     try {
       const res = await axios.post("http://localhost:5000/nhom", {
-        ...groupForm, // ✅ PHẢI GỬI TOÀN BỘ STATE ĐỂ CÓ LICH TRINH & LIEN HE
-        diaDiemId: diaDiem._id,
+        ...groupForm,
+        diaDiem: diaDiem._id,
         nguoiTao: {
-          id: user?.id,
+          id: user?.id || user?._id,
           hoTen: user?.hoTen,
         },
+        // Đảm bảo các thông tin này được gửi đi
         lichTrinh: groupForm.lichTrinh,
+        lienHeKhanCap: groupForm.lienHeKhanCap,
         startTime: groupForm.startTime,
         endTime: groupForm.endTime,
       });
+
       if (res.status === 201) {
         toast.success("Tạo nhóm thành công!");
+        // Sau khi tạo xong, chuyển về trang nhóm chat của nhóm đó
         navigate(`/nhomchat/${res.data.nhom._id}`);
         setOpenCreateGroup(false);
       }
     } catch (error) {
+      console.error(error);
       toast.error("Lỗi tạo nhóm");
     }
   };
+  // const handleCreateGroup = async () => {
+  //   if (!user) {
+  //     toast.warning("Bạn cần đăng nhập để tạo nhóm");
+  //     return;
+  //   }
+  //   if (!groupForm.ten) {
+  //     toast.warning("Vui lòng nhập tên nhóm");
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await axios.post("http://localhost:5000/nhom", {
+  //       ...groupForm, // ✅ PHẢI GỬI TOÀN BỘ STATE ĐỂ CÓ LICH TRINH & LIEN HE
+  //       diaDiemId: diaDiem._id,
+  //       nguoiTao: {
+  //         id: user?.id,
+  //         hoTen: user?.hoTen,
+  //       },
+  //       lichTrinh: groupForm.lichTrinh,
+  //       startTime: groupForm.startTime,
+  //       endTime: groupForm.endTime,
+  //     });
+  //     if (res.status === 201) {
+  //       toast.success("Tạo nhóm thành công!");
+  //       navigate(`/nhomchat/${res.data.nhom._id}`);
+  //       setOpenCreateGroup(false);
+  //     }
+  //   } catch (error) {
+  //     toast.error("Lỗi tạo nhóm");
+  //   }
+  // };
 
   useEffect(() => {
     const getChiTietDiaDiem = async () => {
@@ -222,6 +255,10 @@ const ContentChitietdiadiem = ({ user = null }) => {
       return;
     }
 
+    const rawImage = diaDiem?.image || "";
+    const cleanPath = rawImage.startsWith('/') ? rawImage.slice(1) : rawImage;
+    const fullImage = `http://localhost:5000/${cleanPath}`;
+
     const guideForPayment = {
       ...guide,
       giaThue: getGuidePrice(guide),
@@ -229,14 +266,14 @@ const ContentChitietdiadiem = ({ user = null }) => {
         _id: diaDiem?._id || "",
         tenDiaDiem: diaDiem?.tenDiaDiem || "",
         khuVuc: diaDiem?.khuVuc || "",
-        image: diaDiem?.image || "",
+        image: fullImage, 
         images: diaDiem?.images || [],
         slug: diaDiem?.slug || "",
       },
     };
 
     localStorage.setItem("selectedGuide", JSON.stringify(guideForPayment));
-    navigate("/thanhtoan");
+    navigate("/chonloainhom");
   };
 
   const formatPrice = (price) => {

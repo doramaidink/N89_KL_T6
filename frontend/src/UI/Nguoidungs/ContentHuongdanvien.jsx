@@ -93,6 +93,11 @@ const ContentHuongdanvien = ({ user = null }) => {
       return;
     }
 
+    const rawImage = place?.diaDiem?.image || "";
+  const fullImage = rawImage.startsWith("http") 
+    ? rawImage 
+    : `http://localhost:5000/${rawImage.startsWith('/') ? rawImage.slice(1) : rawImage}`;
+
     const selectedGuideForPayment = {
       ...guide,
       giaThue: place?.mucGia || guide?.giaThue || 0,
@@ -108,7 +113,7 @@ const ContentHuongdanvien = ({ user = null }) => {
     };
 
     localStorage.setItem("selectedGuide", JSON.stringify(selectedGuideForPayment));
-    navigate("/thanhtoan");
+    navigate("/chonloainhom");
   };
 
   const handleDangKyThue = () => {
