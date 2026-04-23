@@ -56,7 +56,8 @@ class nhomController {
             // Populate thanhVien để lấy hoTen và image của từng người
             const nhom = await Nhom.findById(id)
                 .populate("nguoiTao.id", "hoTen image")
-                .populate("thanhVien", "hoTen image"); // Quan trọng: lấy thông tin các thành viên
+                .populate("thanhVien", "hoTen image")
+                .populate("diaDiem"); //lấy thông tin các thành viên
 
             const tinNhan = await Chat.find({ nhomId: id }).sort({ thoiGian: 1 });
 

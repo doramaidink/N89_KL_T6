@@ -128,7 +128,7 @@ const ContentChitietdiadiem = ({ user = null }) => {
     try {
       const res = await axios.post("http://localhost:5000/nhom", {
         ...groupForm,
-        diaDiem: diaDiem._id,
+        diaDiemId: diaDiem._id,
         nguoiTao: {
           id: user?.id || user?._id,
           hoTen: user?.hoTen,

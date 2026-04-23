@@ -11,6 +11,31 @@ const ContentNhomchat = ({ user }) => {
   const [messages, setMessages] = useState([]);
   const [currentInput, setCurrentInput] = useState("");
   const chatEndRef = useRef(null);
+  //Checkin-Checkout
+  const [canCheckIn, setCanCheckIn] = useState(false);
+  const [canCheckOut, setCanCheckOut] = useState(false);
+
+  useEffect(() => {
+    if (!groupData) return;
+
+    const checkTime = () => {
+      const now = new Date();
+      const start = new Date(groupData.startTime);
+      const end = new Date(groupData.endTime);
+
+      // ✅ Điều kiện mở nút Check-in: Khi đã đến hoặc sau giờ khởi hành
+      // Bạn có thể chỉnh lại: now >= start
+      setCanCheckIn(now >= start);
+
+      // ✅ Điều kiện mở nút Check-out: Khi đã đến hoặc sau giờ kết thúc
+      setCanCheckOut(now >= end);
+    };
+
+    checkTime(); // Kiểm tra ngay khi load dữ liệu nhóm
+    const interval = setInterval(checkTime, 60000); // Kiểm tra lại mỗi phút (60000ms)
+
+    return () => clearInterval(interval);
+  }, [groupData]);
 
   // 1. Tách hàm initPage ra ngoài để có thể gọi từ bất kỳ useEffect nào
   const initPage = async () => {
@@ -91,6 +116,51 @@ const ContentNhomchat = ({ user }) => {
     );
   }
 
+  //Checkin-checkout tọa độ gps, tạo mã checkin, checkout
+  // const handleCheckIn = () => {
+  //   if (!navigator.geolocation) {
+  //     toast.error("Trình duyệt không hỗ trợ định vị!");
+  //     return;
+  //   }
+
+  //   // Lấy tọa độ hiện tại của người dùng
+  //   navigator.geolocation.getCurrentPosition(async (position) => {
+  //     const { latitude, longitude } = position.coords;
+
+  //     try {
+  //       // Giả sử bạn lấy vị trí đối tác từ thông tin member trong groupData
+  //       // Ở đây tôi ví dụ gửi tọa độ người dùng lên, Backend sẽ so sánh với vị trí HDV
+  //       const res = await axios.post("http://localhost:5000/nhom/checkin", {
+  //         groupId: groupId,
+  //         userLocation: { lat: latitude, lng: longitude },
+  //         partnerLocation: { lat: 10.762622, lng: 106.660172 } // Tọa độ mẫu của HDV
+  //       });
+
+  //       // Sau khi thành công, hiện mã xác nhận
+  //       alert(`Xác thực vị trí thành công! MÃ CHECKOUT CỦA NHÓM: ${res.data.code}`);
+  //       initPage(); // Refresh để cập nhật trạng thái nút
+  //     } catch (error) {
+  //       toast.error(error.response?.data?.message || "Check-in thất bại!");
+  //     }
+  //   });
+  // };
+
+  // const handleCheckOut = async () => {
+  //   const code = prompt("Vui lòng nhập mã Checkout gồm 6 chữ số:"); //
+  //   if (!code) return;
+
+  //   try {
+  //     const res = await axios.post("http://localhost:5000/nhom/checkout", {
+  //       groupId: groupId,
+  //       inputCode: code
+  //     });
+  //     toast.success(res.data.message);
+  //     initPage();
+  //   } catch (error) {
+  //     toast.error(error.response?.data?.message || "Mã sai hoặc lỗi hệ thống!");
+  //   }
+  // };
+
   return (
     <div className="nhomchat">
       {/* ===== LEFT SIDEBAR ===== */}
@@ -99,6 +169,18 @@ const ContentNhomchat = ({ user }) => {
           <div className="icon-group-nhomchat">🏔</div>
           <div>
             <h3>{groupData.ten}</h3>
+            <div style={{
+              fontSize: '13px',
+              color: '#ffcc00',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              <span>📍</span>
+              {/* Kiểm tra groupData.diaDiem trước khi hiển thị */}
+              {groupData?.diaDiem?.tenDiaDiem || "Đang tải địa điểm..."}
+            </div>
             <span className="status-nhomchat">ĐANG HOẠT ĐỘNG</span>
           </div>
         </div>
@@ -157,8 +239,20 @@ const ContentNhomchat = ({ user }) => {
         <div className="attendance-box">
           <p className="title-box-nhomchat">ĐIỂM DANH</p>
           <div className="attendance-buttons">
-            <button className="btn-checkin"><span>➡️</span>CHECK IN</button>
-            <button className="btn-checkout"><span>⬅️</span>CHECK OUT</button>
+            <button
+              className={`btn-checkin ${!canCheckIn ? "disabled-btn" : ""}`}
+              disabled={!canCheckIn}
+              onClick={() => {/* Xử lý checkin */ }}
+            >
+              <span>➡️</span>CHECK IN
+            </button>
+            <button
+              className={`btn-checkout ${!canCheckOut ? "disabled-btn" : ""}`}
+              disabled={!canCheckOut}
+              onClick={() => {/* Xử lý checkout */ }}
+            >
+              <span>⬅️</span>CHECK OUT
+            </button>
           </div>
         </div>
 

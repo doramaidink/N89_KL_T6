@@ -4897,23 +4897,23 @@ input {
 
 
 /*------------------------------------------ContentNhomchat---------------*/
+/* --- TỔNG THỂ --- */
 .nhomchat {
   display: flex;
-  /* Thay đổi height để trừ đi phần Header phía trên */
+  /* ✅ Trừ chiều cao Header (giả định 80px) để không bị cấn */
   height: calc(100vh - 80px);
-  background-color: #0a0c0b;
-  color: #ececec;
-  font-family: 'Inter', sans-serif;
+  margin-top: 80px;
+  background-color: #0a0e0c;
+  color: #ffffff;
   overflow: hidden;
-  /* Đảm bảo khung chat không bị trôi */
-  position: relative;
+  /* Không cho cuộn cả trang */
 }
 
-/* Thêm vào để các cột có thể cuộn độc lập */
+/* ✅ Cho phép các cột cuộn độc lập khi nội dung quá dài */
 .sidebar-nhomchat,
-.chat-nhomchat,
 .info-nhomchat {
   height: 100%;
+  overflow-y: auto;
 }
 
 /* --- SIDEBAR TRÁI: THÔNG TIN & THAO TÁC --- */
@@ -4951,40 +4951,27 @@ input {
   display: block;
 }
 
-.sidebar-section {
-  padding: 10px 20px;
-  margin-top: 10px;
-}
-
 .sidebar-label {
   font-size: 11px;
   color: #555;
   font-weight: 700;
   letter-spacing: 1px;
-  margin-bottom: 12px;
+  padding: 0 20px;
+  margin: 20px 0 10px 0;
 }
 
-/* SIDEBAR TRÁI: Hiệu ứng Hover */
 .sidebar-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 10px 20px;
   cursor: pointer;
   font-size: 14px;
   color: #aaa;
   transition: all 0.2s;
-  background: transparent;
-  /* Mặc định không màu */
 }
 
 .sidebar-item:hover {
-  background: rgba(0, 168, 120, 0.1);
-  color: #00a878;
-}
-
-.sidebar-item.active {
   background: rgba(0, 168, 120, 0.1);
   color: #00a878;
 }
@@ -4995,7 +4982,7 @@ input {
   display: flex;
   flex-direction: column;
   background-color: #0d0f0e;
-  position: relative;
+  height: 100%;
 }
 
 .chat-header-info {
@@ -5010,18 +4997,17 @@ input {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+  /* ✅ Cuộn nội dung chat */
   display: flex;
   flex-direction: column;
-  /* Đảm bảo tin nhắn xếp dọc */
   gap: 15px;
 }
 
-/* Fix lỗi tin nhắn to và lệch */
+/* Tin nhắn */
 .msg {
   display: flex;
   gap: 10px;
   max-width: 75%;
-  /* Giới hạn độ rộng tin nhắn lại cho vừa mắt */
   width: fit-content;
 }
 
@@ -5032,17 +5018,20 @@ input {
 .right-nhomchat {
   align-self: flex-end;
   flex-direction: row-reverse;
-  /* Đảo ngược avatar và bong bóng */
 }
 
 .bubble-nhomchat {
   padding: 10px 14px;
   border-radius: 15px;
   font-size: 13.5px;
-  /* Giảm nhẹ font size cho cân đối */
-  word-wrap: break-word;
-  /* Chống tràn chữ */
   line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.left-nhomchat .bubble-nhomchat {
+  background: #1f2322;
+  color: #fff;
+  border-bottom-left-radius: 4px;
 }
 
 .right-nhomchat .bubble-nhomchat {
@@ -5051,11 +5040,7 @@ input {
   border-bottom-right-radius: 4px;
 }
 
-.left-nhomchat .bubble-nhomchat {
-  border-bottom-left-radius: 4px;
-}
-
-/* Input gửi tin nhắn kiểu mới */
+/* Input gửi tin nhắn */
 .input-wrapper-nhomchat {
   padding: 20px 30px;
 }
@@ -5078,30 +5063,19 @@ input {
   outline: none;
 }
 
-.btn-add-file {
-  background: #252a28;
-  border: none;
-  color: #888;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 20px;
-}
-
 .btn-send-message {
   background: transparent;
   border: none;
   color: #00a878;
   cursor: pointer;
   padding: 5px;
+  font-size: 18px;
 }
 
 /* --- SIDEBAR PHẢI: ĐIỂM DANH & HÀNH TRÌNH --- */
 .info-nhomchat {
   width: 300px;
   padding: 20px;
-  overflow-y: auto;
   border-left: 1px solid #1f2322;
 }
 
@@ -5111,13 +5085,12 @@ input {
   margin: 15px 0 30px 0;
 }
 
+/* ✅ SỬA LẠI NÚT CHECKIN/CHECKOUT: Mặc định tối, hover mới hiện màu */
 .btn-checkin,
 .btn-checkout {
   flex: 1;
   height: 85px;
-  /* Tăng nhẹ chiều cao để chứa icon và chữ */
   border-radius: 16px;
-  border: none;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -5127,22 +5100,28 @@ input {
   font-weight: 700;
   font-size: 11px;
   transition: all 0.3s ease;
-}
-
-.btn-checkin:hover {
-  background: #00c08b;
-  transform: translateY(-2px);
-}
-
-.btn-checkout {
+  /* Mặc định tối */
   background: #161918;
   color: #555;
   border: 1px solid #252a28;
 }
 
+/* ✅ Hiệu ứng khi di chuột vào (Hover) */
+.btn-checkin:hover {
+  background: #00a878;
+  color: #fff;
+  border-color: #00d26a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 168, 120, 0.3);
+}
+
 .btn-checkout:hover {
-  background: #1f2322;
-  color: #888;
+  background: #e74c3c;
+  /* Màu đỏ khi checkout */
+  color: #fff;
+  border-color: #ff5e4d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
 }
 
 .btn-checkin span,
@@ -5150,15 +5129,13 @@ input {
   font-size: 20px;
 }
 
-.box-nhomchat {
-  margin-bottom: 35px;
-}
-
+/* Thông tin chuyến đi & Thành viên */
 .title-box-nhomchat {
   font-size: 11px;
   color: #444;
   font-weight: 700;
-  margin-bottom: 20px;
+  margin: 25px 0 15px 0;
+  text-transform: uppercase;
 }
 
 .trip-item-nhomchat {
@@ -5176,15 +5153,9 @@ input {
   align-items: center;
   justify-content: center;
   font-size: 18px;
+  border: 1px solid #1f2322;
 }
 
-.trip-label {
-  font-size: 10px;
-  color: #555;
-  margin: 0;
-}
-
-/* Thành viên */
 .member-item {
   display: flex;
   align-items: center;
@@ -5192,26 +5163,17 @@ input {
   margin-bottom: 15px;
 }
 
-.member-avatar-wrapper {
-  position: relative;
-}
-
 .member-avatar-wrapper img {
   width: 42px;
   height: 42px;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid #1f2322;
 }
 
-.online-status {
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 10px;
-  height: 10px;
-  background: #00a878;
-  border: 2px solid #0a0c0b;
-  border-radius: 50%;
+.member-info p {
+  margin: 0;
+  font-size: 14px;
 }
 
 .member-role {
@@ -5220,10 +5182,22 @@ input {
   font-weight: 600;
 }
 
-.verified-icon {
-  margin-left: auto;
-  color: #00a878;
-  font-size: 12px;
+/* Custom Scrollbar cho đẹp */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0e0c;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f2322;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00a878;
 }
 
 
@@ -7958,11 +7932,28 @@ input {
 
 /*---------------------------------------ContentGroupchat-----------------------------------*/
 .nhomchat {
-  margin-top: auto;
+  margin-top: 5vh;
   display: flex;
-  height: calc(100vh - 70px);
+  height: calc(100vh - 90px);
   background: #021d16;
   color: white;
+}
+
+.disabled-btn {
+  opacity: 0.4;
+  cursor: not-allowed !important;
+  background-color: #161918 !important;
+  /* Giữ màu tối mặc định */
+  color: #444 !important;
+  border: 1px solid #252a28 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.disabled-btn:hover {
+  background-color: #161918 !important;
+  /* Không đổi màu khi hover */
+  color: #444 !important;
 }
 
 /* ===== SIDEBAR (LEFT) ===== */
