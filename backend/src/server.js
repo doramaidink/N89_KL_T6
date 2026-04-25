@@ -45,9 +45,14 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("⚡ Người dùng kết nối:", socket.id);
 
-  socket.on("join_room", (groupId) => {
-    socket.join(groupId);
-    console.log(`👤 User vào phòng nhóm: ${groupId}`);
+  socket.on("join_room", (data) => {
+    socket.join(data.groupId);
+
+    console.log(
+      data.vaiTro === "doiTac"
+        ? `🌟 HDV vào nhóm: ${data.groupId}`
+        : `👤 User vào nhóm: ${data.groupId}`
+    );
   });
 
   socket.on("send_message", async (data) => {
@@ -57,6 +62,7 @@ io.on("connection", (socket) => {
         senderId: data.senderId,
         hoTen: data.senderName,
         noiDung: data.message,
+        senderRole: data.vaiTro === "doiTac" ? "huongDanVien" : "user",
         thoiGian: new Date()
       });
       io.to(data.groupId).emit("receive_message", newChat);

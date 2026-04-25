@@ -100,7 +100,8 @@ const ContentNhomchat = ({ user }) => {
       groupId,
       senderId: user.id || user._id, // Ưu tiên ID từ login
       senderName: user.hoTen,        // Đảm bảo lấy đúng tên
-      message: currentInput
+      message: currentInput,
+      vaiTro: user.vaiTro,
     };
 
     socket.emit("send_message", msgData); //
@@ -209,6 +210,15 @@ const ContentNhomchat = ({ user }) => {
               <div className="chat-avatar">👤</div>
               <div className="msg-content">
                 {m.senderId !== user?.id && <p className="name-nhomchat">{m.hoTen}</p>}
+                {m.senderRole === "huongDanVien" && (
+                  <span style={{
+                    fontSize: "10px",
+                    color: "#4ade80",
+                    fontWeight: "bold"
+                  }}>
+                    🌟 HDV
+                  </span>
+                )}
                 <div className="bubble-nhomchat">{m.noiDung}</div>
                 <span className="msg-time">
                   {new Date(m.thoiGian).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

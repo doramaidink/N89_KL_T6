@@ -10,6 +10,35 @@ const ContentThanhToan = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  //Thanh Toán ảo
+  const handleFakePaymentSuccess = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const data = JSON.parse(localStorage.getItem("selectedGuide"));
+
+      await fetch("http://localhost:5000/loimoi", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nhomId: data?.groupToHire?._id || null,
+          doiTacId: data?._id, // guide chính là đối tác
+          nguoiGuiId: user?._id,
+          loaiLoiMoi: data?.groupToHire ? "co_nhom" : "tao_moi",
+        }),
+      });
+
+      alert("Thanh toán thành công & đã gửi lời mời!");
+
+      // chuyển sang trang chờ hoặc nhóm
+      navigate("/nhom");
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("selectedGuide"));
 
@@ -201,6 +230,9 @@ const ContentThanhToan = () => {
                 GẶP SỰ CỐ? THANH TOÁN Ở ĐÂY
               </a>
             )}
+            <button onClick={handleFakePaymentSuccess}>
+              ✅ Thanh toán thành công (Fake)
+            </button>
           </div>
         </div>
       </div>

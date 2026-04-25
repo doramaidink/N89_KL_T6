@@ -7,6 +7,9 @@ const paymentRoute = require('./paymentRouter');
 const danhGiaRoute = require('./danhGiaRouter');
 const taiKhoanRoute = require('./taikhoanRouter');
 const nhomRoute = require("./nhomRouter");
+
+const loiMoiRoute = require("./loiMoiRouter");
+
 const quanTriVienRoute = require('./quanTriVienRouter');
 
 
@@ -22,6 +25,8 @@ function route(app) {
     app.use("/danhgia", danhGiaRoute);
     app.use("/taikhoan", taiKhoanRoute);
     app.use("/nhom", nhomRoute);
+    //Doi Tac nhận lời mời
+    app.use("/loimoi", loiMoiRoute);
     //Quan tri vien
     app.use("/quantrivien", quanTriVienRoute);
 

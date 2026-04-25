@@ -17,7 +17,7 @@ class nhomController {
                 startTime: data.startTime,
                 endTime: data.endTime,
                 thanhVien: [data.nguoiTao.id],
-
+                
                 lichTrinh: data.lichTrinh,
                 lienHeKhanCap: data.lienHeKhanCap
             });
