@@ -46,7 +46,10 @@ const ContentNhomchat = ({ user }) => {
       if (res.data.nhom) {
         setGroupData(res.data.nhom);
         setMessages(res.data.tinNhan || []);
-        socket.emit("join_room", groupId);
+        socket.emit("join_room", {
+          groupId,
+          vaiTro: user?.vaiTro
+        });
       }
     } catch (err) {
       console.error("Lỗi API detail nhóm:", err);
