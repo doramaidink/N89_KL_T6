@@ -11,7 +11,12 @@ const Nhom = new Schema(
             hoTen: String,
         },
         // ✅ Thêm mảng thành viên để quản lý người tham gia
-        thanhVien: [{ type: mongoose.Schema.Types.ObjectId, ref: "NguoiDung" }],
+        thanhVien: [
+            {
+                user: { type: mongoose.Schema.Types.ObjectId, ref: "NguoiDung" },
+                role: { type: String, enum: ["truong_nhom", "huong_dan_vien", "thanh_vien"], default: "thanh_vien" }
+            }
+        ],
         soLuong: { type: Number },
         doKho: { type: String },
         startTime: Date,

@@ -1,10 +1,22 @@
+import { useNavigate } from "react-router-dom";
+
 const HeaderDoitacChat = ({ user }) => {
+    const navigate = useNavigate();
+
     return (
         <div className="w-full h-16 px-6 flex items-center justify-between 
                     bg-[#0f172a]/80 backdrop-blur-md border-b border-green-800/30 shadow-sm">
 
             {/* LEFT */}
             <div className="flex items-center gap-4">
+
+                {/* 🔙 NÚT QUAY VỀ */}
+                <button
+                    onClick={() => navigate(`/doitac/${user?.id}/loimoinhom`)}
+                    className="text-green-400 hover:text-white transition text-xl"
+                >
+                    ←
+                </button>
 
                 {/* Badge HDV */}
                 <div className="px-3 py-1 rounded-full bg-green-600/20 text-green-400 text-xs font-medium border border-green-500/30">

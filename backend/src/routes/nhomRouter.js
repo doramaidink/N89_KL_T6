@@ -13,5 +13,7 @@ router.get("/user/:userId", nhomController.layNhomCuaToi);
 router.post("/", nhomController.taoNhom);
 router.get("/:diaDiemId", nhomController.layNhomTheoDiaDiem);
 
+router.get("/cuatoi/:userId", nhomController.layNhomCuaToi);
+
 
 module.exports = router;

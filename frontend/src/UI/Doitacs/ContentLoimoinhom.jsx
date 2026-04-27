@@ -7,6 +7,22 @@ const ContentLoimoinhom = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [invitations, setInvitations] = useState([]);
 
+  const [stats, setStats] = useState({ moi: 0, daChapNhan: 0 });
+
+  const [myGroups, setMyGroups] = useState([]);
+
+  const sortedGroups = [...myGroups].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
+  const displayedGroups = showAll
+    ? sortedGroups
+    : sortedGroups.slice(0, 3);
+
+  const currentMonth = new Date().getMonth() + 1;
+
+
+
   useEffect(() => {
     const fetchInvites = async () => {
       try {
@@ -16,6 +32,7 @@ const ContentLoimoinhom = () => {
 
         // 🔥 FIX CHUẨN
         const doiTacId = user?.doiTacId || user?.id;
+        console.log(user);
 
         if (!doiTacId) {
           console.error("Không có doiTacId");
@@ -26,7 +43,15 @@ const ContentLoimoinhom = () => {
           `http://localhost:5000/loimoi?doiTacId=${doiTacId}`
         );
 
-        const data = await res.json();
+        const text = await res.text();
+        console.log("RAW RESPONSE:", text);
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          console.error("Response không phải JSON!");
+        }
         setInvitations(data.loiMois || []);
       } catch (err) {
         console.error(err);
@@ -35,27 +60,65 @@ const ContentLoimoinhom = () => {
 
     fetchInvites();
   }, []);
-
   const handleAccept = async (item) => {
     try {
       const res = await fetch(
         `http://localhost:5000/loimoi/${item._id}/accept`,
-        {
-          method: "POST",
-        }
+        { method: "POST" }
       );
+
+      // ❗ remove khỏi list
+      setInvitations(prev => prev.filter(i => i._id !== item._id));
+
+      // 🔥 GỌI LẠI THỐNG KÊ
+      fetchThongKe();
+
+      // 🔥 LOG RESPONSE THÔ
+      console.log("RESPONSE:", res);
 
       const data = await res.json();
 
-      alert("Đã tham gia nhóm!");
+      // 🔥 LOG DATA
+      console.log("DATA:", data);
 
-      // ❗ chuyển sang chat
+      // 🔥 LOG NHOM ID
+      console.log("NHOM ID:", data.nhomId);
+
+      if (!data.nhomId) {
+        console.error("❌ nhomId bị undefined");
+        return;
+      }
+
       window.location.href = `/nhomchat/${data.nhomId}`;
 
     } catch (err) {
-      console.error(err);
+      console.error("ERROR:", err);
     }
   };
+  // const handleAccept = async (item) => {
+  //   try {
+  //     const res = await fetch(
+  //       `http://localhost:5000/loimoi/${item._id}/accept`,
+  //       {
+  //         method: "POST",
+  //       }
+  //     );
+
+  //     const data = await res.json();
+
+  //     setInvitations(prev => prev.filter(i => i._id !== item._id));
+
+  //     alert("Đã tham gia nhóm!");
+  //     console.log("DATA:", data);
+  //     console.log("NHOM ID:", data.nhomId);
+
+  //     // ❗ chuyển sang chat
+  //     window.location.href = `/nhomchat/${data.nhomId}`;
+
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
 
   const handleReject = async (item) => {
     try {
@@ -78,6 +141,38 @@ const ContentLoimoinhom = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchStats = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const doiTacId = user?.doiTacId || user?.id;
+
+      const res = await fetch(
+        `http://localhost:5000/loimoi/thongke?doiTacId=${doiTacId}`
+      );
+
+      const data = await res.json();
+      setStats(data);
+    };
+
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchMyGroups = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const userId = user?.id;
+
+      const res = await fetch(
+        `http://localhost:5000/nhom/cuatoi/${userId}`
+      );
+
+      const data = await res.json();
+      setMyGroups(data.nhoms || []);
+    };
+
+    fetchMyGroups();
+  }, []);
+
   return (
     <div className="loimoi-content">
       {isCreating && (
@@ -93,7 +188,9 @@ const ContentLoimoinhom = () => {
         {/* TITLE */}
         <div>
           <h2>Lời mời tham gia nhóm</h2>
-          <p>Bạn có <span>4</span> lời mời mới từ các cộng đồng leo núi và trekking.</p>
+          <p>
+            Bạn có <span>{invitations.length}</span> lời mời mới...
+          </p>
         </div>
         <button className="btn-create-group" onClick={() => setIsCreating(true)}>
           <UserPlus size={18} /> Tạo nhóm mới
@@ -183,16 +280,24 @@ const ContentLoimoinhom = () => {
         {/* THỐNG KÊ & GỢI Ý */}
         <div className="loimoi-sidebar">
           <div className="stat-box">
-            <h4>Thống kê tháng 10</h4>
-            <div className="stat-row">
-              <div className="stat-item">
-                <label>LỜI MỜI MỚI</label>
-                <div className="stat-value">12</div>
+            <h4>Thống kê tháng {currentMonth}</h4>
+
+            <div className="stat-row flex gap-4">
+
+              <div className="stat-item flex flex-col items-center justify-center">
+                <label className="text-sm text-green-200">LỜI MỜI MỚI</label>
+                <div className="stat-value text-3xl font-bold text-white">
+                  {stats.moi}
+                </div>
               </div>
-              <div className="stat-item">
-                <label>ĐÃ XÁC NHẬN</label>
-                <div className="stat-value">04</div>
+
+              <div className="stat-item flex flex-col items-center justify-center">
+                <label className="text-sm text-green-200">ĐÃ XÁC NHẬN</label>
+                <div className="stat-value text-3xl font-bold text-white">
+                  {stats.daChapNhan}
+                </div>
               </div>
+
             </div>
           </div>
 
@@ -224,76 +329,45 @@ const ContentLoimoinhom = () => {
           </button>
         </div>
         <div className="my-groups-grid">
-          <div className="group-mini-card">
-            <div className="group-card-top">
-              <div className="group-icon-circle">
-                <Search size={18} color="#10b981" />
-              </div>
-              <div className="group-title-area">
-                <h4>Khám Phá Hà Giang</h4>
-                <span className="badge-role leader">TRƯỞNG NHÓM</span>
-              </div>
-            </div>
+          {displayedGroups.map(group => (
+            <div className="group-mini-card" key={group._id}>
 
-            <div className="group-card-body">
-              <p className="group-location">
-                <MapPin size={14} /> Đèo Mã Pì Lèng, Hà Giang
-              </p>
-              <div className="group-stat-row">
-                <div className="stat-info">
-                  <label>Tiếp theo:</label>
-                  <span>22/10 | 07:00</span>
+              <div className="group-card-top">
+                <div className="group-title-area">
+                  <h4>{group.ten}</h4>
                 </div>
               </div>
-              <div className="stat-info">
-                <label>Thành viên:</label>
-                <span>12 người</span>
-              </div>
-            </div>
-            <button className="btn-view-group">Xem chi tiết</button>
-          </div>
 
-          <div className="group-mini-card">
-            <div className="group-card-top">
-              <div className="group-icon-circle">
-                <Trees size={20} color="#10b981" />
-              </div>
-              <div className="group-title-area">
-                <h4>Cắm Trại Đà Lạt</h4>
-                <span className="badge-role leader">THÀNH VIÊN</span>
-              </div>
-            </div>
-            <div className="group-card-body">
-              <p className="group-location"><MapPin size={14} /> Hồ Tuyền Lâm, Đà Lạt</p>
-              <div className="group-stat-row">
+              <div className="group-card-body">
+                <p className="group-location">
+                  📍 {group.diaDiem?.tenDiaDiem}
+                </p>
+
+                <p className="text-white">
+                  👤 {group.nguoiTao?.id?.hoTen || "Không rõ"}
+                </p>
+
+                <p className="text-white">
+                  🕒 {group.startTime
+                    ? new Date(group.startTime).toLocaleString("vi-VN")
+                    : "Chưa có thời gian"}
+                </p>
+
                 <div className="stat-info">
-                  <label>Tiếp theo:</label>
-                  <span>25/10 | 16:00</span>
+                  <label>Thành viên:</label>
+                  <span>{group.thanhVien.length} người</span>
                 </div>
               </div>
-              <div className="stat-info">
-                <label>Thành viên:</label>
-                <span>15 người</span>
-              </div>
-            </div>
-            <button className="btn-view-group">Xem chi tiết</button>
-          </div>
 
-          {!showAll && (
-            <div className="find-more-card">
-              <div className="sparkle-icon-circle">
-                <Sparkles size={28} />
-              </div>
-              <h4>Tìm kiếm thêm?</h4>
-              <p>Khám phá hàng trăm nhóm khác đang chờ bạn.</p>
               <button
-                className="btn-view-all-community"
-                onClick={() => setShowAll(true)}
+                className="btn-view-group"
+                onClick={() => window.location.href = `/nhomchat/${group._id}`}
               >
-                XEM TẤT CẢ CỘNG ĐỒNG
+                Xem chi tiết
               </button>
+
             </div>
-          )}
+          ))}
         </div>
       </div>
     </div>

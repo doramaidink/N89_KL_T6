@@ -16,8 +16,13 @@ class nhomController {
                 doKho: data.doKho,
                 startTime: data.startTime,
                 endTime: data.endTime,
-                thanhVien: [data.nguoiTao.id],
-                
+                thanhVien: [
+                    {
+                        user: data.nguoiTao.id,
+                        role: "truong_nhom"
+                    }
+                ],
+
                 lichTrinh: data.lichTrinh,
                 lienHeKhanCap: data.lienHeKhanCap
             });
@@ -56,7 +61,7 @@ class nhomController {
             // Populate thanhVien để lấy hoTen và image của từng người
             const nhom = await Nhom.findById(id)
                 .populate("nguoiTao.id", "hoTen image")
-                .populate("thanhVien", "hoTen image")
+                .populate("thanhVien.user", "hoTen image")
                 .populate("diaDiem"); //lấy thông tin các thành viên
 
             const tinNhan = await Chat.find({ nhomId: id }).sort({ thoiGian: 1 });
@@ -76,9 +81,15 @@ class nhomController {
             if (!nhom) return res.status(404).json({ message: "Không tìm thấy nhóm" });
 
             // Kiểm tra xem đã tham gia chưa để tránh trùng lặp
-            if (!nhom.thanhVien.includes(userId)) {
-                nhom.thanhVien.push(userId);
-                await nhom.save();
+            const exists = nhom.thanhVien.some(
+                tv => tv.user.toString() === userId.toString()
+            );
+
+            if (!exists) {
+                nhom.thanhVien.push({
+                    user: userId,
+                    role: "thanh_vien"
+                });
             }
 
             return res.status(200).json({ message: "Tham gia nhóm thành công", nhom });
@@ -93,9 +104,11 @@ class nhomController {
             const nhoms = await Nhom.find({
                 $or: [
                     { "nguoiTao.id": userId },
-                    { thanhVien: userId }
+                    { "thanhVien.user": userId }
                 ]
-            }).populate("diaDiem");
+            })
+                .populate("diaDiem")
+                .populate("nguoiTao.id", "hoTen");
 
             return res.status(200).json({ nhoms });
         } catch (error) {

@@ -312,21 +312,38 @@ const ContentNhomchat = ({ user }) => {
             </div>
 
             {/* 2. Hiển thị các thành viên khác */}
-            {groupData.thanhVien?.map((member) => {
-              // Nếu là trưởng nhóm thì không hiển thị lại ở danh sách thành viên thường
-              if (member._id === groupData.nguoiTao?.id?._id) return null;
+            {groupData.thanhVien?.map((member, index) => {
+              // 🔥 Chuẩn hóa dữ liệu
+              const memberId = member.user?._id || member._id;
+              const name = member.user?.hoTen || member.hoTen || "Ẩn danh";
+              const image = member.user?.image || member.image;
+
+              // ❗ tránh trùng trưởng nhóm
+              if (memberId === groupData.nguoiTao?.id?._id) return null;
 
               return (
-                <div className="member-item" key={member._id}>
+                <div className="member-item" key={`${memberId}-${index}`}>
                   <div className="member-avatar-wrapper">
                     <img
-                      src={member.image ? `http://localhost:5000${member.image}` : "/img/default-user.jpg"}
-                      alt={member.hoTen}
+                      src={
+                        image
+                          ? `http://localhost:5000${image}`
+                          : "/img/default-user.jpg"
+                      }
+                      alt={name}
                     />
                   </div>
+
                   <div className="member-info">
-                    <p>{member.hoTen}</p>
-                    <span style={{ fontSize: '11px', color: '#888' }}>Thành viên</span>
+                    <p>{name}</p>
+
+                    <span style={{ fontSize: "11px", color: "#4ade80" }}>
+                      {member.role === "huong_dan_vien"
+                        ? "🌟 Hướng dẫn viên"
+                        : member.role === "truong_nhom"
+                          ? "👑 Trưởng nhóm"
+                          : "👤 Thành viên"}
+                    </span>
                   </div>
                 </div>
               );
