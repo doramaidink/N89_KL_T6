@@ -10,7 +10,7 @@ const BaoCaoSchema = new mongoose.Schema(
 
     loaiBaoCao: {
       type: String,
-      enum: ["An toàn hành trình", "Gian lận",  "Lừa đảo","Quấy rối","Chương trình khuyến mãi","thanh toán","Đóng góp ý kiến","khiếu nại", "Khác"],
+      enum: ["An toàn hành trình", "Gian lận",  "Lừa đảo","Quấy rối","Chương trình khuyến mãi","Thanh toán","Đóng góp ý kiến","Khiếu nại", "Khác"],
       required: true,
     },
 
