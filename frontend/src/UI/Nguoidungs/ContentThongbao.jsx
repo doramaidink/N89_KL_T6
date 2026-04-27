@@ -1,27 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-const ContentThongbao = () => {
+import SidebarTaikhoan from "./SidebarTaikhoan";
+
+const ContentThongbao = ({ user }) => {
+
+
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/thongbao?type=user")
+      .then(res => res.json())
+      .then(data => {
+        console.log("NOTI:", data);
+        setNotifications(data);
+      });
+  }, []);
+
   return (
     <div className="container-thongbao">
+      <SidebarTaikhoan
+        thongTin={user}
+        handleDangXuat={() => {
+          localStorage.removeItem("user");
+          window.location.href = "/login";
+        }}
+        getImageSrc={(img) =>
+          img ? `http://localhost:5000/${img}` : "/img/default.jpg"
+        }
+      />
 
-      {/* SIDEBAR */}
-      <div className="sidebar-thongbao">
 
-        <div className="profile-thongbao">
-          <img src="/img/avatar.jpg" />
-          <h4>Nguyễn Văn A</h4>
-          <span>Thành viên hạng vàng</span>
-        </div>
-
-        <div className="menu-thongbao">
-          <div className="item-thongbao">Thông tin cá nhân</div>
-          <div className="item-thongbao active-thongbao">Thông báo</div>
-          <div className="item-thongbao">Lịch sử chuyến đi</div>
-          <div className="item-thongbao">Hóa đơn</div>
-          <div className="item-thongbao logout-thongbao">Đăng xuất</div>
-        </div>
-
-      </div>
 
       {/* CONTENT */}
       <div className="content-thongbao">
@@ -33,44 +41,27 @@ const ContentThongbao = () => {
             <span>Xem tất cả</span>
           </div>
 
-          {/* ITEM 1 */}
-          <div className="item-noti-thongbao">
-            <div className="icon-thongbao green-thongbao">%</div>
+          {notifications.map(item => (
+            <div className="item-noti-thongbao" key={item._id}>
 
-            <div className="body-thongbao">
-              <h4>Khuyến mãi đậm vào ngày 20/4</h4>
-              <p>Giảm giá 50% cho các tour miền Tây.</p>
-              <span className="tag-thongbao">Ưu đãi</span>
+              <div className="icon-thongbao green-thongbao">🔔</div>
+
+              <div className="body-thongbao">
+                <h4>{item.tieuDe}</h4>
+                <p>{item.noiDung}</p>
+                <span className="tag-thongbao">
+                  {item.loaiThongBao === "khuyen_mai" && "Khuyến mãi"}
+                  {item.loaiThongBao === "he_thong" && "Hệ thống"}
+                  {item.loaiThongBao === "canh_bao" && "Cảnh báo"}
+                </span>
+              </div>
+
+              <div className="time-thongbao">
+                {new Date(item.createdAt).toLocaleString()}
+              </div>
+
             </div>
-
-            <div className="time-thongbao">2 giờ trước</div>
-          </div>
-
-          {/* ITEM 2 */}
-          <div className="item-noti-thongbao">
-            <div className="icon-thongbao blue-thongbao">↻</div>
-
-            <div className="body-thongbao">
-              <h4>Cập nhật tính năng mới</h4>
-              <p>Hệ thống đã được nâng cấp trải nghiệm.</p>
-              <span className="tag-thongbao blue-tag-thongbao">Tin tức</span>
-            </div>
-
-            <div className="time-thongbao">1 ngày trước</div>
-          </div>
-
-          {/* ITEM 3 */}
-          <div className="item-noti-thongbao">
-            <div className="icon-thongbao green-thongbao">✔</div>
-
-            <div className="body-thongbao">
-              <h4>Chào mừng bạn đến với Backpacking</h4>
-              <p>Hãy hoàn thiện hồ sơ để bắt đầu hành trình.</p>
-              <span className="tag-thongbao">Hệ thống</span>
-            </div>
-
-            <div className="time-thongbao">3 ngày trước</div>
-          </div>
+          ))}
 
           <div className="more-thongbao">
             Xem các thông báo cũ hơn

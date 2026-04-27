@@ -13150,5 +13150,167 @@ html {
 }
 
 /*------------------------------ContentChonNhom--------------------------------------------*/
+/* ===== WRAPPER ===== */
+.noti-wrapper {
+  position: relative;
+}
+
+/* ===== ICON BELL ===== */
+.doitac-icon-header {
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #e5e7eb;
+  transition: 0.2s;
+}
+
+.doitac-icon-header:hover {
+  color: #10b981;
+  transform: scale(1.05);
+}
+
+/* ===== BADGE ===== */
+.noti-badge {
+  position: absolute;
+  top: -5px;
+  right: -6px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+/* ===== DROPDOWN ===== */
+.noti-dropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  width: 340px;
+  max-height: 420px;
+  overflow-y: auto;
+
+  background: linear-gradient(180deg, #020617, #0f172a);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 16px;
+
+  padding: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  z-index: 999;
+}
+
+/* scrollbar */
+.noti-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.noti-dropdown::-webkit-scrollbar-thumb {
+  background: #064e3b;
+  border-radius: 10px;
+}
+
+/* ===== ITEM ===== */
+.noti-item {
+  padding: 10px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.noti-item:hover {
+  background: rgba(16, 185, 129, 0.08);
+}
+
+/* ===== ROW ===== */
+.noti-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+/* ===== ICON ===== */
+.noti-icon {
+  min-width: 36px;
+  height: 36px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 16px;
+}
+
+/* ===== ICON COLOR ===== */
+.noti-icon.he_thong {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.noti-icon.khuyen_mai {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.noti-icon.canh_bao {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* ===== CONTENT ===== */
+.noti-content {
+  flex: 1;
+}
+
+/* title */
+.noti-content strong {
+  display: block;
+  color: #f9fafb;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* description */
+.noti-content p {
+  color: #9ca3af;
+  font-size: 13px;
+  margin: 2px 0;
+}
+
+/* time */
+.noti-content small {
+  display: block;
+  color: #6b7280;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+/* ===== TAG ===== */
+.noti-tag {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* TAG COLORS */
+.noti-tag.he_thong {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.noti-tag.khuyen_mai {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.noti-tag.canh_bao {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
 
 /* Quản trị viên */

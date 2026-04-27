@@ -6,6 +6,17 @@ import axios from "axios";
 const socket = io.connect("http://localhost:5000");
 
 const ContentNhomchat = ({ user }) => {
+
+  const socketRef = useRef(null);
+
+  useEffect(() => {
+    socketRef.current = io("http://localhost:5000");
+
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
+
   const { groupId } = useParams();
   const [groupData, setGroupData] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -46,7 +57,7 @@ const ContentNhomchat = ({ user }) => {
       if (res.data.nhom) {
         setGroupData(res.data.nhom);
         setMessages(res.data.tinNhan || []);
-        socket.emit("join_room", {
+        socketRef.current.emit("join_room", {
           groupId,
           vaiTro: user?.vaiTro
         });
@@ -72,10 +83,10 @@ const ContentNhomchat = ({ user }) => {
       initPage(); // Gọi lại hàm lấy dữ liệu để cập nhật bảng thành viên
     };
 
-    socket.on("update_member_list", handleUpdateMembers); //
+    socketRef.current.on("update_member_list", handleUpdateMembers); //
 
     return () => {
-      socket.off("update_member_list", handleUpdateMembers);
+      socketRef.current.off("update_member_list", handleUpdateMembers);
     };
   }, [groupId]);
 
@@ -85,7 +96,7 @@ const ContentNhomchat = ({ user }) => {
       setMessages((prev) => [...prev, data]);
     };
 
-    socket.on("receive_message", handleReceiveMessage); //
+    socketRef.current.on("receive_message", handleReceiveMessage); //
 
     return () => socket.off("receive_message", handleReceiveMessage);
   }, []);
@@ -107,7 +118,7 @@ const ContentNhomchat = ({ user }) => {
       vaiTro: user.vaiTro,
     };
 
-    socket.emit("send_message", msgData); //
+    socketRef.current.emit("send_message", msgData); //
     setCurrentInput("");
   };
 

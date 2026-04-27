@@ -9,8 +9,9 @@ const taiKhoanRoute = require('./taikhoanRouter');
 const nhomRoute = require("./nhomRouter");
 
 const loiMoiRoute = require("./loiMoiRouter");
-
+//quantrivien
 const quanTriVienRoute = require('./quanTriVienRouter');
+const thongBaoRoute = require("./thongBaoRouter");
 
 
 
@@ -29,6 +30,7 @@ function route(app) {
     app.use("/loimoi", loiMoiRoute);
     //Quan tri vien
     app.use("/quantrivien", quanTriVienRoute);
+    app.use("/thongbao", thongBaoRoute);
 
 
     app.use('/', homeRoute);

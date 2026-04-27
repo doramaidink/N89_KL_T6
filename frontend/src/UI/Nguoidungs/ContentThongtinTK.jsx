@@ -173,48 +173,48 @@ const ContentThongtinTK = ({ user, setUser }) => {
   };
 
   const handleChonAvatar = async (event) => {
-  try {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    try {
+      const file = event.target.files?.[0];
+      if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      toast.warning("Vui lòng chọn file ảnh");
-      return;
+      if (!file.type.startsWith("image/")) {
+        toast.warning("Vui lòng chọn file ảnh");
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast.warning("Ảnh phải nhỏ hơn 5MB");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      setDangTaiAvatar(true);
+
+      const res = await fetch(`${API}/taikhoan/${userId}/avatar`, {
+        method: "PUT",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.message || "Không cập nhật được avatar");
+        return;
+      }
+
+      setThongTin(data.user);
+      capNhatLocalUser(data.user);
+      toast.success("Cập nhật avatar thành công");
+    } catch (error) {
+      console.log(error);
+      toast.error("Lỗi khi tải avatar");
+    } finally {
+      setDangTaiAvatar(false);
+      if (uploadInputRef.current) uploadInputRef.current.value = "";
     }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.warning("Ảnh phải nhỏ hơn 5MB");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("avatar", file);
-
-    setDangTaiAvatar(true);
-
-    const res = await fetch(`${API}/taikhoan/${userId}/avatar`, {
-      method: "PUT",
-      body: formData,
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      toast.error(data.message || "Không cập nhật được avatar");
-      return;
-    }
-
-    setThongTin(data.user);
-    capNhatLocalUser(data.user);
-    toast.success("Cập nhật avatar thành công");
-  } catch (error) {
-    console.log(error);
-    toast.error("Lỗi khi tải avatar");
-  } finally {
-    setDangTaiAvatar(false);
-    if (uploadInputRef.current) uploadInputRef.current.value = "";
-  }
-};
+  };
 
   const handleDangXuat = () => {
     localStorage.removeItem("user");
@@ -258,7 +258,12 @@ const ContentThongtinTK = ({ user, setUser }) => {
 
         <div className="menu-taikhoan">
           <div className="item-taikhoan active-taikhoan">Thông tin cá nhân</div>
-          <div className="item-taikhoan">Thông báo</div>
+          <div
+            className="item-taikhoan"
+            onClick={() => (window.location.href = "/thongbao")}
+          >
+            Thông báo
+          </div>
           <div className="item-taikhoan">Lịch sử chuyến đi</div>
           <div className="item-taikhoan">Hóa đơn</div>
           <div className="item-taikhoan logout-taikhoan" onClick={handleDangXuat}>

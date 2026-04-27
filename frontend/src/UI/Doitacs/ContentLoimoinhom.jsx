@@ -173,6 +173,23 @@ const ContentLoimoinhom = () => {
     fetchMyGroups();
   }, []);
 
+  const fetchThongKe = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const doiTacId = user?.doiTacId || user?.id;
+
+      const res = await fetch(
+        `http://localhost:5000/loimoi/thongke?doiTacId=${doiTacId}`
+      );
+
+      const data = await res.json();
+      setStats(data);
+
+    } catch (err) {
+      console.error("Lỗi thống kê:", err);
+    }
+  };
+
   return (
     <div className="loimoi-content">
       {isCreating && (

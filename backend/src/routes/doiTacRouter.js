@@ -16,9 +16,7 @@ router.post(
 );
 router.get('/:slug/dashboard', doiTacController.dashboard);
 router.get('/:slug/hoso', doiTacController.layHoSo);
-router.put('/:slug/hoso', doiTacController.capNhatHoSo);
-router.get('/:slug/hoso', doiTacController.layHoSo);
-router.put('/:slug/hoso', doiTacController.capNhatHoSo);
+router.put('/:slug/hoso', doiTacController.capNhatHoSo); 
 router.get('/:slug/diadiem', doiTacController.layDiaDiemCuaDoiTac);
 router.post('/:slug/diadiem', doiTacController.themDiaDiem);
 

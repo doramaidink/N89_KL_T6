@@ -27,7 +27,7 @@ import Chitietdiadiemuser from './Pages/Nguoidungs/Chitietdiadiemuser'
 import Chonloainhom from './Pages/Nguoidungs/Chonloainhom';
 import Chonnhom from './Pages/Nguoidungs/Chonnhom';
 import Thanhtoan from './Pages/Nguoidungs/Thanhtoan';
-import Danhgiavanglai from './Pages/Nguoidungs/Danhgiavanglai';
+import Danhgiavanglai from './Pages/Nguoidungs/Danhgiavanglai'; 
 
 
 import Nhomchat from './Pages/Nguoidungs/Nhomchat';
@@ -114,6 +114,7 @@ function App() {
         <Route path='/:hoten/chitietdiadiemuser/:slug/danhgia' element={<Danhgia />} />
 
         <Route path='/nhomchat/:groupId' element={<Nhomchat user={user} />} />
+ 
 
 
 

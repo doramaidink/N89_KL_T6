@@ -215,11 +215,10 @@ class doiTacController {
   async dashboard(req, res) {
     try {
       const { slug } = req.params;
+      // console.log("PARAM SLUG:", slug);
 
-      const doiTac = await DoiTac.findOne({
-        slug,
-        trangThaiHoSo: 'da_duyet'
-      }).populate('cacDiaDiemDangKy', 'tenDiaDiem khuVuc image');
+      const doiTac = await DoiTac.findOne({ nguoiDung: slug });
+      // console.log("DOITAC FOUND:", doiTac);
 
       if (!doiTac) {
         return res.status(404).json({ message: 'Không tìm thấy đối tác' });
