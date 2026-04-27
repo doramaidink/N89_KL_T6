@@ -13,7 +13,7 @@ const HeaderKhamPha = ({ user }) => { // 1. Nhận user từ props
 
       <div className="nav-header">
         <a href="/">Trang Chủ</a>
-        <a href="/khampha">Khám Phá</a>
+        <a href="/khampha" className="btntrangchu-header" >Khám Phá</a>
         <a href="/Huongdanvien">Hướng Dẫn Viên</a>
       </div>
 

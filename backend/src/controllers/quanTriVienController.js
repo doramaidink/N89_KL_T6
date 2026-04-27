@@ -2,6 +2,7 @@ const QuanTriVien = require('../models/QuanTriVien');
 const NguoiDung = require('../models/NguoiDung');
 const DoiTac = require('../models/DoiTac');
 const DiaDiem = require('../models/DiaDiem');
+const BaoCao = require('../models/BaoCao');
 
 class QuanTriVienController {
   async thongke(req, res) {
@@ -149,9 +150,52 @@ class QuanTriVienController {
     }
   }
 
-  async QuanLyBaoCao(req, res) {
-    return res.status(200).json([]);
+ async QuanLyBaoCao(req, res) {
+  try {
+    const { slug } = req.params;
+
+    const admin = await QuanTriVien.findOne({ slug });
+    if (!admin) {
+      return res.status(404).json({
+        message: 'Không tìm thấy quản trị viên'
+      });
+    }
+
+    const baoCaos = await BaoCao.find({})
+      .sort({ createdAt: -1 })
+      .populate('nguoiDung', 'hoTen email image');
+
+    const reports = baoCaos.map((item) => ({
+      id: `#REP-${String(item._id).slice(-6).toUpperCase()}`,
+      _id: item._id,
+
+      user: item.nguoiDung?.hoTen || 'Ẩn danh',
+      email: item.nguoiDung?.email || '',
+
+      type: item.loaiBaoCao,
+      status:
+        item.trangThai === 'dang_xu_ly'
+          ? 'ĐANG XỬ LÝ'
+          : item.trangThai === 'da_giai_quyet'
+          ? 'ĐÃ XỬ LÝ'
+          : 'TỪ CHỐI',
+
+      desc: item.moTa,
+      image: item.hinhAnh,
+      createdAt: item.createdAt,
+    }));
+
+    return res.status(200).json({
+      reports
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: 'Lỗi server khi lấy báo cáo'
+    });
   }
+}
 
   async ThongBaoHeThong(req, res) {
     return res.status(200).json([]);

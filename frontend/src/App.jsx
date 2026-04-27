@@ -106,7 +106,7 @@ function App() {
 
         <Route path='/hoadon' element={<Hoadon />} />
 
-        <Route path='/baocao' element={<Baocao />} />
+        <Route path='/:hoten/baocao' element={<Baocao />} />
 
         <Route path='/nhom' element={<Nhom />} />
 
