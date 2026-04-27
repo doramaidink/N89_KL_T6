@@ -27,6 +27,10 @@
    + EMAIL_USER=vqthanh1999@gmail.com
    + EMAIL_PASS=udlpqydnjiqpqhgs
    + FRONTEND_URL=http://localhost:5173
+   + PAYOS_CLIENT_ID=dac69f80-b709-4a56-98a9-c20d266ec182
+   + PAYOS_API_KEY=19eef9ec-d6b0-4a89-a429-9daf7cc7f4b4
+   +  PAYOS_CHECKSUM_KEY=ab4fcfe16f06e24604a4ea4fcde49afdcb480668edc4171472dcb3572d2ae529
+
    - B4: chạy 2 thư mục đồng thời cùng 1 lúc và gõ npm run dev
 
    
