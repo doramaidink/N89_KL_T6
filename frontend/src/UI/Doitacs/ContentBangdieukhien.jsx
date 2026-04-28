@@ -4,22 +4,65 @@ import { useParams } from "react-router-dom";
 const formatMoney = (n = 0) => Number(n || 0).toLocaleString("vi-VN");
 
 const ContentBangdieukhien = () => {
-  const { slug } = useParams();
+  // const { slug } = useParams();
   const [data, setData] = useState(null);
+  const [error, setError] = useState("");
+  const getUser = () => {
+    return (
+      JSON.parse(localStorage.getItem("user")) ||
+      JSON.parse(localStorage.getItem("nguoiDung")) ||
+      JSON.parse(localStorage.getItem("account"))
+    );
+  };
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(`http://localhost:5000/doitac/${slug}/dashboard`);
-      const result = await res.json();
-      if (res.ok) setData(result);
+      try {
+        const user = getUser();
+
+        console.log("USER DEBUG:", user);
+
+        const userId = user?._id || user?.id;
+
+        if (!userId) {
+          setError("Bạn chưa đăng nhập");
+          return;
+        }
+
+        const res = await fetch(`http://localhost:5000/doitac/${userId}/dashboard`);
+        const result = await res.json();
+
+        console.log("DASHBOARD DATA:", result);
+
+        if (!res.ok) {
+          setError(result.message || "Lỗi lấy dashboard");
+          return;
+        }
+
+        setData(result);
+
+      } catch (err) {
+        console.log(err);
+        setError("Lỗi kết nối server");
+      }
     };
-    if (slug) fetchData();
-  }, [slug]);
+
+    fetchData();
+  }, []);
 
   const maxChart = useMemo(() => {
     if (!data?.miniChart?.length) return 1;
     return Math.max(...data.miniChart.map(x => x.value || 0), 1);
   }, [data]);
+
+  // ❗ hiển thị lỗi
+  if (error) {
+    return (
+      <div className="doitac-content-bangdieukhien">
+        <h3 style={{ color: "red" }}>{error}</h3>
+      </div>
+    );
+  }
 
   if (!data) return <div className="doitac-content-bangdieukhien">Đang tải...</div>;
 
