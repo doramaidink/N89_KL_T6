@@ -1,7 +1,22 @@
 const Nhom = require("../models/Nhom");
 const Chat = require("../models/Chat");
+const Checkin = require("../models/Checkin");
 
+function calcDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) ** 2;
+
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 class nhomController {
+
     // ✅ Tạo nhóm
     async taoNhom(req, res) {
         try {
@@ -113,6 +128,98 @@ class nhomController {
             return res.status(200).json({ nhoms });
         } catch (error) {
             return res.status(500).json({ message: "Lỗi server" });
+        }
+    }
+
+    async checkin(req, res) {
+        try {
+            const { nhomId, userId, role, lat, lng, code } = req.body;
+
+            if (!nhomId || !userId || lat == null || lng == null || !code) {
+                return res.status(400).json({ message: "Thiếu dữ liệu" });
+            }
+
+            let record = await Checkin.findOne({ nhomId });
+
+            if (!record) {
+                record = new Checkin({
+                    nhomId,
+                    checkinAt: new Date(),
+                    checkinLocation: { lat, lng }
+                });
+            }
+
+            if (role === "hdv") {
+                record.hdvId = userId;
+                record.hdvCode = code;
+            } else {
+                record.userId = userId;
+                record.userCode = code;
+            }
+
+            await record.save();
+
+            res.json({ message: "Checkin OK", record });
+
+        } catch (err) {
+            console.log("CHECKIN ERROR:", err);
+            res.status(500).json({ message: "Lỗi checkin", err });
+        }
+    }
+
+    async checkout(req, res) {
+        try {
+            const { nhomId, role, code, lat, lng } = req.body;
+
+            const record = await Checkin.findOne({ nhomId });
+
+            if (!record) {
+                return res.status(404).json({ message: "Chưa checkin" });
+            }
+
+            if (role === "hdv") {
+                if (record.hdvCode !== code) {
+                    return res.status(400).json({ message: "Sai mã HDV" });
+                }
+            } else {
+                if (record.userCode !== code) {
+                    return res.status(400).json({ message: "Sai mã User" });
+                }
+            }
+
+            record.checkoutAt = new Date();
+            record.checkoutLocation = { lat, lng };
+            record.status = "done";
+
+            await record.save();
+
+            res.json({ message: "Checkout OK" });
+
+        } catch (err) {
+            console.log("CHECKOUT ERROR:", err);
+            res.status(500).json({ message: "Lỗi checkout", err });
+        }
+    }
+
+    async getCheckinAdmin(req, res) {
+        try {
+            const list = await Checkin.find()
+                .populate("userId", "hoTen")
+                .populate("hdvId", "hoTen")
+                .populate({
+                    path: "nhomId",
+                    populate: {
+                        path: "diaDiem",
+                        select: "tenDiaDiem"
+                    }
+                })
+
+            res.json({
+                data: list
+            });
+        } catch (err) {
+            console.log("ADMIN ERROR:", err);
+            res.status(500).json({ message: "Lỗi admin" });
         }
     }
 }

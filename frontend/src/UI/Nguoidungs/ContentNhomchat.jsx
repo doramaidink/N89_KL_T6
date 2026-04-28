@@ -6,6 +6,35 @@ import axios from "axios";
 const socket = io.connect("http://localhost:5000");
 
 const ContentNhomchat = ({ user }) => {
+  const handleChangeCheckoutCode = (e, index) => {
+    const value = e.target.value.replace(/[^0-9]/g, "");
+
+    const newCode = [...inputCheckoutCode];
+    newCode[index] = value.slice(-1);
+
+    setInputCheckoutCode(newCode);
+
+    if (value && e.target.nextSibling) {
+      e.target.nextSibling.focus();
+    }
+
+    if (!value && e.target.previousSibling) {
+      e.target.previousSibling.focus();
+    }
+  };
+  const handleChangeCode = (e, index) => {
+    const value = e.target.value.replace(/[^0-9]/g, ""); // chỉ cho số
+
+    const newCode = [...inputCheckinCode];
+    newCode[index] = value;
+
+    setInputCheckinCode(newCode);
+
+    // auto focus sang ô tiếp theo
+    if (value && e.target.nextSibling) {
+      e.target.nextSibling.focus();
+    }
+  };
 
   const socketRef = useRef(null);
 
@@ -22,9 +51,90 @@ const ContentNhomchat = ({ user }) => {
   const [messages, setMessages] = useState([]);
   const [currentInput, setCurrentInput] = useState("");
   const chatEndRef = useRef(null);
-  //Checkin-Checkout
+
+  //checkin-checkout time
   const [canCheckIn, setCanCheckIn] = useState(false);
   const [canCheckOut, setCanCheckOut] = useState(false);
+  //Checkin-Checkout
+  const [showCheckinModal, setShowCheckinModal] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+
+  const [inputCheckinCode, setInputCheckinCode] = useState(["", "", "", "", "", ""]);
+  const [inputCheckoutCode, setInputCheckoutCode] = useState(["", "", "", "", "", ""]);
+
+
+
+
+
+  const handleCheckIn = () => {
+    if (!inputCheckinCode) {
+      alert("Nhập mã checkin");
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      alert("Không hỗ trợ GPS");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const finalCode = inputCheckinCode.join("");
+      const isValid = inputCheckinCode.every(d => d !== "");
+      if (finalCode.length < 6) {
+        alert("Nhập đủ 6 số");
+        return;
+      }
+
+      const payload = {
+        nhomId: groupId,
+        userId: user._id || user.id,
+        role: user.vaiTro === "doiTac" ? "hdv" : "user",
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        code: finalCode
+      };
+
+      console.log("🚀 CHECKIN PAYLOAD:", payload);
+
+      try {
+        await axios.post("http://localhost:5000/nhom/checkin", payload);
+        alert("Checkin thành công");
+        setShowCheckinModal(false);
+      } catch (err) {
+        console.log(err);
+        alert("Checkin lỗi");
+      }
+    });
+  };
+
+  const handleCheckOut = async () => {
+    const finalCode = inputCheckoutCode.join("");
+
+    const isValid = inputCheckoutCode.every(d => d !== "");
+    if (!isValid) {
+      alert("Nhập đủ 6 số");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      try {
+        await axios.post("http://localhost:5000/nhom/checkout", {
+          nhomId: groupId,
+          userId: user._id || user.id,
+          role: user.vaiTro === "doiTac" ? "hdv" : "user",
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          code: finalCode
+        });
+
+        alert("Checkout thành công");
+        setShowCheckoutModal(false);
+      } catch (err) {
+        console.log(err);
+        alert("Checkout lỗi");
+      }
+    });
+  };
 
   useEffect(() => {
     if (!groupData) return;
@@ -266,14 +376,14 @@ const ContentNhomchat = ({ user }) => {
             <button
               className={`btn-checkin ${!canCheckIn ? "disabled-btn" : ""}`}
               disabled={!canCheckIn}
-              onClick={() => {/* Xử lý checkin */ }}
+              onClick={() => setShowCheckinModal(true)}
             >
               <span>➡️</span>CHECK IN
             </button>
             <button
               className={`btn-checkout ${!canCheckOut ? "disabled-btn" : ""}`}
               disabled={!canCheckOut}
-              onClick={() => {/* Xử lý checkout */ }}
+              onClick={() => setShowCheckoutModal(true)}
             >
               <span>⬅️</span>CHECK OUT
             </button>
@@ -362,7 +472,75 @@ const ContentNhomchat = ({ user }) => {
           </div>
         </div>
       </div>
+      {showCheckinModal && (
+        <div className="modal-overlay">
+          <div className="modal-checkin">
+            <button
+              className="btn-close"
+              onClick={() => setShowCheckinModal(false)}
+            >
+              ✖
+            </button>
+            <h2>TẠO MÃ CHECKIN</h2>
+
+            {/* <div className="code-box">
+              {checkinCode.split("").map((c, i) => (
+                <span key={i}>{c}</span>
+              ))}
+            </div> */}
+            <div className="code-input-group">
+              {inputCheckinCode.map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleChangeCode(e, index)}
+                  className="code-input-box"
+                />
+              ))}
+            </div>
+
+            <button onClick={handleCheckIn}>
+              XÁC NHẬN
+            </button>
+          </div>
+
+        </div>
+      )}
+
+      {showCheckoutModal && (
+        <div className="modal-overlay">
+          <div className="modal-checkin">
+            <button
+              className="btn-close"
+              onClick={() => setShowCheckoutModal(false)}
+            >
+              ✖
+            </button>
+            <h2>NHẬP MÃ CHECKOUT</h2>
+
+            <div className="code-input-group">
+              {inputCheckoutCode.map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleChangeCheckoutCode(e, index)}
+                  className="code-input-box"
+                />
+              ))}
+            </div>
+
+            <button onClick={handleCheckOut}>
+              XÁC NHẬN
+            </button>
+          </div>
+        </div>
+      )}
     </div>
+
   );
 };
 

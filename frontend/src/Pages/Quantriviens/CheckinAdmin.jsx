@@ -6,6 +6,7 @@ import MapCheckin from "./MapCheckin";
 
 const CheckinAdmin = () => {
     const [selected, setSelected] = useState(null);
+    console.log("SELECTED:", selected);
 
     return (
         <div className="admin-page-layout">
@@ -29,8 +30,8 @@ const CheckinAdmin = () => {
                         </button>
 
                         <MapCheckin
-                            userLocation={selected.userLocation}
-                            guideLocation={selected.guideLocation}
+                            checkinLocation={selected.checkinLocation}
+                            checkoutLocation={selected.checkoutLocation}
                         />
                     </div>
                 )}

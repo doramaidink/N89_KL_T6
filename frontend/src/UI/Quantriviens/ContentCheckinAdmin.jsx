@@ -1,39 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { MapPin, Users, ShieldCheck } from "lucide-react";
 
+function getDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371; // bán kính trái đất (km)
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+}
+
 const ContentCheckinAdmin = ({ onSelect }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // 🔥 Tạm fake data (sau này thay API)
-        setTimeout(() => {
-            setData([
-                {
-                    id: 1,
-                    nhom: "Chinh phục Fansipan",
-                    user: "Nguyễn Văn A",
-                    hdv: "Trần Văn B",
-                    distance: 0.02,
-                    status: "valid",
-                    time: "14:20 27/04/2026",
-                    userLocation: { lat: 21.028, lng: 105.85 },
-                    guideLocation: { lat: 21.029, lng: 105.851 }
-                },
-                {
-                    id: 2,
-                    nhom: "Khám phá Đà Lạt",
-                    user: "Lê Thị C",
-                    hdv: "Phạm Văn D",
-                    distance: 1.2,
-                    status: "invalid",
-                    time: "14:30 27/04/2026",
-                    userLocation: { lat: 21.03, lng: 105.86 },
-                    guideLocation: { lat: 21.05, lng: 105.9 }
-                },
-            ]);
-            setLoading(false);
-        }, 500);
+        fetch("http://localhost:5000/nhom/checkin-admin")
+            .then(res => res.json())
+            .then(res => {
+                console.log("ADMIN DATA:", res);
+                setData(res.data);
+                setLoading(false);
+            });
     }, []);
 
     if (loading) {
@@ -54,7 +50,22 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                     <ShieldCheck size={20} />
                     <div>
                         <p>Hợp lệ</p>
-                        <h3>{data.filter(i => i.status === "valid").length}</h3>
+                        <h3>
+                            {
+                                data.filter(i => {
+                                    if (!i.checkinLocation || !i.checkoutLocation) return false;
+
+                                    const distance = getDistance(
+                                        i.checkinLocation.lat,
+                                        i.checkinLocation.lng,
+                                        i.checkoutLocation.lat,
+                                        i.checkoutLocation.lng
+                                    );
+
+                                    return distance <= 0.5;
+                                }).length
+                            }
+                        </h3>
                     </div>
                 </div>
 
@@ -62,7 +73,22 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                     <MapPin size={20} />
                     <div>
                         <p>Sai vị trí</p>
-                        <h3>{data.filter(i => i.status === "invalid").length}</h3>
+                        <h3>
+                            {
+                                data.filter(i => {
+                                    if (!i.checkinLocation || !i.checkoutLocation) return false;
+
+                                    const distance = getDistance(
+                                        i.checkinLocation.lat,
+                                        i.checkinLocation.lng,
+                                        i.checkoutLocation.lat,
+                                        i.checkoutLocation.lng
+                                    );
+
+                                    return distance > 0.5;
+                                }).length
+                            }
+                        </h3>
                     </div>
                 </div>
 
@@ -80,7 +106,7 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                 <table>
                     <thead>
                         <tr>
-                            <th>NHÓM</th>
+                            <th>ĐỊA ĐIỂM</th>
                             <th>NGƯỜI DÙNG</th>
                             <th>HDV</th>
                             <th>KHOẢNG CÁCH</th>
@@ -90,29 +116,66 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                     </thead>
 
                     <tbody>
-                        {data.map((item) => (
-                            <tr key={item.id} onClick={() => onSelect(item)}>
-                                <td>{item.nhom}</td>
-                                <td>{item.user}</td>
-                                <td>{item.hdv}</td>
+                        {data.map((item) => {
+                            console.log("ITEM:", item);
+                            console.log("DIA DIEM:", item.nhomId?.diaDiem);
+                            const checkinTime = item.checkinAt
+                                ? new Date(item.checkinAt).toLocaleTimeString()
+                                : "-";
 
-                                <td>
-                                    <span className="distance">
-                                        {item.distance} km
-                                    </span>
-                                </td>
+                            const checkoutTime = item.checkoutAt
+                                ? new Date(item.checkoutAt).toLocaleTimeString()
+                                : "Chưa checkout";
 
-                                <td>
-                                    {item.status === "valid" ? (
-                                        <span className="status ok">✔ Hợp lệ</span>
-                                    ) : (
-                                        <span className="status fail">❌ Sai vị trí</span>
-                                    )}
-                                </td>
+                            // tính khoảng cách
+                            const distance =
+                                item.checkoutLocation && item.checkinLocation
+                                    ? getDistance(
+                                        item.checkinLocation.lat,
+                                        item.checkinLocation.lng,
+                                        item.checkoutLocation.lat,
+                                        item.checkoutLocation.lng
+                                    )
+                                    : 0;
 
-                                <td>{item.time}</td>
-                            </tr>
-                        ))}
+                            const MAX_DISTANCE = 0.5; // km
+
+                            const isValid = distance <= MAX_DISTANCE;
+
+                            return (
+                                <tr key={item._id} onClick={() => onSelect(item)}>
+                                    <td>{item.nhomId?.diaDiem?.tenDiaDiem}</td>
+                                    <td>{item.userId?.hoTen}</td>
+                                    <td>{item.hdvId?.hoTen}</td>
+
+                                    <td className="distance">
+                                        {distance.toFixed(2)} km
+                                        <br />
+                                        <small style={{ color: "#888" }}>
+                                            {distance <= 0.5 ? "Trong phạm vi" : "Ngoài phạm vi"}
+                                        </small>
+                                    </td>
+
+                                    <td>
+                                        {item.status === "checking" && (
+                                            <span className="status warning">🟡 Đang đi</span>
+                                        )}
+
+                                        {item.status === "done" &&
+                                            (isValid ? (
+                                                <span className="status ok">✔ Hợp lệ</span>
+                                            ) : (
+                                                <span className="status fail">❌ Sai vị trí</span>
+                                            ))}
+                                    </td>
+
+                                    <td>
+                                        {checkinTime} <br />
+                                        {checkoutTime}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
