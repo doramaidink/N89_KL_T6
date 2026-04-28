@@ -57,6 +57,11 @@ const SidebarAdmin = () => {
       icon: <ClipboardList size={20} />,
       label: 'Đơn đăng ký',
     },
+    {
+      to: `/admin/${slug}/checkin`,
+      icon: <MapPin size={20} />,
+      label: 'Check-in / Check-out',
+    }
   ];
 
   return (

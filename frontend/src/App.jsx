@@ -39,6 +39,7 @@ import QuanLyBaoCao from './Pages/Quantriviens/QuanLyBaoCao';
 import ThongBaoHeThong from './Pages/Quantriviens/ThongBaoHeThong';
 import QuanLyDiaDiem from './Pages/Quantriviens/QuanLyDiaDiem';
 import DonDangKy from './Pages/Quantriviens/DonDangKy';
+import CheckinAdmin from './Pages/Quantriviens/CheckinAdmin';
 
 
 import Bangdieukhien from './Pages/Doitacs/Bangdieukhien';
@@ -243,6 +244,7 @@ function App() {
         <Route path='/admin/:slug/quanlydiadiem' element={<QuanLyDiaDiem />} />
         <Route path='/admin/:slug/thongbaohethong' element={<ThongBaoHeThong />} />
         <Route path='/admin/:slug/dondangky' element={<DonDangKy />} />
+        <Route path='/admin/:slug/checkin' element={<CheckinAdmin />} />
 
       </Routes>
 
