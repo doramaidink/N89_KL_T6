@@ -336,7 +336,9 @@ const ContentDangki = () => {
                     <li>Tôi chịu trách nhiệm với tài sản cá nhân của mình trong quá trình tham gia hoạt động.</li>
                     <li>Tôi đồng ý thực hiện check-in, check-out hoặc các xác nhận an toàn khác khi hệ thống yêu cầu.</li>
                     <li>Tôi hiểu rằng nền tảng có quyền từ chối hoặc khóa tài khoản nếu tôi vi phạm điều khoản hoặc gây nguy hiểm cho cộng đồng.</li>
+                    <li>Tôi cam kết không đăng tải những nội dung 18+ hay những nội dung về cờ bạc online,... </li>
                     <li>Tôi xác nhận đã đọc và đồng ý với các điều khoản trước khi đăng ký tài khoản.</li>
+                    
                   </ul>
                 </div>
 

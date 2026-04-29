@@ -1,56 +1,58 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const ContentThanhToan = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
   const [bankInfo, setBankInfo] = useState(null);
   const [guide, setGuide] = useState(null);
   const [qr, setQr] = useState("");
   const [checkoutUrl, setCheckoutUrl] = useState("");
+  const [orderCode, setOrderCode] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("pending");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  //Thanh Toán ảo
-  const handleFakePaymentSuccess = async () => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      const data = JSON.parse(localStorage.getItem("selectedGuide"));
+  // Dùng để tránh hiện thông báo nhiều lần
+  const daBaoThanhCong = useRef(false);
 
-      await fetch("http://localhost:5000/loimoi", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nhomId: data?.groupToHire?._id || null,
-          doiTacId: data?._id, // guide chính là đối tác
-          nguoiGuiId: user?._id,
-          loaiLoiMoi: data?.groupToHire ? "co_nhom" : "tao_moi",
-        }),
-      });
-
-      alert("Thanh toán thành công & đã gửi lời mời!");
-
-      // chuyển sang trang chờ hoặc nhóm
-      navigate("/nhom");
-
-    } catch (err) {
-      console.error(err);
-    }
+  const formatPrice = (price) => {
+    if (!price && price !== 0) return "1.200.000đ";
+    return `${Number(price).toLocaleString("vi-VN")}đ`;
   };
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("selectedGuide"));
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    const orderCodeFromUrl = searchParams.get("orderCode");
 
     if (data) {
       setGuide(data);
+    }
 
-      const fetchPayment = async () => {
-        try {
-          setLoading(true);
-          setError("");
+    if (!data) {
+      setLoading(false);
+      setError("Không tìm thấy thông tin hướng dẫn viên đã chọn");
+      return;
+    }
 
-          const response = await fetch("http://localhost:5000/payment/create-payment", {
+    const fetchPayment = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        // Nếu PayOS redirect về có orderCode thì không tạo QR mới
+        if (orderCodeFromUrl) {
+          setOrderCode(orderCodeFromUrl);
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(
+          "http://localhost:5000/payment/create-payment",
+          {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -58,37 +60,91 @@ const ContentThanhToan = () => {
             body: JSON.stringify({
               amount: Number(data.giaThue) || 1000000,
               guideName: data.hoTen || "",
+
+              // Các id này backend dùng để sau khi paid thì tạo lời mời
+              doiTacId: data?._id,
+              nguoiGuiId: user?._id || user?.id,
+              nhomId: data?.groupToHire?._id || null,
+              loaiLoiMoi: data?.groupToHire ? "co_nhom" : "tao_moi",
             }),
-          });
-
-          const result = await response.json();
-
-          if (!response.ok) {
-            throw new Error(result.error || "Không thể tạo mã thanh toán");
           }
+        );
 
-          setQr(result.qrCode || "");
-          setCheckoutUrl(result.checkoutUrl || "");
-          setBankInfo(result.bankInfo || null);
-        } catch (err) {
-          console.error("Lỗi frontend payment:", err);
-          setError(err.message || "Có lỗi xảy ra khi tạo mã QR");
-        } finally {
-          setLoading(false);
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || "Không thể tạo mã thanh toán");
         }
-      };
 
-      fetchPayment();
-    } else {
-      setLoading(false);
-      setError("Không tìm thấy thông tin hướng dẫn viên đã chọn");
-    }
-  }, []);
+        setQr(result.qrCode || "");
+        setCheckoutUrl(result.checkoutUrl || "");
+        setBankInfo(result.bankInfo || null);
+        setOrderCode(result.orderCode || "");
+        setPaymentStatus(result.status || "pending");
+      } catch (err) {
+        console.error("Lỗi tạo thanh toán:", err);
+        setError(err.message || "Có lỗi xảy ra khi tạo mã QR");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const formatPrice = (price) => {
-    if (!price && price !== 0) return "1.200.000đ";
-    return `${Number(price).toLocaleString("vi-VN")}đ`;
-  };
+    fetchPayment();
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!orderCode) return;
+
+    /*
+      PHẦN NÀY THAY CHO NÚT FAKE
+
+      Trước đây bạn có nút fake kiểu:
+      button onClick={handleFakePaymentSuccess}
+
+      Bây giờ bỏ nút đó đi.
+
+      Cứ mỗi 3 giây, frontend sẽ gọi backend:
+      GET /payment/status/:orderCode
+
+      Nếu backend trả về status = "paid"
+      nghĩa là PayOS webhook đã báo thanh toán thành công.
+    */
+
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/payment/status/${orderCode}`
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) return;
+
+        setPaymentStatus(result.status);
+
+        /*
+          Khi đã thanh toán:
+          1. Hiện thông báo
+          2. Xóa selectedGuide khỏi localStorage
+          3. Chuyển hướng 
+        */
+        if (result.status === "paid" && !daBaoThanhCong.current) {
+          daBaoThanhCong.current = true;
+
+          alert("Bạn đã thanh toán thành công!");
+
+          localStorage.removeItem("selectedGuide");
+
+          // Đổi đường dẫn fake cũ
+          navigate("/nhom");
+        }
+      } catch (err) {
+        console.error("Lỗi kiểm tra trạng thái thanh toán:", err);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [orderCode, navigate]);
 
   return (
     <div className="payment-page-custom">
@@ -116,8 +172,15 @@ const ContentThanhToan = () => {
               ← QUAY LẠI
             </div>
 
-            <h1>Thanh toán vé khám phá</h1>
-            <p>Mở ứng dụng ngân hàng và quét mã để thanh toán</p>
+            <h1>Thanh toán thuê hướng dẫn viên</h1>
+
+            {paymentStatus === "paid" ? (
+              <p style={{ color: "#16a34a", fontWeight: 700 }}>
+                Thanh toán thành công
+              </p>
+            ) : (
+              <p>Mở ứng dụng ngân hàng và quét mã để thanh toán</p>
+            )}
 
             <div className="payment-qr-box-custom">
               {loading ? (
@@ -135,9 +198,16 @@ const ContentThanhToan = () => {
                     Thử lại
                   </button>
                 </div>
+              ) : paymentStatus === "paid" ? (
+                <div className="payment-success-custom">
+                  <h2>✅ Đã thanh toán</h2>
+                  <p>Đơn thanh toán #{orderCode} đã được xác nhận.</p>
+                </div>
               ) : qr ? (
                 <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(qr)}`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(
+                    qr
+                  )}`}
                   alt="QR PayOS"
                   className="payment-qr-image-custom"
                 />
@@ -159,7 +229,10 @@ const ContentThanhToan = () => {
 
             <div className="payment-note-custom">
               <span>ⓘ</span>
-              <p>Vui lòng quét mã QR bằng ứng dụng ngân hàng để thực hiện thanh toán.</p>
+              <p>
+                Sau khi thanh toán thành công, hệ thống sẽ tự đổi trạng thái sang
+                đã thanh toán và chuyển trang.
+              </p>
             </div>
           </div>
 
@@ -167,8 +240,32 @@ const ContentThanhToan = () => {
             <h3>THÔNG TIN GIAO DỊCH</h3>
 
             <div className="payment-info-item-custom">
+              <span>TRẠNG THÁI</span>
+              <div className="payment-box-line-custom">
+                <strong>
+                  {paymentStatus === "paid"
+                    ? "Đã thanh toán"
+                    : paymentStatus === "cancelled"
+                    ? "Đã hủy"
+                    : paymentStatus === "failed"
+                    ? "Thất bại"
+                    : "Chưa thanh toán"}
+                </strong>
+              </div>
+            </div>
+
+            <div className="payment-info-item-custom">
+              <span>MÃ ĐƠN</span>
+              <div className="payment-box-line-custom">
+                <strong>{orderCode || "Đang tạo..."}</strong>
+              </div>
+            </div>
+
+            <div className="payment-info-item-custom">
               <span>NGƯỜI THỤ HƯỞNG</span>
-              <strong>{bankInfo?.accountName || "CÔNG TY TNHH LUMINOUS GUIDE"}</strong>
+              <strong>
+                {bankInfo?.accountName || "CÔNG TY TNHH LUMINOUS GUIDE"}
+              </strong>
             </div>
 
             <div className="payment-info-item-custom">
@@ -202,14 +299,18 @@ const ContentThanhToan = () => {
             <div className="payment-info-item-custom">
               <span>ĐỊA ĐIỂM</span>
               <div className="payment-box-line-custom">
-                <strong>{guide?.diaDiemDuocChon?.tenDiaDiem || "Chưa có dữ liệu"}</strong>
+                <strong>
+                  {guide?.diaDiemDuocChon?.tenDiaDiem || "Chưa có dữ liệu"}
+                </strong>
               </div>
             </div>
 
             <div className="payment-info-item-custom">
               <span>KHU VỰC</span>
               <div className="payment-box-line-custom">
-                <strong>{guide?.diaDiemDuocChon?.khuVuc || "Chưa cập nhật"}</strong>
+                <strong>
+                  {guide?.diaDiemDuocChon?.khuVuc || "Chưa cập nhật"}
+                </strong>
               </div>
             </div>
 
@@ -220,7 +321,7 @@ const ContentThanhToan = () => {
               </div>
             </div>
 
-            {checkoutUrl && (
+            {checkoutUrl && paymentStatus !== "paid" && (
               <a
                 href={checkoutUrl}
                 target="_blank"
@@ -230,9 +331,6 @@ const ContentThanhToan = () => {
                 GẶP SỰ CỐ? THANH TOÁN Ở ĐÂY
               </a>
             )}
-            <button onClick={handleFakePaymentSuccess}>
-              ✅ Thanh toán thành công (Fake)
-            </button>
           </div>
         </div>
       </div>
