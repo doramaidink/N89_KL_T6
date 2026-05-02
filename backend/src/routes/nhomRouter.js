@@ -4,6 +4,7 @@ const nhomController = require("../controllers/nhomController");
 
 router.post("/join/:id", nhomController.thamGiaNhom);
 
+
 // Thêm route lấy chi tiết nhóm
 router.get("/detail/:id", nhomController.layChiTietNhom);
 
@@ -12,6 +13,7 @@ router.get("/user/:userId", nhomController.layNhomCuaToi);
 
 router.post("/checkin", nhomController.checkin);
 router.post("/checkout", nhomController.checkout);
+router.get("/lichsu/:userId", nhomController.getLichSu);
 
 router.get("/checkin-admin", nhomController.getCheckinAdmin); 
 

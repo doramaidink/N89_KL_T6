@@ -122,6 +122,7 @@ class nhomController {
                     { "thanhVien.user": userId }
                 ]
             })
+                .sort({ createdAt: -1 })
                 .populate("diaDiem")
                 .populate("nguoiTao.id", "hoTen");
 
@@ -220,6 +221,29 @@ class nhomController {
         } catch (err) {
             console.log("ADMIN ERROR:", err);
             res.status(500).json({ message: "Lỗi admin" });
+        }
+    }
+
+    async getLichSu(req, res) {
+        try {
+            const { userId } = req.params;
+
+            const list = await Checkin.find({
+                userId,
+                status: "done"
+            })
+                .populate("hdvId", "hoTen")
+                .populate({
+                    path: "nhomId",
+                    populate: {
+                        path: "diaDiem",
+                        select: "tenDiaDiem"
+                    }
+                });
+
+            res.json({ data: list });
+        } catch (err) {
+            res.status(500).json({ message: "Lỗi lấy lịch sử" });
         }
     }
 }

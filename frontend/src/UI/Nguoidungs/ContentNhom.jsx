@@ -4,6 +4,19 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const ContentNhom = ({ user }) => {
+
+  const getImageUrl = (image) => {
+    if (!image) return "/img/default-trekking.jpg";
+
+    // Nếu là link full
+    if (image.startsWith("http")) return image;
+
+    // Nếu là path từ server
+    const cleanPath = image.startsWith("/") ? image.slice(1) : image;
+
+    return `http://localhost:5173/${cleanPath}`;
+  };
+
   const [myGroups, setMyGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -63,20 +76,27 @@ const ContentNhom = ({ user }) => {
           <p>Tìm địa điểm và tạo chuyến đi cùng bạn bè.</p>
         </div>
         {/* Hiển thị danh sách nhóm thực tế */}
-        {myGroups.length > 0 ? (
-          myGroups.map((group) => (
+        {myGroups.map((group) => {
+          console.log("GROUP:", group);
+          console.log("DIA DIEM:", group.diaDiem);
+
+          return (
             <div className="card-nhom" key={group._id}>
               <div className="image-nhom">
-                {/* Lấy ảnh từ địa điểm hoặc ảnh mặc định */}
-                <img src={group.diaDiemId?.image || "/img/default-trekking.jpg"} alt={group.ten} />
-                <span className={`badge ${group.nguoiTao.id === (user.id || user._id) ? "leader" : "active"}`}>
-                  {group.nguoiTao.id === (user.id || user._id) ? "TRƯỞNG NHÓM" : "ĐÃ THAM GIA"}
+                <img src={getImageUrl(group.diaDiem?.image)} alt={group.ten} />
+
+                <span className={`badge ${group.nguoiTao.id === (user.id || user._id)
+                    ? "leader"
+                    : "active"
+                  }`}>
+                  {group.nguoiTao.id === (user.id || user._id)
+                    ? "TRƯỞNG NHÓM"
+                    : "ĐÃ THAM GIA"}
                 </span>
               </div>
 
               <div className="info-nhom">
                 <h3>{group.ten}</h3>
-                {/* ✅ SỬA TẠI ĐÂY: Dùng group.diaDiem thay vì group.diaDiemId */}
                 <p>📍 {group.diaDiem?.tenDiaDiem || "Địa điểm chưa xác định"}</p>
                 <p>👥 {group.thanhVien?.length || 0} thành viên</p>
 
@@ -85,12 +105,8 @@ const ContentNhom = ({ user }) => {
                 </button>
               </div>
             </div>
-          ))
-        ) : (
-          <p style={{ color: '#888', gridColumn: '1/-1', textAlign: 'center', marginTop: '20px' }}>
-            Bạn chưa tham gia nhóm nào. Hãy khám phá và kết nối ngay!
-          </p>
-        )}
+          );
+        })}
       </div>
     </div>
   );

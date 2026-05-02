@@ -7,7 +7,7 @@ const ContentChonLoaiNhom = () => {
   const [selection, setSelection] = useState("hasGroup");
 
   const selectedPlace = JSON.parse(localStorage.getItem("selectedGuide"))?.diaDiemDuocChon;
-
+  console.log("SELECTED PLACE:", selectedPlace);
   const handleContinue = () => {
     if (selection === "hasGroup") {
       // Nếu chọn "Tôi đã có nhóm" -> Chuyển sang trang chọn nhóm
@@ -68,11 +68,15 @@ const ContentChonLoaiNhom = () => {
         <div className="hire-selected-trip">
           <div className="trip-info-box">
             <img
-              src={selectedPlace?.image || "http://localhost:5000/img/default.jpg"}
+              src={
+                selectedPlace?.image?.includes("localhost:5000")
+                  ? selectedPlace.image.replace("localhost:5000", "localhost:5173")
+                  : selectedPlace?.image
+              }
               alt={selectedPlace?.tenDiaDiem}
               onError={(e) => {
-                e.target.onerror = null; // ✅ Dòng này để ngắt vòng lặp ngay lập tức
-                e.target.src = "http://localhost:5000/img/default.jpg"; // ✅ Gọi về cổng 5000
+                e.target.onerror = null;
+                e.target.src = "/img/default.jpg";
               }}
             />
             <div className="trip-text">

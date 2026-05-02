@@ -12,6 +12,14 @@ const ContentChonNhom = () => {
   const selectedGuide = JSON.parse(localStorage.getItem("selectedGuide"));
   const user = JSON.parse(localStorage.getItem("user"));
 
+  const getImageUrl = (image) => {
+    if (!image) return "/img/default.jpg";
+
+    if (image.startsWith("http")) return image;
+
+    return `http://localhost:5173${image}`;
+  };
+
   useEffect(() => {
     const fetchGroups = async () => {
       const userId = user?.id || user?._id;
@@ -24,7 +32,7 @@ const ContentChonNhom = () => {
         // 2. Gọi API lấy toàn bộ nhóm của User
         const res = await axios.get(`http://localhost:5000/nhom/user/${userId}`);
 
-        // 3. ✅ LỌC: Chỉ giữ lại các nhóm thuộc địa điểm này
+        // 3. LỌC: Chỉ giữ lại các nhóm thuộc địa điểm này
         const filteredGroups = res.data.nhoms.filter(group => {
           // Kiểm tra diaDiem của nhóm có khớp với địa điểm đang thuê không
           const groupPlaceId = group.diaDiem?._id || group.diaDiem;
@@ -79,7 +87,14 @@ const ContentChonNhom = () => {
           {myGroups.map((g) => (
             <div className="group-card" key={g._id}>
               <div className="group-card-img">
-                <img src={g.diaDiem?.image ? `http://localhost:5000/${g.diaDiem.image}` : "/img/default.jpg"} alt={g.ten} />
+                <img
+                  src={
+                    g.diaDiem?.image
+                      ? `http://localhost:5173${g.diaDiem.image}`
+                      : "/img/default.jpg"
+                  }
+                  alt={g.ten}
+                />
                 <span className={`status-badge ${g.nguoiTao?.id === user?.id ? "active" : "draft"}`}>
                   {g.nguoiTao?.id === user?.id ? "ACTIVE" : "MEMBER"}
                 </span>
