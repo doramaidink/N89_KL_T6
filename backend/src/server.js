@@ -27,6 +27,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 //truy cập trực tiếp qua /img/... như trong database
 app.use('/img', express.static(path.join(__dirname, '../public/img')));
+
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 // --- KHỞI TẠO ROUTES ---
 route(app);
