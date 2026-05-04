@@ -14,8 +14,21 @@ const ContentTrangchu = ({ data, user = null }) => {
       navigate("/khampha");
     }
   };
+  const handleTimHieuThem = () => {
+    document
+      .getElementById("lydo-section")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleDiHuongDanVien = () => {
+    if (user) {
+      navigate(`/${encodeURIComponent(user.hoTen)}/huongdanvienuser`);
+    } else {
+      navigate("/huongdanvien");
+    }
+  };
   ///chitietdiadiem/${item.slug}
-    const handleChiTietDiaDiem = (slug) => {
+  const handleChiTietDiaDiem = (slug) => {
     if (user) {
       navigate(`/${encodeURIComponent(user.hoTen)}/chitietdiadiemuser/${slug}`);
     } else {
@@ -94,8 +107,21 @@ const ContentTrangchu = ({ data, user = null }) => {
             </p>
 
             <div className="buttons-trangchu">
-              <button className="btn-primary-contenttrangchu">Bắt đầu ngay</button>
-              <button className="btn-secondary-contenttrangchu">Tìm hiểu thêm</button>
+              <button
+                type="button"
+                className="btn-primary-contenttrangchu"
+                onClick={handleDiKhamPha}
+              >
+                Bắt đầu ngay
+              </button>
+
+              <button
+                type="button"
+                className="btn-secondary-contenttrangchu"
+                onClick={handleTimHieuThem}
+              >
+                Tìm hiểu thêm
+              </button>
             </div>
           </div>
 
@@ -205,7 +231,9 @@ const ContentTrangchu = ({ data, user = null }) => {
               <span>✔ Đa ngôn ngữ</span>
             </div>
 
-            <button>Tìm Người Đồng Hành</button>
+            <button type="button" onClick={handleDiHuongDanVien}>
+              Tìm Người Đồng Hành
+            </button>
           </div>
 
           <div className="cta-right-trangchu">
@@ -214,7 +242,7 @@ const ContentTrangchu = ({ data, user = null }) => {
           </div>
         </div>
 
-        <div className="why-title-trangchu">
+        <div className="why-title-trangchu" id="lydo-section">
           <h2>Lý do nên chọn chúng tôi</h2>
           <div className="line-trangchu"></div>
         </div>

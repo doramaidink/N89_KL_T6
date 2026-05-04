@@ -97,73 +97,114 @@ class DanhGiaController {
   }
 
   async taoHoacCapNhatDanhGia(req, res) {
-  try {
-    const { diaDiemSlug, nguoiDungId, soSao, noiDung, hinhAnh = [] } = req.body;
+    try {
+      const { diaDiemSlug, nguoiDungId, soSao, noiDung, hinhAnh = [] } = req.body;
 
-    if (!diaDiemSlug) {
-      return res.status(400).json({ message: "Thiếu địa điểm" });
-    }
+      if (!diaDiemSlug) {
+        return res.status(400).json({ message: "Thiếu địa điểm" });
+      }
 
-    if (!nguoiDungId) {
-      return res.status(401).json({ message: "Bạn cần đăng nhập để đánh giá" });
-    }
+      if (!nguoiDungId) {
+        return res.status(401).json({ message: "Bạn cần đăng nhập để đánh giá" });
+      }
 
-    if (!soSao || Number(soSao) < 1 || Number(soSao) > 5) {
-      return res.status(400).json({ message: "Số sao phải từ 1 đến 5" });
-    }
+      if (!soSao || Number(soSao) < 1 || Number(soSao) > 5) {
+        return res.status(400).json({ message: "Số sao phải từ 1 đến 5" });
+      }
 
-    const diaDiem = await DiaDiem.findOne({ slug: diaDiemSlug });
-    if (!diaDiem) {
-      return res.status(404).json({ message: "Không tìm thấy địa điểm" });
-    }
+      const diaDiem = await DiaDiem.findOne({ slug: diaDiemSlug });
+      if (!diaDiem) {
+        return res.status(404).json({ message: "Không tìm thấy địa điểm" });
+      }
 
-    const nguoiDung = await NguoiDung.findById(nguoiDungId);
-    if (!nguoiDung) {
-      return res.status(404).json({ message: "Không tìm thấy người dùng" });
-    }
+      const nguoiDung = await NguoiDung.findById(nguoiDungId);
+      if (!nguoiDung) {
+        return res.status(404).json({ message: "Không tìm thấy người dùng" });
+      }
 
-    // AI KIỂM DUYỆT NỘI DUNG ĐÁNH GIÁ
-    const ketQuaKiemDuyet = await kiemDuyetNoiDung(noiDung, hinhAnh);
+      // AI KIỂM DUYỆT NỘI DUNG ĐÁNH GIÁ
+      console.log("===== DEBUG AI ĐÁNH GIÁ =====");
+      console.log("noiDung:", noiDung);
+      console.log("hinhAnh:", hinhAnh);
+      console.log("hinhAnh co phai mang khong:", Array.isArray(hinhAnh));
+      console.log("anh dau tien:", hinhAnh?.[0]);
 
-    if (!ketQuaKiemDuyet.hopLe) {
-      return res.status(400).json({
-        message:
-          ketQuaKiemDuyet.lyDo ||
-          "Nội dung đánh giá vi phạm tiêu chuẩn cộng đồng.",
-      });
-    }
+      const imagesForAI = Array.isArray(hinhAnh) ? hinhAnh : [];
 
-    const duLieuCapNhat = {
-      diaDiem: diaDiem._id,
-      nguoiDung: nguoiDung._id,
-      soSao: Number(soSao),
-      noiDung: (noiDung || "").trim(),
-      hinhAnh: Array.isArray(hinhAnh) ? hinhAnh.slice(0, 5) : [],
-      trangThai: "hien",
-    };
+      console.log("===== DEBUG KIỂM DUYỆT =====");
+      console.log("Nội dung:", noiDung);
+      console.log("Số ảnh:", imagesForAI.length);
+      console.log("Ảnh đầu:", imagesForAI[0]?.slice?.(0, 40));
 
-    const danhGia = await DanhGiaDiaDiem.findOneAndUpdate(
-      {
+      const ketQuaKiemDuyet = await kiemDuyetNoiDung(noiDung, imagesForAI);
+
+      if (!ketQuaKiemDuyet.hopLe) {
+        nguoiDung.soLanViPham = (nguoiDung.soLanViPham || 0) + 1;
+
+        if (!Array.isArray(nguoiDung.danhSachViPham)) {
+          nguoiDung.danhSachViPham = [];
+        }
+
+        nguoiDung.danhSachViPham.push({
+          loaiViPham: ketQuaKiemDuyet.nhomViPham,
+          mucDo:
+            ketQuaKiemDuyet.diemNguyHiem >= 90
+              ? "nang"
+              : ketQuaKiemDuyet.diemNguyHiem >= 60
+                ? "vua"
+                : "nhe",
+          lyDo: ketQuaKiemDuyet.lyDo,
+          thoiGian: new Date(),
+        });
+
+        if (ketQuaKiemDuyet.canKhoaTaiKhoan) {
+          nguoiDung.trangThai = "locked";
+        } else {
+          nguoiDung.trangThai = "warning";
+        }
+
+        await nguoiDung.save();
+
+        return res.status(403).json({
+          message: ketQuaKiemDuyet.canKhoaTaiKhoan
+            ? "Tài khoản của bạn đã bị khóa vì đăng nội dung vi phạm nghiêm trọng."
+            : ketQuaKiemDuyet.lyDo ||
+            "Nội dung đánh giá vi phạm tiêu chuẩn cộng đồng.",
+          ketQuaKiemDuyet,
+        });
+      }
+
+      const duLieuCapNhat = {
         diaDiem: diaDiem._id,
         nguoiDung: nguoiDung._id,
-      },
-      duLieuCapNhat,
-      {
-        new: true,
-        upsert: true,
-        setDefaultsOnInsert: true,
-      }
-    ).populate("nguoiDung", "hoTen image email");
+        soSao: Number(soSao),
+        noiDung: (noiDung || "").trim(),
+        hinhAnh: Array.isArray(hinhAnh) ? hinhAnh.slice(0, 5) : [],
+        trangThai: "hien",
+      };
 
-    return res.status(200).json({
-      message: "Đánh giá thành công",
-      danhGia,
-    });
-  } catch (error) {
-    console.log("Lỗi taoHoacCapNhatDanhGia:", error);
-    return res.status(500).json({ message: "Lỗi server khi lưu đánh giá" });
+      const danhGia = await DanhGiaDiaDiem.findOneAndUpdate(
+        {
+          diaDiem: diaDiem._id,
+          nguoiDung: nguoiDung._id,
+        },
+        duLieuCapNhat,
+        {
+          new: true,
+          upsert: true,
+          setDefaultsOnInsert: true,
+        }
+      ).populate("nguoiDung", "hoTen image email");
+
+      return res.status(200).json({
+        message: "Đánh giá thành công",
+        danhGia,
+      });
+    } catch (error) {
+      console.log("Lỗi taoHoacCapNhatDanhGia:", error);
+      return res.status(500).json({ message: "Lỗi server khi lưu đánh giá" });
+    }
   }
-}
 }
 
 module.exports = new DanhGiaController();
