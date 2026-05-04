@@ -20,6 +20,8 @@ const NguoiDung = new Schema({
   soLanViPham: { type: Number, default: 0 },
   resetPasswordToken: { type: String, default: null },
   resetPasswordExpires: { type: Date, default: null },
+  soLanViPham: { type: Number, default: 0,},
+  lyDoKhoa: {type: String,default: "",},
   danhSachViPham: [
       {
         loai: { type: String, default: "" }, // spam, toxic, lua_dao...

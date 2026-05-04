@@ -1,7 +1,7 @@
 const DanhGiaDiaDiem = require("../models/DanhGiaDiaDiem");
 const DiaDiem = require("../models/DiaDiem");
 const NguoiDung = require("../models/NguoiDung");
-
+const { kiemDuyetNoiDung } = require("../services/aiKiemDuyetService");
 class DanhGiaController {
   async layDanhGiaTheoDiaDiem(req, res) {
     try {
@@ -97,62 +97,73 @@ class DanhGiaController {
   }
 
   async taoHoacCapNhatDanhGia(req, res) {
-    try {
-      const { diaDiemSlug, nguoiDungId, soSao, noiDung, hinhAnh = [] } = req.body;
+  try {
+    const { diaDiemSlug, nguoiDungId, soSao, noiDung, hinhAnh = [] } = req.body;
 
-      if (!diaDiemSlug) {
-        return res.status(400).json({ message: "Thiếu địa điểm" });
-      }
+    if (!diaDiemSlug) {
+      return res.status(400).json({ message: "Thiếu địa điểm" });
+    }
 
-      if (!nguoiDungId) {
-        return res.status(401).json({ message: "Bạn cần đăng nhập để đánh giá" });
-      }
+    if (!nguoiDungId) {
+      return res.status(401).json({ message: "Bạn cần đăng nhập để đánh giá" });
+    }
 
-      if (!soSao || Number(soSao) < 1 || Number(soSao) > 5) {
-        return res.status(400).json({ message: "Số sao phải từ 1 đến 5" });
-      }
+    if (!soSao || Number(soSao) < 1 || Number(soSao) > 5) {
+      return res.status(400).json({ message: "Số sao phải từ 1 đến 5" });
+    }
 
-      const diaDiem = await DiaDiem.findOne({ slug: diaDiemSlug });
-      if (!diaDiem) {
-        return res.status(404).json({ message: "Không tìm thấy địa điểm" });
-      }
+    const diaDiem = await DiaDiem.findOne({ slug: diaDiemSlug });
+    if (!diaDiem) {
+      return res.status(404).json({ message: "Không tìm thấy địa điểm" });
+    }
 
-      const nguoiDung = await NguoiDung.findById(nguoiDungId);
-      if (!nguoiDung) {
-        return res.status(404).json({ message: "Không tìm thấy người dùng" });
-      }
+    const nguoiDung = await NguoiDung.findById(nguoiDungId);
+    if (!nguoiDung) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
 
-      const duLieuCapNhat = {
+    // AI KIỂM DUYỆT NỘI DUNG ĐÁNH GIÁ
+    const ketQuaKiemDuyet = await kiemDuyetNoiDung(noiDung, hinhAnh);
+
+    if (!ketQuaKiemDuyet.hopLe) {
+      return res.status(400).json({
+        message:
+          ketQuaKiemDuyet.lyDo ||
+          "Nội dung đánh giá vi phạm tiêu chuẩn cộng đồng.",
+      });
+    }
+
+    const duLieuCapNhat = {
+      diaDiem: diaDiem._id,
+      nguoiDung: nguoiDung._id,
+      soSao: Number(soSao),
+      noiDung: (noiDung || "").trim(),
+      hinhAnh: Array.isArray(hinhAnh) ? hinhAnh.slice(0, 5) : [],
+      trangThai: "hien",
+    };
+
+    const danhGia = await DanhGiaDiaDiem.findOneAndUpdate(
+      {
         diaDiem: diaDiem._id,
         nguoiDung: nguoiDung._id,
-        soSao: Number(soSao),
-        noiDung: (noiDung || "").trim(),
-        hinhAnh: Array.isArray(hinhAnh) ? hinhAnh.slice(0, 5) : [],
-        trangThai: "hien",
-      };
+      },
+      duLieuCapNhat,
+      {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true,
+      }
+    ).populate("nguoiDung", "hoTen image email");
 
-      const danhGia = await DanhGiaDiaDiem.findOneAndUpdate(
-        {
-          diaDiem: diaDiem._id,
-          nguoiDung: nguoiDung._id,
-        },
-        duLieuCapNhat,
-        {
-          new: true,
-          upsert: true,
-          setDefaultsOnInsert: true,
-        }
-      ).populate("nguoiDung", "hoTen image email");
-
-      return res.status(200).json({
-        message: "Đánh giá thành công",
-        danhGia,
-      });
-    } catch (error) {
-      console.log("Lỗi taoHoacCapNhatDanhGia:", error);
-      return res.status(500).json({ message: "Lỗi server khi lưu đánh giá" });
-    }
+    return res.status(200).json({
+      message: "Đánh giá thành công",
+      danhGia,
+    });
+  } catch (error) {
+    console.log("Lỗi taoHoacCapNhatDanhGia:", error);
+    return res.status(500).json({ message: "Lỗi server khi lưu đánh giá" });
   }
+}
 }
 
 module.exports = new DanhGiaController();

@@ -27,7 +27,7 @@ const ContentThanhToan = () => {
     const user = JSON.parse(localStorage.getItem("user"));
 
     const orderCodeFromUrl = searchParams.get("orderCode");
-
+//lấy data hướng dẫn viên
     if (data) {
       setGuide(data);
     }
@@ -94,21 +94,6 @@ const ContentThanhToan = () => {
 
   useEffect(() => {
     if (!orderCode) return;
-
-    /*
-      PHẦN NÀY THAY CHO NÚT FAKE
-
-      Trước đây bạn có nút fake kiểu:
-      button onClick={handleFakePaymentSuccess}
-
-      Bây giờ bỏ nút đó đi.
-
-      Cứ mỗi 3 giây, frontend sẽ gọi backend:
-      GET /payment/status/:orderCode
-
-      Nếu backend trả về status = "paid"
-      nghĩa là PayOS webhook đã báo thanh toán thành công.
-    */
 
     const interval = setInterval(async () => {
       try {
