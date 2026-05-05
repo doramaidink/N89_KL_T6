@@ -11,6 +11,16 @@ const ContentLoimoinhom = () => {
 
   const [myGroups, setMyGroups] = useState([]);
 
+  // sắp xếp mới nhất trước
+  const sortedInvitations = [...invitations].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
+  //  chỉ hiển thị 3 hoặc tất cả
+  const displayedInvitations = showAll
+    ? sortedInvitations
+    : sortedInvitations.slice(0, 3);
+
   const sortedGroups = [...myGroups].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
   );
@@ -31,7 +41,12 @@ const ContentLoimoinhom = () => {
         console.log("USER:", user);
 
         // 🔥 FIX CHUẨN
-        const doiTacId = user?.doiTacId || user?.id;
+        const doiTacId = user?.doiTacId;
+
+        if (!doiTacId) {
+          console.error("❌ Không có doiTacId chuẩn");
+          return;
+        }
         console.log(user);
 
         if (!doiTacId) {
@@ -203,11 +218,22 @@ const ContentLoimoinhom = () => {
 
       <div className="loimoi-header-main">
         {/* TITLE */}
-        <div>
-          <h2>Lời mời tham gia nhóm</h2>
-          <p>
-            Bạn có <span>{invitations.length}</span> lời mời mới...
-          </p>
+        <div className="loimoi-header">
+          <div>
+            <h2>Lời mời tham gia nhóm</h2>
+            <p>
+              Bạn có <span>{invitations.length}</span> lời mời mới...
+            </p>
+          </div>
+
+          {invitations.length > 3 && (
+            <button
+              className="view-all-btn"
+              onClick={() => setShowAll(!showAll)}
+            >
+              {showAll ? "Thu gọn" : "Xem tất cả"}
+            </button>
+          )}
         </div>
         <button className="btn-create-group" onClick={() => setIsCreating(true)}>
           <UserPlus size={18} /> Tạo nhóm mới
@@ -216,7 +242,7 @@ const ContentLoimoinhom = () => {
       <div className="loimoi-grid">
         {/* DANH SÁCH LỜI MỜI */}
         <div className="loimoi-list">
-          {invitations.map((item) => (
+          {displayedInvitations.map((item) => (
             <div className="invite-card" key={item._id}>
 
               {/* IMAGE */}

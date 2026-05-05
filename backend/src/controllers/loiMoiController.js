@@ -23,8 +23,17 @@ exports.getLoiMoi = async (req, res) => {
     try {
         const { doiTacId } = req.query;
 
+        // const doiTac = await DoiTac.findOne({
+        //     nguoiDung: doiTacId
+        // });
+
+        // if (!doiTac) {
+        //     return res.json({ loiMois: [] });
+        // }
+
+        // 🔥 dùng đúng ID
         let loiMois = await LoiMoi.find({
-            doiTacId,
+            doiTacId: doiTacId,
             trangThai: "cho_xac_nhan"
         })
             .populate({
@@ -86,7 +95,7 @@ exports.acceptLoiMoi = async (req, res) => {
                 if (!exists) {
                     nhom.thanhVien.push({
                         user: userId,
-                        role: "huong_dan_vien"  
+                        role: "huong_dan_vien"
                     });
 
                     await nhom.save();
@@ -138,12 +147,12 @@ exports.getThongKe = async (req, res) => {
         const { doiTacId } = req.query;
 
         const moi = await LoiMoi.countDocuments({
-            doiTacId,
+            doiTacId: doiTacId,
             trangThai: "cho_xac_nhan"
         });
 
         const daChapNhan = await LoiMoi.countDocuments({
-            doiTacId,
+            doiTacId: doiTacId,
             trangThai: "da_chap_nhan"
         });
 

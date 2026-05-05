@@ -7739,6 +7739,17 @@ input {
 /*---------------------------------------ContentThemdiadiem---------------------------------*/
 
 /*---------------------------------------ContentLoimoinhom----------------------------------*/
+.view-all-btn {
+  color: #00ffa6;
+  font-weight: 500;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.view-all-btn:hover {
+  opacity: 0.7;
+}
+
 .loimoi-content {
   padding: 20px 40px;
   background-color: #000000;
@@ -7749,6 +7760,7 @@ input {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
+  gap: 220px;
 }
 
 .loimoi-header-main h2 {
@@ -8169,6 +8181,13 @@ input {
   letter-spacing: 0.5px;
   cursor: pointer;
   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+.loimoi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 /*---------------------------------------ContentLoimoinhom----------------------------------*/

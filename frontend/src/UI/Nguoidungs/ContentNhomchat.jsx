@@ -6,6 +6,9 @@ import axios from "axios";
 const socket = io.connect("http://localhost:5000");
 
 const ContentNhomchat = ({ user }) => {
+  
+
+
   const handleChangeCheckoutCode = (e, index) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
 
@@ -129,8 +132,12 @@ const ContentNhomchat = ({ user }) => {
 
         alert("Checkout thành công");
         setShowCheckoutModal(false);
-        
-        window.location.href = "/lichsuchuyendi";
+
+        if (user.vaiTro === "doiTac") {
+          window.location.href = "/doitac/:id/loimoinhom";
+        } else {
+          window.location.href = "/lichsuchuyendi";
+        }
       } catch (err) {
         console.log(err);
         alert("Checkout lỗi");

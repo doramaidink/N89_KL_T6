@@ -37,6 +37,15 @@ function verifyPayOSWebhook(body) {
 }
 
 async function taoLoiMoiSauThanhToan(payment) {
+  console.log("🔥 VÀO HÀM TẠO LỜI MỜI:", payment);
+
+  if (!payment.doiTacId || !payment.nguoiGuiId) {
+    console.log("❌ THIẾU DATA:", {
+      doiTacId: payment.doiTacId,
+      nguoiGuiId: payment.nguoiGuiId
+    });
+    return;
+  }
   if (payment.daTaoLoiMoi) return;
 
   if (!payment.doiTacId || !payment.nguoiGuiId) return;
@@ -48,12 +57,15 @@ async function taoLoiMoiSauThanhToan(payment) {
     trangThai: "cho_xac_nhan",
   });
 
+  console.log("👉 EXISTED:", existed);
+
   if (!existed) {
     await LoiMoi.create({
       nhomId: payment.nhomId || null,
       doiTacId: payment.doiTacId,
       nguoiGuiId: payment.nguoiGuiId,
       loaiLoiMoi: payment.loaiLoiMoi || "tao_moi",
+      trangThai: "cho_xac_nhan" 
     });
   }
 
@@ -175,61 +187,68 @@ class PaymentController {
     }
   }
 
- async payosWebhook(req, res) {
-  try {
-    console.log("===== PAYOS WEBHOOK HIT =====");
-    console.log("BODY:", JSON.stringify(req.body, null, 2));
+  async payosWebhook(req, res) {
+    try {
+      console.log("===== PAYOS WEBHOOK HIT =====");
+      console.log("BODY:", JSON.stringify(req.body, null, 2));
 
-    const body = req.body;
-    const data = body.data || {};
-    const orderCode = Number(data.orderCode);
+      const body = req.body;
+      const data = body.data || {};
+      const orderCode = Number(data.orderCode);
 
-    console.log("orderCode từ webhook:", orderCode);
+      console.log("orderCode từ webhook:", orderCode);
 
-    if (!orderCode) {
+      if (!orderCode) {
+        return res.status(200).json({
+          success: true,
+          message: "Webhook không có orderCode",
+        });
+      }
+
+      const payment = await ThanhToan.findOne({ orderCode });
+      console.log("👉 PAYMENT DATA:", payment);
+
+      console.log("payment tìm được:", payment);
+
+      if (!payment) {
+        return res.status(200).json({
+          success: true,
+          message: "Không tìm thấy đơn trong DB",
+        });
+      }
+
+      // TẠM THỜI CHO UPDATE TRƯỚC ĐỂ TEST LUỒNG
+      // Sau khi chạy ổn rồi mình bật verify signature lại sau
+      if (body.success === true || body.code === "00") {
+        payment.status = "paid";
+        payment.reference = data.reference || "";
+        payment.transactionDateTime = data.transactionDateTime || "";
+        await payment.save();
+
+        console.log("👉 TRƯỚC KHI TẠO LỜI MỜI:", {
+          doiTacId: payment.doiTacId,
+          nguoiGuiId: payment.nguoiGuiId,
+          nhomId: payment.nhomId
+        });
+
+        await taoLoiMoiSauThanhToan(payment);
+
+        console.log("ĐÃ UPDATE PAYMENT SANG PAID:", payment.orderCode);
+      }
+
       return res.status(200).json({
         success: true,
-        message: "Webhook không có orderCode",
+        message: "Webhook xử lý thành công",
+      });
+    } catch (error) {
+      console.error("Lỗi PayOS webhook:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi xử lý webhook",
       });
     }
-
-    const payment = await ThanhToan.findOne({ orderCode });
-
-    console.log("payment tìm được:", payment);
-
-    if (!payment) {
-      return res.status(200).json({
-        success: true,
-        message: "Không tìm thấy đơn trong DB",
-      });
-    }
-
-    // TẠM THỜI CHO UPDATE TRƯỚC ĐỂ TEST LUỒNG
-    // Sau khi chạy ổn rồi mình bật verify signature lại sau
-    if (body.success === true || body.code === "00") {
-      payment.status = "paid";
-      payment.reference = data.reference || "";
-      payment.transactionDateTime = data.transactionDateTime || "";
-      await payment.save();
-
-      await taoLoiMoiSauThanhToan(payment);
-
-      console.log("ĐÃ UPDATE PAYMENT SANG PAID:", payment.orderCode);
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Webhook xử lý thành công",
-    });
-  } catch (error) {
-    console.error("Lỗi PayOS webhook:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Lỗi xử lý webhook",
-    });
   }
-}
 }
 
 module.exports = new PaymentController();
