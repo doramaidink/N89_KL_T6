@@ -6196,6 +6196,212 @@ input {
 }
 /* ----------------------------Danh gia --------------------*/
 
+/*chat bot*/
+.bizchat-wrapper {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  font-family: Arial, sans-serif;
+}
+
+.bizchat-toggle {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed, #9333ea);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(124, 58, 237, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bizchat-box {
+  width: 330px;
+  height: 520px;
+  margin-bottom: 14px;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #f8f2ff;
+  box-shadow: 0 18px 50px rgba(40, 20, 70, 0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+.bizchat-header {
+  height: 76px;
+  background: #f0e2ff;
+  padding: 15px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #2b164f;
+}
+
+.bizchat-logo,
+.bizchat-avatar {
+  background: #7c3aed;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bizchat-logo {
+  width: 38px;
+  height: 38px;
+}
+
+.bizchat-avatar {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.bizchat-header h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.bizchat-header p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #6b4a91;
+}
+
+.bizchat-header button {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: #4c1d95;
+  cursor: pointer;
+}
+
+.bizchat-body {
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+}
+
+.bizchat-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.bizchat-row.user {
+  justify-content: flex-end;
+}
+
+.bizchat-message {
+  max-width: 230px;
+  border-radius: 18px;
+  padding: 9px 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-line;
+}
+
+.bizchat-message strong {
+  display: block;
+  font-size: 11px;
+  margin-bottom: 4px;
+  color: #6d28d9;
+}
+
+.bizchat-message.bot {
+  background: white;
+  color: #272033;
+  border-top-left-radius: 6px;
+}
+
+.bizchat-message.user {
+  background: #ebe3ff;
+  color: #271344;
+  border-top-right-radius: 6px;
+}
+
+.bizchat-message.user strong {
+  text-align: right;
+}
+
+.bizchat-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-left: 34px;
+  margin-top: 4px;
+}
+
+.bizchat-suggestions button {
+  border: none;
+  background: white;
+  color: #2b164f;
+  font-size: 12px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  text-align: left;
+  box-shadow: 0 3px 10px rgba(88, 28, 135, 0.08);
+}
+
+.bizchat-suggestions button:hover {
+  background: #ede9fe;
+}
+
+.bizchat-input {
+  padding: 12px;
+  display: flex;
+  gap: 8px;
+  background: #f0e2ff;
+}
+
+.bizchat-input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: white;
+  border-radius: 999px;
+  padding: 11px 13px;
+  font-size: 13px;
+}
+
+.bizchat-input button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: #7c3aed;
+  color: white;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .bizchat-box {
+    width: calc(100vw - 28px);
+    height: 500px;
+  }
+
+  .bizchat-wrapper {
+    right: 14px;
+    bottom: 14px;
+  }
+}
+.input-chatbot{
+  color: #000;
+}
+.fly-chatbot{
+  margin-left: 10px;
+}
+.buttongui-chatbot{
+  margin-top: 5px;
+}
+/*chat bot*/
 
 
 

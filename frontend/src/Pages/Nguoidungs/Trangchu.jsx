@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import Header from '../../UI/Nguoidungs/Headers/Header'
 import Footer from '../../UI/Nguoidungs/Footer'
 import ContentTrangchu from '../../UI/Nguoidungs/ContentTrangchu'
+import ChatBot from '../../ChatBot'
 import axios from "axios";
 
  const Trangchu = () => {
@@ -24,6 +25,7 @@ import axios from "axios";
         <Header/>
         <ContentTrangchu data = {data}/>
         <Footer/>
+        <ChatBot/>
     </div>
   )
 }
