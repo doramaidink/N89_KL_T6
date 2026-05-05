@@ -5020,16 +5020,13 @@ input {
 /* --- TỔNG THỂ --- */
 .nhomchat {
   display: flex;
-  /* ✅ Trừ chiều cao Header (giả định 80px) để không bị cấn */
   height: calc(100vh - 80px);
-  margin-top: 80px;
+  margin-top: 100px;
   background-color: #0a0e0c;
   color: #ffffff;
   overflow: hidden;
-  /* Không cho cuộn cả trang */
 }
 
-/* ✅ Cho phép các cột cuộn độc lập khi nội dung quá dài */
 .sidebar-nhomchat,
 .info-nhomchat {
   height: 100%;
