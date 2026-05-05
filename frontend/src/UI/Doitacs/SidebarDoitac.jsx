@@ -40,10 +40,12 @@ const SidebarDoitac = () => {
       </nav>
 
       <div className="sidebar-doitac-footer">
+        {/*
         <button className="doitac-footer-btn">
           <HelpCircle size={20} className="doitac-footer-icon"/>
           <span>Hỗ trợ</span>
         </button>
+        */}
         <button className="doitac-footer-btn" onClick={handleLogout}>
           <LogOut size={20} className="doitac-footer-icon"/>
           <span>Đăng xuất</span>
