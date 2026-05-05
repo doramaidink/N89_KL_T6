@@ -91,7 +91,7 @@ const NgaySinhSelector = ({ value, onChange }) => {
 
   return (
     <div className="form-group">
-      <label>Ngày sinh</label>
+      <h2 className="h2-dkhdv">Ngày sinh</h2>
 
       <div className="grid grid-cols-3 gap-3">
         <select
@@ -241,7 +241,7 @@ const AddressSelector = ({
       <div className="dkhdv-grid three-col" style={{ marginTop: 8 }}>
         {showStreet && (
           <div className="form-group">
-            <label>Số nhà / tên đường</label>
+            <h2 className="h2-dkhdv">Số nhà / tên đường</h2>
             <input
               value={value.street || ""}
               onChange={(e) => onChange({ ...value, street: e.target.value })}
@@ -251,7 +251,7 @@ const AddressSelector = ({
         )}
 
         <div className="form-group">
-          <label>Tỉnh / Thành</label>
+          <h2 className="h2-dkhdv">Tỉnh / Thành</h2>
           <select value={value.provinceCode || ""} onChange={handleProvinceChange}>
             <option value="">-- Chọn tỉnh/thành --</option>
             {provinces.map((province) => (
@@ -263,7 +263,7 @@ const AddressSelector = ({
         </div>
 
         <div className="form-group">
-          <label>Quận / Huyện</label>
+          <h2 className="h2-dkhdv">Quận / Huyện</h2>
           <select
             value={value.districtCode || ""}
             onChange={handleDistrictChange}
@@ -281,7 +281,7 @@ const AddressSelector = ({
         </div>
 
         <div className="form-group">
-          <label>Phường / Xã</label>
+          <h2 className="h2-dkhdv">Phường / Xã</h2>
           <select
             value={value.wardCode || ""}
             onChange={handleWardChange}
@@ -794,7 +794,7 @@ const ContentDkHdv = () => {
 
             <div className="dkhdv-grid two-col">
               <div className="form-group">
-                <label>Họ và tên</label>
+                <h2 className="h2-dkhdv">Họ và tên</h2>
                 <input
                   name="hoTen"
                   value={formData.hoTen}
@@ -809,7 +809,7 @@ const ContentDkHdv = () => {
               />
 
               <div className="form-group">
-                <label>Số điện thoại</label>
+                <h2 className="h2-dkhdv">Số điện thoại</h2>
                 <input
                   name="soDienThoai"
                   value={formData.soDienThoai}
@@ -819,7 +819,7 @@ const ContentDkHdv = () => {
               </div>
 
               <div className="form-group">
-                <label>Số CCCD</label>
+                <h2 className="h2-dkhdv">Số CCCD</h2>
                 <input
                   name="soCCCD"
                   value={formData.soCCCD}
@@ -845,7 +845,7 @@ const ContentDkHdv = () => {
               />
 
               <div className="form-group">
-                <label>Tỉnh/Thành đăng ký</label>
+                <h2 className="h2-dkhdv">Tỉnh/Thành đăng ký</h2>
                 <select
                   name="tinhDangKy"
                   value={formData.tinhDangKy}
@@ -861,7 +861,7 @@ const ContentDkHdv = () => {
               </div>
 
               <div className="form-group">
-                <label>Số năm kinh nghiệm</label>
+                <h2 className="h2-dkhdv">Số năm kinh nghiệm</h2>
                 <input
                   type="number"
                   name="soNamKinhNghiem"
@@ -872,7 +872,7 @@ const ContentDkHdv = () => {
               </div>
 
               <div className="form-group full-col">
-                <label>Kỹ năng đặc biệt</label>
+                <h2 className="h2-dkhdv">Kỹ năng dặc biệt</h2>
                 <input
                   name="kyNangDacBiet"
                   value={formData.kyNangDacBiet}
@@ -882,7 +882,7 @@ const ContentDkHdv = () => {
               </div>
 
               <div className="form-group full-col">
-                <label>Giới thiệu bản thân</label>
+                <h2 className="h2-dkhdv">Giới thiệu bản thân</h2>
                 <textarea
                   name="gioiThieuBanThan"
                   value={formData.gioiThieuBanThan}
@@ -899,7 +899,7 @@ const ContentDkHdv = () => {
               {formData.diaDiemGiaCa.map((item, index) => (
                 <div className="dkhdv-grid three-col" key={index} style={{ marginBottom: 16 }}>
                   <div className="form-group">
-                    <label>Địa điểm hướng dẫn</label>
+                    <h2 className="h2-dkhdv">Địa điểm hướng dẫn</h2>
                     <select
                       value={item.diaDiem}
                       onChange={(e) =>
@@ -916,7 +916,7 @@ const ContentDkHdv = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Mức giá (VND/Ngày)</label>
+                    <h2 className="h2-dkhdv">Mức giá (VND/Ngày)</h2>
                     <input
                       type="number"
                       value={item.mucGia}
@@ -928,7 +928,7 @@ const ContentDkHdv = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Kinh nghiệm</label>
+                    <h2 className="h2-dkhdv">Kinh nghiệm</h2>
                     <input
                       value={item.kinhNghiem}
                       onChange={(e) =>
