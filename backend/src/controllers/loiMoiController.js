@@ -39,8 +39,14 @@ exports.getLoiMoi = async (req, res) => {
             .populate({
                 path: "nhomId",
                 populate: [
-                    { path: "nguoiTao", select: "hoTen" },
-                    { path: "diaDiem", select: "tenDiaDiem" }
+                    {
+                        path: "thanhVien.user",
+                        select: "hoTen email image"
+                    },
+                    {
+                        path: "diaDiem",
+                        select: "tenDiaDiem diaChi"
+                    }
                 ]
             })
             .populate("doiTacId", "hoTen image");
