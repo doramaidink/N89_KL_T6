@@ -14201,5 +14201,11 @@ html {
 .btn-close-map:hover {
   background: #d9363e;
 }
-
+.empty-state {
+  padding: 30px;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  font-style: italic;
+}
 /*------------------------------ContentCheckinAdmin--------------------------------------------*/
