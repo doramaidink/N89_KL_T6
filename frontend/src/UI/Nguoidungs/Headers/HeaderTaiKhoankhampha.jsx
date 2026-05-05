@@ -82,7 +82,7 @@ const HeaderTaikhoanKhamPha = ({ user }) => {
         </div>
 
         <div className="dropdown-taikhoan">
-          <div><a href="/dangkihuongdanvien">Đăng ký làm đối tác</a></div>
+          <div onClick={() => navigate(`/${encodeURIComponent(hoTen)}/dangkihuongdanvien`)}>Đăng ký làm đối tác</div>
           <div><a href="/thongtintaikhoan">Quản lý tài khoản</a></div>
             <div onClick={() => navigate(`/${encodeURIComponent(hoTen)}/baocao`)}> Báo cáo</div>
           <div><a href="/nhom">Group của tôi</a></div>
