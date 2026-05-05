@@ -35,8 +35,10 @@ const ContentThemdiadiem = () => {
   };
 
   const [images, setImages] = useState([
+    /*
     { id: "img1", url: "/img/place1.jpg" }, 
     { id: "img2", url: "/img/place2.jpg" }
+    */
   ]);
 
   const fileInputRef = useRef(null);
@@ -89,7 +91,7 @@ const ContentThemdiadiem = () => {
               </div>
               <div className="input-group">
                 <label>ĐỘ KHÓ</label>
-                <select>
+                <select className="select">
                   <option>Dễ</option>
                   <option>Trung bình</option>
                   <option>Khó</option>

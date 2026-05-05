@@ -7033,11 +7033,13 @@ input {
   gap: 25px;
 }
 
+/*
 .doitac-icon-header {
   position: relative;
   color: #a0aec0;
   cursor: pointer;
 }
+*/
 
 .doitac-profile {
   display: flex;
@@ -7253,6 +7255,7 @@ input {
   font-size: 18px;
 }
 
+/*
 .btn-more {
   background: transparent;
   color: #ffffff;
@@ -7267,6 +7270,7 @@ input {
   background: #000000;
   color: #f3f4f5;
 }
+*/
 
 .doitac-table-yeucau {
   display: flex;
@@ -7354,6 +7358,208 @@ input {
 }
 
 /*---------------------------------------ContentBangdieukhien-------------------------------*/
+
+/*---------------------------------------ContentChitietyeucau-------------------------------*/
+:root {
+  --bg-modal: #111111;         
+  --bg-section-dark: #151a15;  
+  --text-main: #ffffff;
+  --text-muted: #a3a3a3;       
+  --accent-orange: #d69e66;   
+  --accent-emerald: #10b981;   
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.modal-content-single {
+  background: var(--bg-modal);
+  width: 450px;            
+  max-width: 90%;
+  border-radius: 20px;      
+  padding: 25px;
+  color: var(--text-main);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.header-title { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+}
+
+.header-title h2 { 
+  font-size: 18px; 
+  font-weight: 800; 
+  margin: 0; 
+}
+
+.btn-close-x { 
+  background: none; 
+  border: none; 
+  cursor: pointer; 
+  padding: 5px; 
+}
+
+.header-divider { 
+  border: 0; 
+  border-top: 1px solid #222; 
+  margin: 0; 
+  margin-bottom: 20px; 
+}
+
+.modal-body { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 15px;
+}
+
+.info-section-dark {
+  background: var(--bg-section-dark);
+  border: 1px solid #1e291e;
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.info-row { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+  margin-bottom: 12px; 
+}
+
+.info-row:last-child { 
+  margin-bottom: 0; 
+}
+
+.info-row p { 
+  font-size: 13px; 
+  color: var(--text-muted); 
+  margin: 0; 
+}
+
+.info-row strong { 
+  color: #fff; 
+  font-weight: 600; 
+}
+
+.align-start {
+  align-items: flex-start; 
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end; 
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.btn-reject {
+  background: rgba(220, 38, 38, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-confirm-final {
+  background: var(--accent-emerald);
+  color: black;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.group-info-section {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.group-details {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.group-name {
+  font-size: 14px;
+  color: #fff;
+  border-bottom: 1px solid #222;
+  padding-bottom: 8px;
+}
+
+.member-list {
+  font-size: 13px;
+  color: #a3a3a3;
+}
+
+.member-list ul {
+  margin-top: 5px;
+  padding-left: 18px;
+  list-style: disc;
+  color: #8c7e6d;
+}
+
+.time-location-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.time-item, .location-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.full-width {
+  grid-column: span 2;
+  border-top: 1px solid #222;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.time-item .label, .location-item .label {
+  font-size: 11px;
+  color: #8c7e6d;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.time-item .value, .location-item .value {
+  font-size: 12px;
+  color: #fff;
+  font-weight: 500;
+}
+
+/*---------------------------------------ContentChitietyeucau-------------------------------*/
 
 /*---------------------------------------ContentHoso----------------------------------------*/
 .doitac-content-hoso {
@@ -7557,6 +7763,7 @@ input {
   gap: 15px;
 }
 
+/*
 .btn-add-location {
   display: flex;
   align-items: center;
@@ -7622,6 +7829,58 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+*/
+
+.location-input-card {
+  background: #0d110d; 
+  border: 1px solid #1f291f;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+}
+
+.form-row-3col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.btn-delete-location {
+  width: 100%;
+  background: #7f1d1d; 
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-add-location-new {
+  width: 100%;
+  background: transparent;
+  border: 2px dashed #10b981; 
+  color: #10b981;
+  padding: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.btn-add-location-new:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.select {
+  margin-top: 10px;
+  height: 50px;
+}
+
+.bottom{    
+  margin-bottom: 10px;
 }
 
 .hoso-actions {
@@ -7860,6 +8119,7 @@ input {
   text-align: center;
   background: #0d1117;
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .upload-icon {
