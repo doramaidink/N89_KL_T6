@@ -105,6 +105,11 @@ const ContentDanhgia = ({ user = null, canReview = false }) => {
       return;
     }
 
+    if (!noiDung.trim()) {
+      toast.warning("Vui lòng nhập nội dung đánh giá");
+      return;
+    }
+
     try {
       setSubmitting(true);
 
@@ -132,9 +137,8 @@ const ContentDanhgia = ({ user = null, canReview = false }) => {
         {[1, 2, 3, 4, 5].map((item) => (
           <span
             key={item}
-            className={`star-item ${item <= star ? "active" : ""} ${
-              clickable ? "clickable" : ""
-            }`}
+            className={`star-item ${item <= star ? "active" : ""} ${clickable ? "clickable" : ""
+              }`}
             onClick={() => clickable && setSoSao(item)}
           >
             ★
@@ -148,6 +152,16 @@ const ContentDanhgia = ({ user = null, canReview = false }) => {
     if (!dateString) return "";
     const d = new Date(dateString);
     return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+  };
+  const getAvatarUrl = (image) => {
+    if (!image) return "/img/default-user.jpg";
+    if (image.startsWith("http")) return image;
+
+    if (image.startsWith("/uploads") || image.startsWith("/img")) {
+      return `${API}${image}`;
+    }
+
+    return `${API}/${image}`;
   };
 
   const danhGiasDaSapXep = useMemo(() => {
@@ -272,7 +286,7 @@ const ContentDanhgia = ({ user = null, canReview = false }) => {
                 <div className="review-item-top">
                   <div className="review-user-left">
                     <img
-                      src={item.nguoiDung?.image || "/img/default-user.jpg"}
+                      src={getAvatarUrl(item.nguoiDung?.image)}
                       alt={item.nguoiDung?.hoTen || "avatar"}
                     />
                     <div>
@@ -286,9 +300,9 @@ const ContentDanhgia = ({ user = null, canReview = false }) => {
                   </div>
                 </div>
 
-                <p className="review-item-content">
-                  {item.noiDung || "Người dùng chưa nhập nội dung đánh giá."}
-                </p>
+                {item.noiDung?.trim() && (
+                  <p className="review-item-content">{item.noiDung}</p>
+                )}
 
                 {item.hinhAnh?.length > 0 && (
                   <div className="review-images-grid">

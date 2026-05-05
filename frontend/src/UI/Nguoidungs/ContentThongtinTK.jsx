@@ -267,7 +267,7 @@ const ContentThongtinTK = ({ user, setUser }) => {
           <div className="item-taikhoan" onClick={() => (window.location.href = "/lichsuchuyendi")}>
             Lịch sử chuyến đi
           </div>
-          <div className="item-taikhoan">Hóa đơn</div>
+          <div className="item-taikhoan" onClick={() => (window.location.href = "/hoadon")}>Hóa đơn</div>
           <div className="item-taikhoan logout-taikhoan" onClick={handleDangXuat}>
             Đăng xuất
           </div>

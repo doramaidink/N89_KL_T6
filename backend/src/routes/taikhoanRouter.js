@@ -7,6 +7,7 @@ router.get("/:id", taiKhoanController.layThongTinTaiKhoan);
 router.put("/:id/hoten", taiKhoanController.capNhatHoTen);
 router.put("/:id/sodienthoai", taiKhoanController.themSoDienThoai);
 router.put("/:id/matkhau", taiKhoanController.doiMatKhau);
+router.get("/:id/hoadon", taiKhoanController.hoaDon);
 router.put("/:id/avatar", uploadAvatar.single("avatar"), taiKhoanController.capNhatAvatar);
 
 module.exports = router;

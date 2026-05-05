@@ -12,6 +12,8 @@ const route = require('./routes');
 
 // Import Model Chat
 const Chat = require('./models/Chat');
+const { kiemDuyetNoiDung } = require("./services/aiKiemDuyetService");
+const NguoiDung = require("./models/NguoiDung");
 
 dotenv.config();
 
@@ -57,22 +59,45 @@ io.on("connection", (socket) => {
     );
   });
 
-  socket.on("send_message", async (data) => {
-    try {
-      const newChat = await Chat.create({
-        nhomId: data.groupId,
-        senderId: data.senderId,
-        hoTen: data.senderName,
-        noiDung: data.message,
-        senderRole: data.vaiTro === "doiTac" ? "huongDanVien" : "user",
-        thoiGian: new Date()
-      });
-      io.to(data.groupId).emit("receive_message", newChat);
-    } catch (err) {
-      console.error("Lỗi lưu tin nhắn:", err);
-    }
-  });
+ socket.on("send_message", async (data) => {
+  try {
+    const {
+      groupId,
+      senderId,
+      senderName,
+      message,
+      vaiTro,
+      hinhAnh = []
+    } = data;
 
+    // ===== KIỂM DUYỆT AI =====
+    const ketQua = await kiemDuyetNoiDung(message, hinhAnh);
+
+    if (!ketQua.hopLe) {
+      socket.emit("message_blocked", {
+        message: ketQua.lyDo
+      });
+
+      // ❗ KHÔNG LƯU DB
+      return;
+    }
+
+    // ===== LƯU DB =====
+    const newMessage = await Chat.create({
+      nhomId: groupId,
+      senderId,
+      hoTen: senderName,
+      noiDung: message,
+      hinhAnh
+    });
+
+    // ===== GỬI CHO NHÓM =====
+    io.to(groupId).emit("receive_message", newMessage);
+
+  } catch (err) {
+    console.log(err);
+  }
+});
   socket.on("new_member_joined", (data) => {
     io.to(data.groupId).emit("update_member_list");
   });

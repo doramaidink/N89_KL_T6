@@ -9,6 +9,7 @@ const ChatSchema = new mongoose.Schema({
     },
     hoTen: String,
     noiDung: String,
+    
     thoiGian: { type: Date, default: Date.now }
 });
 

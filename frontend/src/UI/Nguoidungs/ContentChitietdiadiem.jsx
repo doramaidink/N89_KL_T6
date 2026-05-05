@@ -266,7 +266,7 @@ const ContentChitietdiadiem = ({ user = null }) => {
         _id: diaDiem?._id || "",
         tenDiaDiem: diaDiem?.tenDiaDiem || "",
         khuVuc: diaDiem?.khuVuc || "",
-        image: fullImage, 
+        image: fullImage,
         images: diaDiem?.images || [],
         slug: diaDiem?.slug || "",
       },
@@ -284,8 +284,12 @@ const ContentChitietdiadiem = ({ user = null }) => {
   const getImageUrl = (image) => {
     if (!image) return "/img/default-user.jpg";
     if (image.startsWith("http")) return image;
-    if (image.startsWith("/")) return image;
-    return `/${image}`;
+
+    if (image.startsWith("/uploads") || image.startsWith("/img")) {
+      return `http://localhost:5000${image}`;
+    }
+
+    return `http://localhost:5000/${image}`;
   };
 
   if (loading) {
@@ -401,7 +405,7 @@ const ContentChitietdiadiem = ({ user = null }) => {
                     <div className="review-card" key={item._id}>
                       <div className="review-header">
                         <img
-                          src={item.nguoiDung?.image || "/img/default-user.jpg"}
+                          src={getImageUrl(item.nguoiDung?.image)}
                           alt={item.nguoiDung?.hoTen || "avatar"}
                           className="review-avatar-img"
                         />

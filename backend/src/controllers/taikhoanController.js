@@ -1,5 +1,5 @@
 const NguoiDung = require("../models/NguoiDung");
-
+const ThanhToan = require("../models/ThanhToan");
 class TaiKhoanController {
   async layThongTinTaiKhoan(req, res) {
     try {
@@ -224,6 +224,27 @@ class TaiKhoanController {
     });
   }
 }
+  async hoaDon(req,res){
+     try {
+    const { id } = req.params;
+
+    const hoaDons = await ThanhToan.find({ nguoiGuiId: id })
+      .populate("doiTacId", "hoTen soDienThoai image")
+      .populate("nguoiGuiId", "hoTen email soDienThoai image vaiTro")
+      .populate("nhomId", "tenNhom")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      message: "Lấy danh sách hóa đơn thành công",
+      hoaDons,
+    });
+  } catch (error) {
+    console.log("Lỗi hoaDon:", error);
+    return res.status(500).json({
+      message: "Lỗi server khi lấy hóa đơn",
+    });
+  }
+  }
 }
 
 module.exports = new TaiKhoanController();

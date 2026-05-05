@@ -9,6 +9,7 @@ router.post(
   uploadBaoCao.single("hinhAnh"),
   homeuserController.taoBaoCao
 );
+
 router.get('/:hoten', homeuserController.hienThiTrangChuUser);
 
 module.exports = router;
