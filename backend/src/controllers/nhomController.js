@@ -169,7 +169,9 @@ class nhomController {
                 record.userId = userId;
                 record.userCode = code;
                 record.checkinAt = new Date();
-                record.checkinLocation = { lat, lng };
+
+                // ✅ QUAN TRỌNG
+                record.checkinLocationUser = { lat, lng };
             }
 
             // 👇 HDV CHECKIN
@@ -180,6 +182,9 @@ class nhomController {
 
                 record.hdvId = userId;
                 record.hdvCode = code;
+
+                // ✅ THÊM DÒNG NÀY
+                record.checkinLocationHdv = { lat, lng };
             }
 
             await record.save();
@@ -198,48 +203,42 @@ class nhomController {
     async checkout(req, res) {
         console.log("CHECKOUT HIT");
 
-
         try {
             const { nhomId, userId, role, code, lat, lng } = req.body;
-            console.log("REQ DATA:", { nhomId, userId, role });
-            let record;
 
-            // 🔥 FIX CHÍNH
-            if (role === "hdv") {
-                record = await Checkin.findOne({
-                    nhomId,
-                    hdvId: userId
-                });
-            } else {
-                record = await Checkin.findOne({
-                    nhomId,
-                    userId
-                });
-            }
+            console.log("REQ DATA:", { nhomId, userId, role });
+
+            // ✅ BẮT BUỘC PHẢI CÓ
+            const record = await Checkin.findOne({ nhomId });
 
             if (!record) {
-                return res.status(404).json({ message: "Chưa checkin" });
+                return res.status(404).json({ message: "Không tìm thấy bản ghi checkin" });
             }
 
+            // 👇 HDV
             if (role === "hdv") {
-                if (record.hdvCode !== code) {
+                if (!record.hdvCode || record.hdvCode !== code) {
                     return res.status(400).json({ message: "Sai mã HDV" });
                 }
-            } else {
-                if (record.userCode !== code) {
+
+                record.checkoutLocationHdv = { lat, lng };
+            }
+
+            // 👇 USER
+            else {
+                if (!record.userCode || record.userCode !== code) {
                     return res.status(400).json({ message: "Sai mã User" });
                 }
+
+                record.checkoutLocationUser = { lat, lng };
             }
 
             record.checkoutAt = new Date();
-            record.checkoutLocation = { lat, lng };
             record.status = "done";
 
             await record.save();
 
-
-
-            res.json({ message: "Checkout OK" });
+            res.json({ message: "Checkout OK", record });
 
         } catch (err) {
             console.log("CHECKOUT ERROR:", err);
@@ -254,10 +253,17 @@ class nhomController {
                 .populate("hdvId", "hoTen")
                 .populate({
                     path: "nhomId",
-                    populate: {
-                        path: "diaDiem",
-                        select: "tenDiaDiem"
-                    }
+                    populate: [
+                        {
+                            path: "diaDiem",
+                            select: "tenDiaDiem"
+                        },
+                        {
+                            path: "thanhVien.user",
+                            select: "hoTen"
+                        }
+                    ]
+
                 })
 
             res.json({

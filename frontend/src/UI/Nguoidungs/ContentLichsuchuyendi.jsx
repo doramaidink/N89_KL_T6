@@ -9,6 +9,14 @@ const ContentLichsuchuyendi = ({ user }) => {
   //chuyển đánh giá
   const navigate = useNavigate();
 
+  const [showAll, setShowAll] = useState(false);
+
+  const sortedData = [...data].sort(
+    (a, b) => new Date(b.checkinAt) - new Date(a.checkinAt)
+  );
+
+  const displayData = showAll ? sortedData : sortedData.slice(0, 3);
+
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user"));
 
@@ -49,15 +57,37 @@ const ContentLichsuchuyendi = ({ user }) => {
       {/* RIGHT CONTENT */}
       <div className="content-lichsu">
 
-        <h2>Lịch sử chuyến đi</h2>
-        <p className="sub-lichsu">
-          Lưu giữ những kỷ niệm trên hành trình khám phá Việt Nam của bạn.
-        </p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+
+          <div>
+            <h2>Lịch sử chuyến đi</h2>
+            <p className="sub-lichsu">
+              Lưu giữ những kỷ niệm trên hành trình khám phá Việt Nam của bạn.
+            </p>
+          </div>
+
+          {data.length > 3 && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              style={{
+                border: "1px solid #00d084",
+                background: "transparent",
+                color: "#00d084",
+                padding: "6px 12px",
+                borderRadius: "8px",
+                cursor: "pointer"
+              }}
+            >
+              {showAll ? "Thu gọn" : "Xem tất cả"}
+            </button>
+          )}
+
+        </div>
 
         {/* CARD */}
 
 
-        {data.map((item) => {
+        {displayData.map((item) => {
           console.log("IMG RAW:", item.nhomId?.diaDiem?.image);
 
           const img = item.nhomId?.diaDiem?.image;

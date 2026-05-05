@@ -12,12 +12,22 @@ const checkinSchema = new mongoose.Schema({
     checkinAt: Date,
     checkoutAt: Date,
 
-    checkinLocation: {
+    checkinLocationUser: {
         lat: Number,
         lng: Number
     },
 
-    checkoutLocation: {
+    checkoutLocationUser: {
+        lat: Number,
+        lng: Number
+    },
+
+    checkinLocationHdv: {
+        lat: Number,
+        lng: Number
+    },
+
+    checkoutLocationHdv: {
         lat: Number,
         lng: Number
     },

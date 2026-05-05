@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { MapPin, Users, ShieldCheck } from "lucide-react";
+import MapCheckin from "../../Pages/Quantriviens/MapCheckin";
 
 function getDistance(lat1, lng1, lat2, lng2) {
     const R = 6371; // bán kính trái đất (km)
@@ -21,6 +22,7 @@ function getDistance(lat1, lng1, lat2, lng2) {
 const ContentCheckinAdmin = ({ onSelect }) => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selected, setSelected] = useState(null);
 
     useEffect(() => {
         fetch("http://localhost:5000/nhom/checkin-admin")
@@ -35,6 +37,9 @@ const ContentCheckinAdmin = ({ onSelect }) => {
     if (loading) {
         return <div className="admin-checkin-container">Đang tải dữ liệu...</div>;
     }
+    const sortedData = [...data].sort(
+        (a, b) => new Date(b.checkinAt) - new Date(a.checkinAt)
+    );
 
     return (
         <div className="admin-checkin-container">
@@ -53,13 +58,13 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                         <h3>
                             {
                                 data.filter(i => {
-                                    if (!i.checkinLocation || !i.checkoutLocation) return false;
+                                    if (!i.checkinLocationUser || !i.checkinLocationHdv) return false;
 
                                     const distance = getDistance(
-                                        i.checkinLocation.lat,
-                                        i.checkinLocation.lng,
-                                        i.checkoutLocation.lat,
-                                        i.checkoutLocation.lng
+                                        i.checkinLocationUser.lat,
+                                        i.checkinLocationUser.lng,
+                                        i.checkinLocationHdv.lat,
+                                        i.checkinLocationHdv.lng
                                     );
 
                                     return distance <= 0.5;
@@ -116,7 +121,16 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                     </thead>
 
                     <tbody>
-                        {data.map((item) => {
+                        {sortedData.map((item) => {
+                            const members = item.nhomId?.thanhVien || [];
+
+                            // lấy user
+                            const users = members.filter(
+                                m => m.role === "thanh_vien" || m.role === "truong_nhom"
+                            );
+
+                            // lấy hdv
+                            const hdv = members.find(m => m.role === "huong_dan_vien");
                             console.log("ITEM:", item);
                             console.log("DIA DIEM:", item.nhomId?.diaDiem);
                             const checkinTime = item.checkinAt
@@ -129,51 +143,103 @@ const ContentCheckinAdmin = ({ onSelect }) => {
 
                             // tính khoảng cách
                             const distance =
-                                item.checkoutLocation && item.checkinLocation
+                                item.checkinLocationUser && item.checkinLocationHdv
                                     ? getDistance(
-                                        item.checkinLocation.lat,
-                                        item.checkinLocation.lng,
-                                        item.checkoutLocation.lat,
-                                        item.checkoutLocation.lng
+                                        item.checkinLocationUser.lat,
+                                        item.checkinLocationUser.lng,
+                                        item.checkinLocationHdv.lat,
+                                        item.checkinLocationHdv.lng
                                     )
                                     : 0;
 
                             const MAX_DISTANCE = 0.5; // km
 
-                            const isValid = distance <= MAX_DISTANCE;
+                            const isUserCheckout = !!item.checkoutAt;
+                            const isHdvCheckout = !!item.checkoutLocationHdv; // nếu chưa có sẽ là false
+
+                            const isValid =
+                                isUserCheckout &&
+                                isHdvCheckout &&
+                                distance <= MAX_DISTANCE;
 
                             return (
-                                <tr key={item._id} onClick={() => onSelect(item)}>
-                                    <td>{item.nhomId?.diaDiem?.tenDiaDiem}</td>
-                                    <td>{item.userId?.hoTen}</td>
-                                    <td>{item.hdvId?.hoTen}</td>
+                                <React.Fragment key={item._id}>
 
-                                    <td className="distance">
-                                        {distance.toFixed(2)} km
-                                        <br />
-                                        <small style={{ color: "#888" }}>
-                                            {distance <= 0.5 ? "Trong phạm vi" : "Ngoài phạm vi"}
-                                        </small>
-                                    </td>
+                                    {/* ROW */}
+                                    <tr
+                                        onClick={() =>
+                                            setSelected(selected?._id === item._id ? null : item)
+                                        }
+                                    >
+                                        <td>{item.nhomId?.diaDiem?.tenDiaDiem}</td>
+                                        <td>
+                                            {users.length > 0
+                                                ? users.map(u => u.user?.hoTen).join(", ")
+                                                : "Không có"}
+                                        </td>
+                                        <td>
+                                            {hdv?.user?.hoTen || "Không có"}
+                                        </td>
 
-                                    <td>
-                                        {item.status === "checking" && (
-                                            <span className="status warning">🟡 Đang đi</span>
-                                        )}
+                                        <td className="distance">
+                                            {distance.toFixed(2)} km
+                                            <br />
+                                            <small style={{ color: "#888" }}>
+                                                {distance <= 0.5 ? "Trong phạm vi" : "Ngoài phạm vi"}
+                                            </small>
+                                        </td>
 
-                                        {item.status === "done" &&
-                                            (isValid ? (
-                                                <span className="status ok">✔ Hợp lệ</span>
-                                            ) : (
-                                                <span className="status fail">❌ Sai vị trí</span>
-                                            ))}
-                                    </td>
+                                        <td>
+                                            {item.status === "checking" && (
+                                                <span className="status warning">🟡 Đang đi</span>
+                                            )}
 
-                                    <td>
-                                        {checkinTime} <br />
-                                        {checkoutTime}
-                                    </td>
-                                </tr>
+                                            {item.status === "done" && (
+                                                isValid ? (
+                                                    <span className="status ok">✔ Hợp lệ</span>
+                                                ) : !isUserCheckout ? (
+                                                    <span className="status warning">🟡 Chưa checkout</span>
+                                                ) : !isHdvCheckout ? (
+                                                    <span className="status warning">🔵 Chờ HDV</span>
+                                                ) : (
+                                                    <span className="status fail">❌ Sai vị trí</span>
+                                                )
+                                            )}
+                                        </td>
+
+                                        <td>
+                                            {checkinTime} <br />
+                                            {checkoutTime}
+                                        </td>
+                                    </tr>
+
+                                    {/* MAP NGAY DƯỚI */}
+                                    {selected?._id === item._id && (
+                                        <tr>
+                                            <td colSpan="6">
+                                                <div className="map-wrapper">
+
+                                                    <button
+                                                        className="btn-close-map"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSelected(null);
+                                                        }}
+                                                    >
+                                                        Đóng
+                                                    </button>
+ 
+                                                    <MapCheckin
+                                                        checkinLocation={item.checkinLocationUser}
+                                                        checkoutLocation={item.checkinLocationHdv}
+                                                    />
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+
+                                </React.Fragment>
                             );
                         })}
                     </tbody>
