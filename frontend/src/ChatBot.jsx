@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
 
 
-const WEBHOOK_URL = "https://duckien123.app.n8n.cloud/webhook-test/chat";
+const WEBHOOK_URL = "https://duckien123.app.n8n.cloud/webhook/chat";
 
 
 const ChatbotN8n = () => {
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { role: "bot", text: "Xin chào!\nTôi có thể giúp được gì cho bạn?" },
+        { role: "bot", text: "CHào Bạn! Tôi là AI của Backing VietNam\nTôi có thể giúp được gì cho bạn?" },
     ]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ const ChatbotN8n = () => {
         setLoading(true);
 
         try {
-            const res = await fetch("https://duckien123.app.n8n.cloud/webhook-test/chat", {
+            const res = await fetch("https://duckien123.app.n8n.cloud/webhook/chat", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -33,22 +33,42 @@ const ChatbotN8n = () => {
                 }),
             });
 
-            const data = await res.json();
+            const rawText = await res.text();
+            console.log("STATUS N8N:", res.status);
+            console.log("RAW N8N:", rawText);
+
+            let data;
+            try {
+                data = JSON.parse(rawText);
+            } catch {
+                data = { reply: rawText };
+            }
 
             const botReply =
                 data.reply ||
-                data.message ||
-                data.text ||
                 data.output ||
+                data.text ||
+                data.response ||
+                data.message ||
+                data?.data?.reply ||
+                data?.data?.output ||
+                data?.[0]?.json?.reply ||
+                data?.[0]?.json?.output ||
                 "Bot đã nhận tin nhắn nhưng chưa có phản hồi.";
 
             setMessages((prev) => [...prev, { role: "bot", text: botReply }]);
         } catch (error) {
+            console.log("Lỗi gọi chatbot n8n:", error);
+
             setMessages((prev) => [
                 ...prev,
-                { role: "bot", text: "Không kết nối được chatbot n8n." },
+                {
+                    role: "bot",
+                    text: "Không kết nối được chatbot n8n.",
+                },
             ]);
-        } finally {
+        }
+        finally {
             setLoading(false);
         }
     };
@@ -110,14 +130,20 @@ const ChatbotN8n = () => {
                         <input
                             className="input-chatbot"
                             value={input}
-                            placeholder="Nhập tin nhắn..."
+                            disabled={loading}
+                            placeholder={loading ? "Đang trả lời..." : "Nhập tin nhắn..."}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => {
-                                if (e.key === "Enter") sendMessage();
+                                if (e.key === "Enter" && !loading) sendMessage();
                             }}
                         />
 
-                        <button className="buttongui-chatbot" type="button" onClick={() => sendMessage()}>
+                        <button
+                            className="buttongui-chatbot"
+                            type="button"
+                            disabled={loading}
+                            onClick={() => sendMessage()}
+                        >
                             <Send className="fly-chatbot" size={20} />
                         </button>
                     </div>
