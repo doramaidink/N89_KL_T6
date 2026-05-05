@@ -21,6 +21,7 @@ const ContentHoso = () => {
   const diaDiemHuongDanRef = useRef(null);
 
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [locations, setLocations] = useState([]);
   const [locationImages, setLocationImages] = useState([]);
   const [doiTacData, setDoiTacData] = useState(null);
   const resolveImagePath = (path) => {
@@ -55,6 +56,20 @@ const ContentHoso = () => {
 
     setLocationImages((prev) => [...prev, ...newPreviews]);
     e.target.value = "";
+  };
+
+  const addLocationRow = () => {
+    setLocations([...locations, { id: Date.now(), location: "", price: "", language: "", experience: "" }]);
+  };
+
+  const removeLocationRow = (id) => {
+    if (locations.length > 0) {
+      setLocations(locations.filter(item => item.id !== id));
+    }
+  };
+
+  const handleLocationChange = (id, field, value) => {
+    setLocations(locations.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
   useEffect(() => {
@@ -216,7 +231,7 @@ const ContentHoso = () => {
 
             <div className="hoso-edit-card">
               <div className="input-group">
-                <label>Mô tả bản thân</label>
+                <label className="bottom">Mô tả bản thân</label>
                 <textarea rows="6" defaultValue="" ref={moTaRef}></textarea>
               </div>
             </div>
@@ -239,7 +254,7 @@ const ContentHoso = () => {
               <div className="form-row">
                 <div className="input-group">
                   <label>Tỉnh thành đăng ký</label>
-                  <select ref={tinhRef} defaultValue="">
+                  <select className="select" ref={tinhRef} defaultValue="">
                     <option value="">Chọn tỉnh thành</option>
                     <option value="Đà Nẵng">Đà Nẵng</option>
                     <option value="Quảng Nam">Quảng Nam</option>
@@ -289,9 +304,10 @@ const ContentHoso = () => {
                 </div>
               </div>
               <div className="input-group">
-                <label>Kinh nghiệm</label>
+                <label className="bottom">Kinh nghiệm</label>
                 <textarea rows="3" defaultValue="" ref={kinhNghiemRef}></textarea>
               </div>
+              {/*
               <div className="location-upload-wrapper">
                 <div className="location-preview-list">
                   {locationImages.map((img) => (
@@ -324,6 +340,49 @@ const ContentHoso = () => {
                   />
                 </div>
               </div>
+              */}
+              <div className="location-section-container">
+                {locations.map((item) => (
+                  <div key={item.id} className="location-input-card">
+                    <div className="form-row-3col">
+                      <div className="input-group">
+                        <label>Địa điểm hướng dẫn</label>
+                        <select className="select" value={item.location} onChange={(e) => handleLocationChange(item.id, 'location', e.target.value)}>
+                          <option>— Chọn địa điểm —</option>
+                          <option>Sơn Trà</option>
+                          <option>Hội An</option>
+                          <option>Đại Lộc</option>
+                          <option>Phù Cát</option>
+                          <option>Lăng Cô</option>
+                          <option>Tam Kỳ</option>
+                        </select>
+                      </div>
+                      <div className="input-group">
+                        <label>Mức giá (VNĐ/Ngày)</label>
+                        <div className="input-with-suffix">
+                          <input type="text" value={item.price} onChange={(e) => handleLocationChange(item.id, 'price', e.target.value)} />
+                          <span className="suffix">VNĐ</span>
+                        </div>
+                      </div>
+                      <div className="input-group">
+                        <label >Ngôn ngữ sử dụng</label>
+                        <input type="text" value={item.language} onChange={(e) => handleLocationChange(item.id, 'language', e.target.value)} />
+                      </div>
+                    </div>
+                    <div className="input-group">
+                      <label className="bottom">Kinh nghiệm</label>
+                      <textarea rows="3" placeholder="Ví dụ: 3 năm dẫn tour văn hóa" value={item.experience} onChange={(e) => handleLocationChange(item.id, 'experience', e.target.value)} />
+                    </div>   
+      
+                    <button type="button" className="btn-delete-location" onClick={() => removeLocationRow(item.id)}>
+                      Xóa
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button type="button" className="btn-add-location-new" onClick={addLocationRow}>
+                + Thêm địa điểm
+              </button>
             </div>
           </div>
         </div>

@@ -101,11 +101,11 @@ const HeaderDoitac = () => {
             </div>
           )}
         </div>
-
+        {/*
         <button className="doitac-icon-header" type="button" onClick={handleSetting}>
           <Settings size={22} />
         </button>
-
+        */}
         <div className="doitac-profile">
           <img
             src={resolveImagePath(user.image)}

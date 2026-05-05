@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
+import ContentChitietyeucau from "./ContentChitietyeucau";
 
 const formatMoney = (n = 0) => Number(n || 0).toLocaleString("vi-VN");
 
 const ContentBangdieukhien = () => {
+  const [selectedRequest, setSelectedRequest] = useState(null);
   // const { slug } = useParams();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
@@ -117,7 +119,9 @@ const ContentBangdieukhien = () => {
       <div className="doitac-table-container">
         <div className="doitac-table-header">
           <h3>Yêu cầu thuê gần đây</h3>
+          {/*
           <button className="btn-more">...</button>
+          */}
         </div>
 
         <div className="doitac-table-yeucau">
@@ -142,11 +146,15 @@ const ContentBangdieukhien = () => {
                   {item.trangThai}
                 </span>
               </div>
-              <div><button className="btn-chitiet-yeucau">Chi tiết</button></div>
+              <div><button className="btn-chitiet-yeucau" onClick={() => setSelectedRequest(item)}>Chi tiết</button></div>
             </div>
           ))}
         </div>
       </div>
+      <ContentChitietyeucau 
+        request={selectedRequest} 
+        onClose={() => setSelectedRequest(null)} 
+      />
     </div>
   );
 };
