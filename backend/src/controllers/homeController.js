@@ -25,7 +25,7 @@ class homeController{
         return res.status(200).json({ diaDiems });
 
     }
-    catch(err){
+    catch(error){
       console.error('homeController.chitietdiadiem error:', error);
       return res.status(500).json({ error: 'Internal server error' });  
   }

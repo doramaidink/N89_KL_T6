@@ -129,6 +129,8 @@ const ContentNhomchat = ({ user }) => {
 
         alert("Checkout thành công");
         setShowCheckoutModal(false);
+        
+        window.location.href = "/lichsuchuyendi";
       } catch (err) {
         console.log(err);
         alert("Checkout lỗi");

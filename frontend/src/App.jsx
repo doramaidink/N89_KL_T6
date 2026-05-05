@@ -27,7 +27,7 @@ import Chitietdiadiemuser from './Pages/Nguoidungs/Chitietdiadiemuser'
 import Chonloainhom from './Pages/Nguoidungs/Chonloainhom';
 import Chonnhom from './Pages/Nguoidungs/Chonnhom';
 import Thanhtoan from './Pages/Nguoidungs/Thanhtoan';
-import Danhgiavanglai from './Pages/Nguoidungs/Danhgiavanglai'; 
+import Danhgiavanglai from './Pages/Nguoidungs/Danhgiavanglai';
 
 
 import Nhomchat from './Pages/Nguoidungs/Nhomchat';
@@ -97,7 +97,7 @@ function App() {
 
         <Route path='/thongbao' element={<Thongbao />} />
 
-        <Route path='/lichsuchuyendi' element={<Lichsuchuyendi />} />
+        <Route path='/lichsuchuyendi' element={<Lichsuchuyendi user={user} />} />
 
         <Route path='/chonloainhom' element={<Chonloainhom />} />
 
@@ -111,11 +111,14 @@ function App() {
 
         <Route path='/nhom' element={<Nhom />} />
 
-        <Route path='/chitietdiadiem/:slug/danhgia' element={<Danhgiavanglai />} />
+        <Route
+          path='/chitietdiadiem/:slug/danhgia'
+          element={<Danhgia user={user} canReview={true} />}
+        />
         <Route path='/:hoten/chitietdiadiemuser/:slug/danhgia' element={<Danhgia />} />
 
         <Route path='/nhomchat/:groupId' element={<Nhomchat user={user} />} />
- 
+
 
 
 

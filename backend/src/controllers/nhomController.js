@@ -1,6 +1,9 @@
 const Nhom = require("../models/Nhom");
 const Chat = require("../models/Chat");
 const Checkin = require("../models/Checkin");
+const ThanhToan = require("../models/ThanhToan");
+const LichSu = require("../models/LichSu");
+const mongoose = require("mongoose");
 
 function calcDistance(lat1, lon1, lat2, lon2) {
     const R = 6371;
@@ -105,6 +108,10 @@ class nhomController {
                     user: userId,
                     role: "thanh_vien"
                 });
+                await nhom.save();// Lưu nhóm sau khi thêm thành viên mới 
+
+                const io = req.app.get("io");
+                io.to(id).emit("update_member_list");
             }
 
             return res.status(200).json({ message: "Tham gia nhóm thành công", nhom });
@@ -140,27 +147,47 @@ class nhomController {
                 return res.status(400).json({ message: "Thiếu dữ liệu" });
             }
 
+            const isHDV = role === "hdv";
+
+            // 🔥 FIX QUAN TRỌNG: chỉ tìm theo nhomId
             let record = await Checkin.findOne({ nhomId });
 
+            // nếu chưa có → tạo mới
             if (!record) {
                 record = new Checkin({
                     nhomId,
-                    checkinAt: new Date(),
-                    checkinLocation: { lat, lng }
+                    status: "checking"
                 });
             }
 
-            if (role === "hdv") {
-                record.hdvId = userId;
-                record.hdvCode = code;
-            } else {
+            // 👇 USER CHECKIN
+            if (!isHDV) {
+                if (record.userId) {
+                    return res.status(400).json({ message: "User đã checkin rồi" });
+                }
+
                 record.userId = userId;
                 record.userCode = code;
+                record.checkinAt = new Date();
+                record.checkinLocation = { lat, lng };
+            }
+
+            // 👇 HDV CHECKIN
+            if (isHDV) {
+                if (record.hdvId) {
+                    return res.status(400).json({ message: "HDV đã checkin rồi" });
+                }
+
+                record.hdvId = userId;
+                record.hdvCode = code;
             }
 
             await record.save();
 
-            res.json({ message: "Checkin OK", record });
+            res.json({
+                message: "Checkin OK",
+                record
+            });
 
         } catch (err) {
             console.log("CHECKIN ERROR:", err);
@@ -169,10 +196,26 @@ class nhomController {
     }
 
     async checkout(req, res) {
-        try {
-            const { nhomId, role, code, lat, lng } = req.body;
+        console.log("CHECKOUT HIT");
 
-            const record = await Checkin.findOne({ nhomId });
+
+        try {
+            const { nhomId, userId, role, code, lat, lng } = req.body;
+            console.log("REQ DATA:", { nhomId, userId, role });
+            let record;
+
+            // 🔥 FIX CHÍNH
+            if (role === "hdv") {
+                record = await Checkin.findOne({
+                    nhomId,
+                    hdvId: userId
+                });
+            } else {
+                record = await Checkin.findOne({
+                    nhomId,
+                    userId
+                });
+            }
 
             if (!record) {
                 return res.status(404).json({ message: "Chưa checkin" });
@@ -193,6 +236,8 @@ class nhomController {
             record.status = "done";
 
             await record.save();
+
+
 
             res.json({ message: "Checkout OK" });
 
@@ -229,7 +274,7 @@ class nhomController {
             const { userId } = req.params;
 
             const list = await Checkin.find({
-                userId,
+                userId: new mongoose.Types.ObjectId(userId),
                 status: "done"
             })
                 .populate("hdvId", "hoTen")
@@ -237,12 +282,33 @@ class nhomController {
                     path: "nhomId",
                     populate: {
                         path: "diaDiem",
-                        select: "tenDiaDiem"
+                        select: "tenDiaDiem image slug"
                     }
                 });
 
-            res.json({ data: list });
+            console.log("CHECKIN LIST:", list);
+
+            // 🔥 THÊM ĐOẠN NÀY
+            const result = await Promise.all(
+                list.map(async (item) => {
+                    const payment = await ThanhToan.findOne({
+                        nhomId: item.nhomId?._id,
+                        nguoiGuiId: item.userId
+                    });
+
+                    console.log("PAYMENT:", payment);
+
+                    return {
+                        ...item._doc,
+                        amount: payment?.amount || 0
+                    };
+                })
+            );
+
+            res.json({ data: result });
+
         } catch (err) {
+            console.log(err);
             res.status(500).json({ message: "Lỗi lấy lịch sử" });
         }
     }
