@@ -126,94 +126,94 @@ class QuanTriVienController {
   }
 
   async donDangky(req, res) {
-  try {
-    const { slug } = req.params;
+    try {
+      const { slug } = req.params;
 
-    const admin = await QuanTriVien.findOne({ slug });
-    if (!admin) {
-      return res.status(404).json({
-        message: 'Không tìm thấy quản trị viên'
+      const admin = await QuanTriVien.findOne({ slug });
+      if (!admin) {
+        return res.status(404).json({
+          message: 'Không tìm thấy quản trị viên'
+        });
+      }
+
+      const hoSoDangKy = await DoiTac.find({})
+        .sort({ createdAt: -1 })
+        .populate('nguoiDung', 'hoTen email vaiTro image trangThai')
+        .populate('cacDiaDiemDangKy', 'tenDiaDiem khuVuc tinh image slug')
+        .populate('diaDiemGiaCa.diaDiem', 'tenDiaDiem khuVuc tinh image slug');
+
+      const applicants = hoSoDangKy.map((item) => ({
+        id: `#BP-${String(item._id).slice(-6).toUpperCase()}`,
+        _id: item._id,
+
+        nguoiDung: item.nguoiDung?._id || '',
+        userName: item.nguoiDung?.hoTen || '',
+        userEmail: item.nguoiDung?.email || '',
+        userRole: item.nguoiDung?.vaiTro || '',
+
+        name: item.hoTen || 'Chưa có tên',
+        hoTen: item.hoTen || 'Chưa có tên',
+        email: item.nguoiDung?.email || '',
+        phone: item.soDienThoai || '',
+        soDienThoai: item.soDienThoai || '',
+        soCCCD: item.soCCCD || '',
+        ngaySinh: item.ngaySinh || null,
+
+        diaChi: item.diaChi || '',
+        queQuan: item.queQuan || '',
+        city: item.tinhDangKy || 'Chưa cập nhật',
+        tinhDangKy: item.tinhDangKy || '',
+
+        image: item.image || '',
+        anhCCCDMatTruoc: item.anhCCCDMatTruoc || '',
+        anhCCCDMatSau: item.anhCCCDMatSau || '',
+        anhKhuonMat: item.anhKhuonMat || '',
+        lyLichTuPhap: item.lyLichTuPhap || '',
+
+        gioiThieuBanThan: item.gioiThieuBanThan || '',
+        kyNangDacBiet: item.kyNangDacBiet || [],
+        ngonNguHoTro: item.ngonNguHoTro || [],
+        kinhNghiem: item.kinhNghiem || '',
+        soNamKinhNghiem: item.soNamKinhNghiem || 0,
+        exp: `${item.soNamKinhNghiem || 0} năm`,
+        giaThue: item.giaThue || 0,
+
+        cacDiaDiemDangKy: item.cacDiaDiemDangKy || [],
+        diaDiemGiaCa: item.diaDiemGiaCa || [],
+
+        faceMatched: item.faceMatched,
+        faceDistance: item.faceDistance,
+        verificationStatus: item.verificationStatus,
+
+        trangThaiHoSo: item.trangThaiHoSo || 'cho_duyet',
+        status:
+          item.trangThaiHoSo === 'da_duyet'
+            ? 'ĐÃ DUYỆT'
+            : item.trangThaiHoSo === 'tu_choi'
+              ? 'TỪ CHỐI'
+              : 'CHỜ DUYỆT',
+
+        lyDoTuChoi: item.lyDoTuChoi || '',
+        ngayDuyet: item.ngayDuyet || null,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+
+        avatar: (item.hoTen || 'UV')
+          .split(' ')
+          .filter(Boolean)
+          .slice(0, 2)
+          .map(x => x[0]?.toUpperCase())
+          .join('')
+      }));
+
+      return res.status(200).json({ applicants });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: 'Lỗi server khi lấy danh sách đơn đăng ký'
       });
     }
-
-    const hoSoDangKy = await DoiTac.find({})
-      .sort({ createdAt: -1 })
-      .populate('nguoiDung', 'hoTen email vaiTro image trangThai')
-      .populate('cacDiaDiemDangKy', 'tenDiaDiem khuVuc tinh image slug')
-      .populate('diaDiemGiaCa.diaDiem', 'tenDiaDiem khuVuc tinh image slug');
-
-    const applicants = hoSoDangKy.map((item) => ({
-      id: `#BP-${String(item._id).slice(-6).toUpperCase()}`,
-      _id: item._id,
-
-      nguoiDung: item.nguoiDung?._id || '',
-      userName: item.nguoiDung?.hoTen || '',
-      userEmail: item.nguoiDung?.email || '',
-      userRole: item.nguoiDung?.vaiTro || '',
-
-      name: item.hoTen || 'Chưa có tên',
-      hoTen: item.hoTen || 'Chưa có tên',
-      email: item.nguoiDung?.email || '',
-      phone: item.soDienThoai || '',
-      soDienThoai: item.soDienThoai || '',
-      soCCCD: item.soCCCD || '',
-      ngaySinh: item.ngaySinh || null,
-
-      diaChi: item.diaChi || '',
-      queQuan: item.queQuan || '',
-      city: item.tinhDangKy || 'Chưa cập nhật',
-      tinhDangKy: item.tinhDangKy || '',
-
-      image: item.image || '',
-      anhCCCDMatTruoc: item.anhCCCDMatTruoc || '',
-      anhCCCDMatSau: item.anhCCCDMatSau || '',
-      anhKhuonMat: item.anhKhuonMat || '',
-      lyLichTuPhap: item.lyLichTuPhap || '',
-
-      gioiThieuBanThan: item.gioiThieuBanThan || '',
-      kyNangDacBiet: item.kyNangDacBiet || [],
-      ngonNguHoTro: item.ngonNguHoTro || [],
-      kinhNghiem: item.kinhNghiem || '',
-      soNamKinhNghiem: item.soNamKinhNghiem || 0,
-      exp: `${item.soNamKinhNghiem || 0} năm`,
-      giaThue: item.giaThue || 0,
-
-      cacDiaDiemDangKy: item.cacDiaDiemDangKy || [],
-      diaDiemGiaCa: item.diaDiemGiaCa || [],
-
-      faceMatched: item.faceMatched,
-      faceDistance: item.faceDistance,
-      verificationStatus: item.verificationStatus,
-
-      trangThaiHoSo: item.trangThaiHoSo || 'cho_duyet',
-      status:
-        item.trangThaiHoSo === 'da_duyet'
-          ? 'ĐÃ DUYỆT'
-          : item.trangThaiHoSo === 'tu_choi'
-          ? 'TỪ CHỐI'
-          : 'CHỜ DUYỆT',
-
-      lyDoTuChoi: item.lyDoTuChoi || '',
-      ngayDuyet: item.ngayDuyet || null,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-
-      avatar: (item.hoTen || 'UV')
-        .split(' ')
-        .filter(Boolean)
-        .slice(0, 2)
-        .map(x => x[0]?.toUpperCase())
-        .join('')
-    }));
-
-    return res.status(200).json({ applicants });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: 'Lỗi server khi lấy danh sách đơn đăng ký'
-    });
   }
-}
   async DuyetDiaDiem(req, res) {
     try {
       const data = await DiaDiem.find({})
@@ -249,16 +249,19 @@ class QuanTriVienController {
         email: item.nguoiDung?.email || '',
 
         type: item.loaiBaoCao,
+        viTri: item.viTri || '',
+        desc: item.moTa,
+        image: item.hinhAnh || '',
+        phanHoiAdmin: item.phanHoiAdmin || '',
+        createdAt: item.createdAt,
+
+        rawStatus: item.trangThai,
         status:
           item.trangThai === 'dang_xu_ly'
             ? 'ĐANG XỬ LÝ'
             : item.trangThai === 'da_giai_quyet'
               ? 'ĐÃ XỬ LÝ'
               : 'TỪ CHỐI',
-
-        desc: item.moTa,
-        image: item.hinhAnh,
-        createdAt: item.createdAt,
       }));
 
       return res.status(200).json({
@@ -272,6 +275,62 @@ class QuanTriVienController {
       });
     }
   }
+  async PhanHoiBaoCao(req, res) {
+  try {
+    const { slug, id } = req.params;
+    const { phanHoiAdmin, trangThai } = req.body;
+
+    const admin = await QuanTriVien.findOne({ slug });
+    if (!admin) {
+      return res.status(404).json({
+        message: 'Không tìm thấy quản trị viên'
+      });
+    }
+
+    const baoCao = await BaoCao.findByIdAndUpdate(
+      id,
+      {
+        phanHoiAdmin: phanHoiAdmin || '',
+        trangThai: trangThai || 'da_giai_quyet',
+      },
+      { new: true }
+    ).populate('nguoiDung', 'hoTen email image');
+
+    if (!baoCao) {
+      return res.status(404).json({
+        message: 'Không tìm thấy báo cáo'
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Phản hồi báo cáo thành công',
+      report: {
+        id: `#REP-${String(baoCao._id).slice(-6).toUpperCase()}`,
+        _id: baoCao._id,
+        user: baoCao.nguoiDung?.hoTen || 'Ẩn danh',
+        email: baoCao.nguoiDung?.email || '',
+        type: baoCao.loaiBaoCao,
+        viTri: baoCao.viTri || '',
+        desc: baoCao.moTa,
+        image: baoCao.hinhAnh || '',
+        phanHoiAdmin: baoCao.phanHoiAdmin || '',
+        createdAt: baoCao.createdAt,
+        rawStatus: baoCao.trangThai,
+        status:
+          baoCao.trangThai === 'dang_xu_ly'
+            ? 'ĐANG XỬ LÝ'
+            : baoCao.trangThai === 'da_giai_quyet'
+            ? 'ĐÃ XỬ LÝ'
+            : 'TỪ CHỐI',
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: 'Lỗi server khi phản hồi báo cáo'
+    });
+  }
+}
 
   async ThongBaoHeThong(req, res) {
     return res.status(200).json([]);
@@ -288,7 +347,9 @@ class QuanTriVienController {
 
       const users = await NguoiDung.find({})
         .sort({ createdAt: -1 })
-        .select('_id hoTen email vaiTro trangThai createdAt');
+        .select(
+          '_id hoTen email vaiTro trangThai createdAt updatedAt ngaysinh soDienThoai image slug daDongYDieuKhoan thoiDiemDongYDieuKhoan phienBanDieuKhoan soLanViPham lyDoKhoa danhSachViPham'
+        );
 
       const partners = await DoiTac.find({})
         .sort({ createdAt: -1 })
@@ -348,12 +409,43 @@ class QuanTriVienController {
       }
 
       const userAccounts = users.map((u) => ({
+        _id: u._id,
         id: `#ND-${String(u._id).slice(-6).toUpperCase()}`,
+
         name: u.hoTen || 'Người dùng',
+        hoTen: u.hoTen || 'Người dùng',
         email: u.email || '',
-        type: 'NGƯỜI DÙNG',
-        status: ['inactive', 'locked', 'blocked'].includes(u.trangThai) ? 'Tạm khóa' : 'Hoạt động',
+
+        type:
+          u.vaiTro === 'doiTac'
+            ? 'ĐỐI TÁC'
+            : u.vaiTro === 'quanTriVien'
+              ? 'QUẢN TRỊ VIÊN'
+              : 'NGƯỜI DÙNG',
+
+        vaiTro: u.vaiTro || 'nguoiDung',
+        status: ['inactive', 'locked', 'blocked'].includes(u.trangThai)
+          ? 'Tạm khóa'
+          : 'Hoạt động',
+        trangThai: u.trangThai || 'active',
+
         date: u.createdAt ? new Date(u.createdAt).toLocaleDateString('vi-VN') : '',
+        createdAt: u.createdAt,
+        updatedAt: u.updatedAt,
+
+        ngaysinh: u.ngaysinh,
+        soDienThoai: u.soDienThoai || '',
+        image: u.image || '',
+        slug: u.slug || '',
+
+        daDongYDieuKhoan: u.daDongYDieuKhoan,
+        thoiDiemDongYDieuKhoan: u.thoiDiemDongYDieuKhoan,
+        phienBanDieuKhoan: u.phienBanDieuKhoan,
+
+        soLanViPham: u.soLanViPham || 0,
+        lyDoKhoa: u.lyDoKhoa || '',
+        danhSachViPham: u.danhSachViPham || [],
+
         avatar: (u.hoTen || 'ND')
           .split(' ')
           .filter(Boolean)
@@ -397,85 +489,85 @@ class QuanTriVienController {
     }
   }
   async QuanLyDiaDiem(req, res) {
-  try {
-    const { slug } = req.params;
+    try {
+      const { slug } = req.params;
 
-    const admin = await QuanTriVien.findOne({ slug });
-    if (!admin) {
-      return res.status(404).json({
-        message: 'Không tìm thấy quản trị viên'
+      const admin = await QuanTriVien.findOne({ slug });
+      if (!admin) {
+        return res.status(404).json({
+          message: 'Không tìm thấy quản trị viên'
+        });
+      }
+
+      const diaDiems = await DiaDiem.find({})
+        .sort({ createdAt: -1 })
+        .select(
+          '_id tenDiaDiem moTa gioiThieu doKho veVao quangduong khuVuc tinh hot image images dacDiemDiaDanh slug trangThai createdAt updatedAt'
+        );
+
+      const locations = diaDiems.map((item) => {
+        const rawImages = [
+          item.image,
+          ...(Array.isArray(item.images) ? item.images : [])
+        ].filter(Boolean);
+
+        return {
+          _id: item._id,
+          id: `#LOC-${String(item._id).slice(-6).toUpperCase()}`,
+
+          tenDiaDiem: item.tenDiaDiem || 'Chưa có tên',
+          name: item.tenDiaDiem || 'Chưa có tên',
+
+          moTa: item.moTa || '',
+          gioiThieu: item.gioiThieu || [],
+
+          doKho: item.doKho || '',
+          level: item.doKho || 'Chưa rõ',
+
+          veVao: item.veVao || '',
+          price: formatVeVao(item.veVao),
+
+          quangduong: item.quangduong || '',
+
+          khuVuc: item.khuVuc || '',
+          area: item.khuVuc || 'Chưa cập nhật',
+
+          tinh: item.tinh || '',
+
+          hot: item.hot || false,
+
+          image: item.image || '',
+          images: item.images || [],
+          allImages: rawImages,
+
+          dacDiemDiaDanh: item.dacDiemDiaDanh || [],
+
+          slug: item.slug || '',
+
+          trangThai: item.trangThai || 'cho_duyet',
+          status:
+            item.trangThai === 'da_duyet'
+              ? 'Đang hoạt động'
+              : item.trangThai === 'tu_choi'
+                ? 'Từ chối'
+                : 'Chờ duyệt',
+
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        };
+      });
+
+      return res.status(200).json({
+        locations
+      });
+
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: 'Lỗi server khi lấy danh sách địa điểm'
       });
     }
-
-    const diaDiems = await DiaDiem.find({})
-      .sort({ createdAt: -1 })
-      .select(
-        '_id tenDiaDiem moTa gioiThieu doKho veVao quangduong khuVuc tinh hot image images dacDiemDiaDanh slug trangThai createdAt updatedAt'
-      );
-
-    const locations = diaDiems.map((item) => {
-      const rawImages = [
-        item.image,
-        ...(Array.isArray(item.images) ? item.images : [])
-      ].filter(Boolean);
-
-      return {
-        _id: item._id,
-        id: `#LOC-${String(item._id).slice(-6).toUpperCase()}`,
-
-        tenDiaDiem: item.tenDiaDiem || 'Chưa có tên',
-        name: item.tenDiaDiem || 'Chưa có tên',
-
-        moTa: item.moTa || '',
-        gioiThieu: item.gioiThieu || [],
-
-        doKho: item.doKho || '',
-        level: item.doKho || 'Chưa rõ',
-
-        veVao: item.veVao || '',
-        price: formatVeVao(item.veVao),
-
-        quangduong: item.quangduong || '',
-
-        khuVuc: item.khuVuc || '',
-        area: item.khuVuc || 'Chưa cập nhật',
-
-        tinh: item.tinh || '',
-
-        hot: item.hot || false,
-
-        image: item.image || '',
-        images: item.images || [],
-        allImages: rawImages,
-
-        dacDiemDiaDanh: item.dacDiemDiaDanh || [],
-
-        slug: item.slug || '',
-
-        trangThai: item.trangThai || 'cho_duyet',
-        status:
-          item.trangThai === 'da_duyet'
-            ? 'Đang hoạt động'
-            : item.trangThai === 'tu_choi'
-            ? 'Từ chối'
-            : 'Chờ duyệt',
-
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
-      };
-    });
-
-    return res.status(200).json({
-      locations
-    });
-
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: 'Lỗi server khi lấy danh sách địa điểm'
-    });
   }
-}
   async DuyetDiaDiemAction(req, res) {
     try {
       const { id } = req.params;
@@ -544,117 +636,117 @@ class QuanTriVienController {
     }
   }
   async CapNhatDiaDiem(req, res) {
-  try {
-    const { id } = req.params;
+    try {
+      const { id } = req.params;
 
-    const oldDiaDiem = await DiaDiem.findById(id);
-    if (!oldDiaDiem) {
-      return res.status(404).json({ message: "Không tìm thấy địa điểm" });
-    }
-
-    const body = req.body;
-
-    const image = req.files?.image?.[0]
-      ? `/img/${req.files.image[0].filename}`
-      : oldDiaDiem.image;
-
-    const oldImages = body.oldImages
-      ? JSON.parse(body.oldImages)
-      : oldDiaDiem.images || [];
-
-    const newImages = req.files?.images
-      ? req.files.images.map((file) => `/img/${file.filename}`)
-      : [];
-
-    const diaDiem = await DiaDiem.findByIdAndUpdate(
-      id,
-      {
-        tenDiaDiem: body.tenDiaDiem,
-        moTa: body.moTa,
-        gioiThieu: body.gioiThieu ? JSON.parse(body.gioiThieu) : [],
-        doKho: body.doKho,
-        veVao: body.veVao,
-        quangduong: body.quangduong,
-        khuVuc: body.khuVuc,
-        tinh: body.tinh,
-        hot: body.hot === "true",
-        image,
-        images: [...oldImages, ...newImages],
-        dacDiemDiaDanh: body.dacDiemDiaDanh ? JSON.parse(body.dacDiemDiaDanh) : [],
-        trangThai: body.trangThai,
-      },
-      { new: true }
-    );
-
-    return res.status(200).json({
-      message: "Cập nhật địa điểm thành công",
-      data: diaDiem,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Lỗi server khi cập nhật địa điểm" });
-  }
-}
-async DuyetHoSoDoiTac(req, res) {
-  try {
-    const { id } = req.params;
-
-    const doiTac = await DoiTac.findById(id);
-    if (!doiTac) {
-      return res.status(404).json({
-        message: 'Không tìm thấy hồ sơ đối tác'
-      });
-    }
-
-    doiTac.trangThaiHoSo = 'da_duyet';
-    doiTac.ngayDuyet = new Date();
-    await doiTac.save();
-
-    await NguoiDung.findByIdAndUpdate(
-      doiTac.nguoiDung,
-      {
-        vaiTro: 'doiTac'
-      },
-      {
-        new: true
+      const oldDiaDiem = await DiaDiem.findById(id);
+      if (!oldDiaDiem) {
+        return res.status(404).json({ message: "Không tìm thấy địa điểm" });
       }
-    );
 
-    return res.status(200).json({
-      message: 'Đã duyệt hồ sơ và chuyển tài khoản thành đối tác',
-      data: doiTac
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: 'Lỗi server khi duyệt hồ sơ'
-    });
+      const body = req.body;
+
+      const image = req.files?.image?.[0]
+        ? `/img/${req.files.image[0].filename}`
+        : oldDiaDiem.image;
+
+      const oldImages = body.oldImages
+        ? JSON.parse(body.oldImages)
+        : oldDiaDiem.images || [];
+
+      const newImages = req.files?.images
+        ? req.files.images.map((file) => `/img/${file.filename}`)
+        : [];
+
+      const diaDiem = await DiaDiem.findByIdAndUpdate(
+        id,
+        {
+          tenDiaDiem: body.tenDiaDiem,
+          moTa: body.moTa,
+          gioiThieu: body.gioiThieu ? JSON.parse(body.gioiThieu) : [],
+          doKho: body.doKho,
+          veVao: body.veVao,
+          quangduong: body.quangduong,
+          khuVuc: body.khuVuc,
+          tinh: body.tinh,
+          hot: body.hot === "true",
+          image,
+          images: [...oldImages, ...newImages],
+          dacDiemDiaDanh: body.dacDiemDiaDanh ? JSON.parse(body.dacDiemDiaDanh) : [],
+          trangThai: body.trangThai,
+        },
+        { new: true }
+      );
+
+      return res.status(200).json({
+        message: "Cập nhật địa điểm thành công",
+        data: diaDiem,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: "Lỗi server khi cập nhật địa điểm" });
+    }
   }
-}
+  async DuyetHoSoDoiTac(req, res) {
+    try {
+      const { id } = req.params;
 
-async TuChoiVaXoaHoSoDoiTac(req, res) {
-  try {
-    const { id } = req.params;
+      const doiTac = await DoiTac.findById(id);
+      if (!doiTac) {
+        return res.status(404).json({
+          message: 'Không tìm thấy hồ sơ đối tác'
+        });
+      }
 
-    const doiTac = await DoiTac.findById(id);
-    if (!doiTac) {
-      return res.status(404).json({
-        message: 'Không tìm thấy hồ sơ đối tác'
+      doiTac.trangThaiHoSo = 'da_duyet';
+      doiTac.ngayDuyet = new Date();
+      await doiTac.save();
+
+      await NguoiDung.findByIdAndUpdate(
+        doiTac.nguoiDung,
+        {
+          vaiTro: 'doiTac'
+        },
+        {
+          new: true
+        }
+      );
+
+      return res.status(200).json({
+        message: 'Đã duyệt hồ sơ và chuyển tài khoản thành đối tác',
+        data: doiTac
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: 'Lỗi server khi duyệt hồ sơ'
       });
     }
-
-    await DoiTac.findByIdAndDelete(id);
-
-    return res.status(200).json({
-      message: 'Đã từ chối và xóa hồ sơ đối tác'
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: 'Lỗi server khi từ chối hồ sơ'
-    });
   }
-}
+
+  async TuChoiVaXoaHoSoDoiTac(req, res) {
+    try {
+      const { id } = req.params;
+
+      const doiTac = await DoiTac.findById(id);
+      if (!doiTac) {
+        return res.status(404).json({
+          message: 'Không tìm thấy hồ sơ đối tác'
+        });
+      }
+
+      await DoiTac.findByIdAndDelete(id);
+
+      return res.status(200).json({
+        message: 'Đã từ chối và xóa hồ sơ đối tác'
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: 'Lỗi server khi từ chối hồ sơ'
+      });
+    }
+  }
 }
 
 module.exports = new QuanTriVienController();

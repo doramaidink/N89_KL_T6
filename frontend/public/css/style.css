@@ -3589,6 +3589,187 @@ input {
     padding: 40px 20px;
   }
 }
+.quanlybaocao-btn-view,
+.quanlybaocao-btn-reply {
+  border: none;
+  border-radius: 10px;
+  height: 34px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.quanlybaocao-btn-view {
+  background: #1f2937;
+  color: #f8fafc;
+  border: 1px solid #334155;
+}
+
+.quanlybaocao-btn-view:hover {
+  background: #10b981;
+  color: #000;
+}
+
+.quanlybaocao-btn-reply {
+  background: #2563eb;
+  color: #fff;
+}
+
+.quanlybaocao-btn-reply:hover {
+  background: #1d4ed8;
+}
+
+.quanlybaocao-no-image {
+  color: #71717a;
+  font-size: 12px;
+}
+
+.baocao-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.baocao-reply-modal {
+  position: relative;
+  width: min(760px, 96vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #0b0b0c;
+  color: white;
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.75);
+}
+
+.baocao-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 999px;
+  background: #1f2937;
+  color: white;
+  cursor: pointer;
+}
+
+.baocao-modal-header h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.baocao-modal-header p {
+  margin: 6px 0 18px;
+  color: #a1a1aa;
+}
+
+.baocao-modal-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.baocao-modal-info div {
+  background: #18181b;
+  padding: 13px;
+  border-radius: 12px;
+}
+
+.baocao-modal-info span {
+  display: block;
+  color: #a1a1aa;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.baocao-modal-info strong {
+  color: white;
+  font-size: 13px;
+}
+
+.baocao-modal-section {
+  margin-top: 15px;
+}
+
+.baocao-modal-section label {
+  display: block;
+  font-weight: 800;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.baocao-report-desc {
+  background: #18181b;
+  border-radius: 12px;
+  padding: 14px;
+  color: #e5e7eb;
+  line-height: 1.6;
+}
+
+.baocao-modal-section select,
+.baocao-modal-section textarea {
+  width: 100%;
+  background: #111111;
+  border: 1px solid #27272a;
+  color: white;
+  border-radius: 12px;
+  padding: 12px;
+  outline: none;
+}
+
+.baocao-modal-section textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.baocao-modal-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.baocao-btn-cancel,
+.baocao-btn-submit {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.baocao-btn-cancel {
+  background: #27272a;
+  color: white;
+}
+
+.baocao-btn-submit {
+  background: #16a34a;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+@media (max-width: 640px) {
+  .baocao-modal-info {
+    grid-template-columns: 1fr;
+  }
+} 
+
 
 /*-----------------------------------ContentBaocao------------------------------------------*/
 
@@ -12751,6 +12932,285 @@ html {
   color: #71717a;
   font-size: 12px;
   padding: 0 4px;
+}
+.user-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.user-detail-modal {
+  position: relative;
+  width: min(980px, 96vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #0b0b0c;
+  color: white;
+  border-radius: 22px;
+  padding: 26px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7);
+}
+
+.user-detail-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 999px;
+  background: #1f2937;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.user-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.user-detail-avatar-img,
+.user-detail-avatar {
+  width: 92px;
+  height: 92px;
+  border-radius: 22px;
+  object-fit: cover;
+  background: #065f46;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 900;
+  color: white;
+}
+
+.user-detail-header h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.user-detail-header p {
+  margin: 6px 0 10px;
+  color: #a1a1aa;
+}
+
+.user-detail-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.user-role-badge,
+.user-status-active,
+.user-status-locked {
+  display: inline-flex;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.user-role-badge.nguoiDung {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.user-role-badge.doiTac {
+  background: #064e3b;
+  color: #d1fae5;
+}
+
+.user-role-badge.quanTriVien {
+  background: #4c1d95;
+  color: #ddd6fe;
+}
+
+.user-status-active {
+  background: #064e3b;
+  color: #d1fae5;
+}
+
+.user-status-locked {
+  background: #450a0a;
+  color: #fecaca;
+}
+
+.user-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.user-detail-item {
+  background: #18181b;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  gap: 10px;
+}
+
+.user-detail-item svg {
+  color: #10b981;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.user-detail-item span {
+  display: block;
+  color: #a1a1aa;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.user-detail-item strong {
+  color: white;
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.user-detail-section {
+  margin-top: 22px;
+}
+
+.user-detail-section h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.user-violation-list {
+  display: grid;
+  gap: 12px;
+}
+
+.user-violation-card {
+  background: #18181b;
+  border-left: 4px solid #ef4444;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.user-violation-card div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.user-violation-card strong {
+  color: white;
+}
+
+.user-violation-card span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #450a0a;
+  color: #fecaca;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.user-violation-card p {
+  color: #e5e7eb;
+  margin: 10px 0;
+}
+
+.user-violation-card small,
+.user-no-violation {
+  color: #a1a1aa;
+}
+
+@media (max-width: 900px) {
+  .user-detail-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .user-detail-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .user-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.user-info-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar-image,
+.avatar-box {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px;
+  min-height: 42px;
+  border-radius: 999px;
+  object-fit: cover;
+  overflow: hidden;
+}
+
+.avatar-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: white;
+}
+
+/* ===== FIX ảnh bị tràn bảng ===== */
+
+.user-table td img {
+  max-width: 42px;
+  max-height: 42px;
+  object-fit: cover;
+  border-radius: 999px;
+  display: block;
+}
+
+/* ===== Modal chi tiết ===== */
+
+.user-detail-avatar-img,
+.user-detail-avatar {
+  width: 90px !important;
+  height: 90px !important;
+  min-width: 90px;
+  min-height: 90px;
+  border-radius: 20px;
+  overflow: hidden;
+  object-fit: cover;
+}
+
+/* tránh ảnh full size */
+.user-detail-modal img {
+  max-width: 100%;
+}
+
+/* fix ảnh người dùng trong modal */
+.user-detail-avatar-img {
+  display: block;
+  object-fit: cover;
+}
+
+/* ===== FIX trường hợp ảnh backend quá lớn ===== */
+
+img {
+  max-width: 100%;
 }
 
 /*------------------------------ContentQuanLyBaoCao--------------------------------------------*/

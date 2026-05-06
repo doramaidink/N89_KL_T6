@@ -31,6 +31,8 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/img', express.static(path.join(__dirname, '../public/img')));
 
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 // --- KHỞI TẠO ROUTES ---
 route(app);
 

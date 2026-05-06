@@ -37,6 +37,7 @@ router.patch("/:slug/duyetdiadiem/:id/tuchoi", quanTriVienController.TuChoiDiaDi
 router.patch("/:slug/quanlydiadiem/:id", quanTriVienController.CapNhatDiaDiem);
 router.patch("/:slug/dondangky/:id/duyet", quanTriVienController.DuyetHoSoDoiTac);
 router.delete("/:slug/dondangky/:id/tuchoi", quanTriVienController.TuChoiVaXoaHoSoDoiTac);
+router.patch("/:slug/quanlybaocao/:id/phanhoi", quanTriVienController.PhanHoiBaoCao);
 
 
 
