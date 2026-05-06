@@ -20,7 +20,7 @@ function calcDistance(lat1, lon1, lat2, lon2) {
 }
 class nhomController {
 
-    // ✅ Tạo nhóm
+    // Tạo nhóm
     async taoNhom(req, res) {
         try {
             const data = req.body;
@@ -55,7 +55,7 @@ class nhomController {
         }
     }
 
-    // ✅ Lấy nhóm theo địa điểm
+    // Lấy nhóm theo địa điểm
     async layNhomTheoDiaDiem(req, res) {
         try {
             const { diaDiemId } = req.params;
@@ -149,7 +149,7 @@ class nhomController {
 
             const isHDV = role === "hdv";
 
-            // 🔥 FIX QUAN TRỌNG: chỉ tìm theo nhomId
+            // chỉ tìm theo nhomId
             let record = await Checkin.findOne({ nhomId });
 
             // nếu chưa có → tạo mới
@@ -160,7 +160,7 @@ class nhomController {
                 });
             }
 
-            // 👇 USER CHECKIN
+            // USER CHECKIN
             if (!isHDV) {
                 if (record.userId) {
                     return res.status(400).json({ message: "User đã checkin rồi" });
@@ -170,11 +170,11 @@ class nhomController {
                 record.userCode = code;
                 record.checkinAt = new Date();
 
-                // ✅ QUAN TRỌNG
+                // UAN TRỌNG
                 record.checkinLocationUser = { lat, lng };
             }
 
-            // 👇 HDV CHECKIN
+            // HDV CHECKIN
             if (isHDV) {
                 if (record.hdvId) {
                     return res.status(400).json({ message: "HDV đã checkin rồi" });
@@ -208,14 +208,14 @@ class nhomController {
 
             console.log("REQ DATA:", { nhomId, userId, role });
 
-            // ✅ BẮT BUỘC PHẢI CÓ
+             
             const record = await Checkin.findOne({ nhomId });
 
             if (!record) {
                 return res.status(404).json({ message: "Không tìm thấy bản ghi checkin" });
             }
 
-            // 👇 HDV
+            // HDV
             if (role === "hdv") {
                 if (!record.hdvCode || record.hdvCode !== code) {
                     return res.status(400).json({ message: "Sai mã HDV" });
@@ -224,7 +224,7 @@ class nhomController {
                 record.checkoutLocationHdv = { lat, lng };
             }
 
-            // 👇 USER
+            // USER
             else {
                 if (!record.userCode || record.userCode !== code) {
                     return res.status(400).json({ message: "Sai mã User" });
@@ -294,7 +294,7 @@ class nhomController {
 
             console.log("CHECKIN LIST:", list);
 
-            // 🔥 THÊM ĐOẠN NÀY
+             
             const result = await Promise.all(
                 list.map(async (item) => {
                     const payment = await ThanhToan.findOne({

@@ -12,6 +12,5 @@ const ChatSchema = new mongoose.Schema({
     
     thoiGian: { type: Date, default: Date.now }
 });
-
-// Sửa lại dòng này (Xóa chữ .now)
+ 
 module.exports = mongoose.model("Chat", ChatSchema);

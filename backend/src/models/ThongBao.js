@@ -13,7 +13,7 @@ const thongBaoSchema = new mongoose.Schema(
 
         nguoiNhan: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "NguoiDung", // optional
+            ref: "NguoiDung", 
         },
         loaiThongBao: {
             type: String,
