@@ -154,7 +154,7 @@ const ContentCheckinAdmin = ({ onSelect }) => {
 
                             const MAX_DISTANCE = 0.5; // km
 
-                            const isUserCheckout = !!item.checkoutAt;
+                            const isUserCheckout = !!item.checkoutLocationUser;
                             const isHdvCheckout = !!item.checkoutLocationHdv; // nếu chưa có sẽ là false
 
                             const isValid =
@@ -228,10 +228,15 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                                                     >
                                                         Đóng
                                                     </button>
- 
+
+
+
                                                     <MapCheckin
-                                                        checkinLocation={item.checkinLocationUser}
-                                                        checkoutLocation={item.checkinLocationHdv}
+
+                                                        userCheckin={item.checkinLocationUser}
+                                                        hdvCheckin={item.checkinLocationHdv}
+                                                        userCheckout={item.checkoutLocationUser}
+                                                        hdvCheckout={item.checkoutLocationHdv}
                                                     />
 
                                                 </div>

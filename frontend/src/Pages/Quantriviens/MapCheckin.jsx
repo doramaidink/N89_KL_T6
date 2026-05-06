@@ -12,10 +12,16 @@ L.Icon.Default.mergeOptions({
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-const MapCheckin = ({ checkinLocation, checkoutLocation }) => {
+const MapCheckin = ({
+    userCheckin,
+    hdvCheckin,
+    userCheckout,
+    hdvCheckout
+}) => {
+
     const center = [
-        checkinLocation?.lat || 21.0285,
-        checkinLocation?.lng || 105.8542
+        userCheckin?.lat || 21.0285,
+        userCheckin?.lng || 105.8542
     ];
 
     return (
@@ -27,19 +33,46 @@ const MapCheckin = ({ checkinLocation, checkoutLocation }) => {
         >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-            {/* Checkin */}
-            {checkinLocation && (
-                <Marker position={[checkinLocation.lat, checkinLocation.lng]}>
-                    <Popup>Check-in</Popup>
+            {/* USER CHECKIN */}
+            {userCheckin && !userCheckout && (
+                <Marker position={[userCheckin.lat, userCheckin.lng]}>
+                    <Popup>User Check-in</Popup>
                 </Marker>
             )}
 
-            {/* Checkout */}
-            {checkoutLocation && (
-                <Marker position={[checkoutLocation.lat, checkoutLocation.lng]}>
-                    <Popup>Check-out</Popup>
+            {/* HDV CHECKIN */}
+            {hdvCheckin && !hdvCheckout && (
+                <Marker position={[hdvCheckin.lat, hdvCheckin.lng]}>
+                    <Popup>HDV Check-in</Popup>
                 </Marker>
             )}
+            {/* USER CHECKOUT */}
+            {userCheckout && (
+                <Marker position={[userCheckout.lat, userCheckout.lng]}>
+                    <Popup>User Check-out</Popup>
+                </Marker>
+            )}
+
+            {/* HDV CHECKOUT */}
+            {hdvCheckout && (
+                <Marker position={[hdvCheckout.lat, hdvCheckout.lng]}>
+                    <Popup>HDV Check-out</Popup>
+                </Marker>
+            )}
+
+            {/* USER CHECKOUT
+            {userCheckout && (
+                <Marker position={[userCheckout.lat, userCheckout.lng]}>
+                    <Popup>User Check-out</Popup>
+                </Marker>
+            )} */}
+
+            {/* HDV CHECKOUT
+            {hdvCheckout && (
+                <Marker position={[hdvCheckout.lat, hdvCheckout.lng]}>
+                    <Popup>HDV Check-out</Popup>
+                </Marker>
+            )} */}
         </MapContainer>
     );
 };

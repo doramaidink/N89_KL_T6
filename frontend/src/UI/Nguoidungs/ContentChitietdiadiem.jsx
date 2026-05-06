@@ -24,6 +24,19 @@ const ContentChitietdiadiem = ({ user = null }) => {
 
   const [openJoinModal, setOpenJoinModal] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  useEffect(() => {
+
+    const shouldOpen = localStorage.getItem("autoOpenCreateGroup");
+
+    if (shouldOpen === "true") {
+
+      setOpenCreateGroup(true);
+
+      // xóa flag sau khi mở
+      localStorage.removeItem("autoOpenCreateGroup");
+    }
+
+  }, []);
 
   const [reviewData, setReviewData] = useState({
     thongKe: {

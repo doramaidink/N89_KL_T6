@@ -9,12 +9,34 @@ const ContentChonLoaiNhom = () => {
   const selectedPlace = JSON.parse(localStorage.getItem("selectedGuide"))?.diaDiemDuocChon;
   console.log("SELECTED PLACE:", selectedPlace);
   const handleContinue = () => {
+
+    // ĐÃ CÓ NHÓM
     if (selection === "hasGroup") {
-      // Nếu chọn "Tôi đã có nhóm" -> Chuyển sang trang chọn nhóm
       navigate("/chonnhom");
-    } else {
-      // Nếu chọn "Tôi chưa có nhóm" -> Chuyển thẳng sang thanh toán
-      navigate("/thanhtoan");
+    }
+
+    // CHƯA CÓ NHÓM
+    else {
+
+      localStorage.setItem("autoOpenCreateGroup", "true");
+
+      const slug = selectedPlace?.slug;
+
+      if (!slug) {
+        alert("Không tìm thấy địa điểm");
+        return;
+      }
+
+      const savedUser =
+        JSON.parse(localStorage.getItem("user")) ||
+        JSON.parse(localStorage.getItem("authUser")) ||
+        JSON.parse(localStorage.getItem("currentUser"));
+
+      if (savedUser?.hoTen) {
+        navigate(`/${encodeURIComponent(savedUser.hoTen)}/chitietdiadiemuser/${slug}`);
+      } else {
+        navigate(`/chitietdiadiem/${slug}`);
+      }
     }
   };
 
@@ -58,9 +80,18 @@ const ContentChonLoaiNhom = () => {
             onClick={() => setSelection("noGroup")}>
             <div className="hire-card-icon-box plain">👤+</div>
             <h3>Tôi chưa có nhóm</h3>
-            <p>Hướng dẫn viên sẽ tạo nhóm mới và mời bạn tham gia cùng những người khác.</p>
-            <div className="hire-badge-promo">✨ CƠ HỘI GẶP GỠ BẠN BÈ MỚI</div>
-            <div className="hire-card-number">2</div>
+            {selection === "noGroup" && (
+              <div
+                style={{
+                  color: "#ff5b5b",
+                  marginBottom: "15px",
+                  fontWeight: "600",
+                  fontSize: "15px"
+                }}
+              >
+                ⚠ Bạn cần tạo nhóm tại địa điểm này trước khi thanh toán
+              </div>
+            )}
           </div>
         </div>
 
@@ -86,9 +117,13 @@ const ContentChonLoaiNhom = () => {
             </div>
           </div>
 
-          {/* SỬA TẠI ĐÂY: Gọi hàm handleContinue */}
           <button className="hire-main-btn" onClick={handleContinue}>
-            Tiếp tục {selection === "hasGroup" ? "chọn nhóm" : "thanh toán"} <span>→</span>
+            {
+              selection === "hasGroup"
+                ? "Tiếp tục chọn nhóm"
+                : "Tạo nhóm ngay"
+            }
+            <span>→</span>
           </button>
         </div>
 

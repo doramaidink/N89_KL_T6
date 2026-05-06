@@ -163,7 +163,7 @@ class nhomController {
             // USER CHECKIN
             if (!isHDV) {
                 if (record.userId) {
-                    return res.status(400).json({ message: "User đã checkin rồi" });
+                    return res.status(400).json({ message: "Bạn đã checkin rồi" });
                 }
 
                 record.userId = userId;

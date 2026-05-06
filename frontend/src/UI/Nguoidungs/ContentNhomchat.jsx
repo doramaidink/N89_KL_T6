@@ -107,7 +107,10 @@ const ContentNhomchat = ({ user }) => {
         setShowCheckinModal(false);
       } catch (err) {
         console.log(err);
-        alert("Checkin lỗi");
+
+        alert(
+          err.response?.data?.message || "Checkin lỗi"
+        );
       }
     });
   };
@@ -142,7 +145,10 @@ const ContentNhomchat = ({ user }) => {
         }
       } catch (err) {
         console.log(err);
-        alert("Checkout lỗi");
+
+        alert(
+          err.response?.data?.message || "Checkout lỗi"
+        );
       }
     });
   };
@@ -155,11 +161,11 @@ const ContentNhomchat = ({ user }) => {
       const start = new Date(groupData.startTime);
       const end = new Date(groupData.endTime);
 
-      // ✅ Điều kiện mở nút Check-in: Khi đã đến hoặc sau giờ khởi hành
+      // Điều kiện mở nút Check-in: Khi đã đến hoặc sau giờ khởi hành
       // Bạn có thể chỉnh lại: now >= start
       setCanCheckIn(now >= start);
 
-      // ✅ Điều kiện mở nút Check-out: Khi đã đến hoặc sau giờ kết thúc
+      // Điều kiện mở nút Check-out: Khi đã đến hoặc sau giờ kết thúc
       setCanCheckOut(now >= end);
     };
 
@@ -520,19 +526,19 @@ const ContentNhomchat = ({ user }) => {
                 <div className="online-status"></div>
               </div>
               <div className="member-info">
-                <p>{groupData.nguoiTao?.hoTen}</p>
+                <p>{groupData.nguoiTao?.id?.hoTen}</p>
                 <span className="member-role">Trưởng nhóm (Lead)</span>
               </div>
             </div>
 
             {/* 2. Hiển thị các thành viên khác */}
             {groupData.thanhVien?.map((member, index) => {
-              // 🔥 Chuẩn hóa dữ liệu
+              // Chuẩn hóa dữ liệu
               const memberId = member.user?._id || member._id;
               const name = member.user?.hoTen || member.hoTen || "Ẩn danh";
               const image = member.user?.image || member.image;
 
-              // ❗ tránh trùng trưởng nhóm
+              // tránh trùng trưởng nhóm
               if (memberId === groupData.nguoiTao?.id?._id) return null;
 
               return (
