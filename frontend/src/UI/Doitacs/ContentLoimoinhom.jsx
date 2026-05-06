@@ -250,7 +250,7 @@ const ContentLoimoinhom = () => {
                 <img
                   src={
                     item.doiTacId?.image
-                      ? `http://localhost:5000/${item.doiTacId.image}`
+                      ? `http://localhost:5173/${item.nhomId.diaDiem.image}`
                       : "/img/default.jpg"
                   }
                   alt="place"

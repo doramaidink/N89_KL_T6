@@ -45,7 +45,7 @@ exports.getLoiMoi = async (req, res) => {
                     },
                     {
                         path: "diaDiem",
-                        select: "tenDiaDiem diaChi"
+                        select: "tenDiaDiem diaChi image"
                     }
                 ]
             })
