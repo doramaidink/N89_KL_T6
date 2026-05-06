@@ -77,8 +77,7 @@ io.on("connection", (socket) => {
       socket.emit("message_blocked", {
         message: ketQua.lyDo
       });
-
-      // ❗ KHÔNG LƯU DB
+ 
       return;
     }
 

@@ -31,7 +31,7 @@ exports.getLoiMoi = async (req, res) => {
         //     return res.json({ loiMois: [] });
         // }
 
-        // 🔥 dùng đúng ID
+        // dùng đúng ID
         let loiMois = await LoiMoi.find({
             doiTacId: doiTacId,
             trangThai: "cho_xac_nhan"
@@ -82,7 +82,7 @@ exports.acceptLoiMoi = async (req, res) => {
             return res.status(404).json({ message: "Không tìm thấy nhóm" });
         }
 
-        // ❗ tránh trùng thành viên
+        //  tránh trùng thành viên
         if (!nhom.thanhVien.includes(loiMoi.doiTacId)) {
             const doiTac = await DoiTac.findById(loiMoi.doiTacId);
 
@@ -127,15 +127,15 @@ exports.rejectLoiMoi = async (req, res) => {
     try {
         const { loiMoiId } = req.params;
 
-        // ✅ BƯỚC 1: tìm lời mời
+        // tìm lời mời
         const loiMoi = await LoiMoi.findById(loiMoiId);
 
-        // ✅ BƯỚC 2: check tồn tại
+        // check tồn tại
         if (!loiMoi) {
             return res.status(404).json({ message: "Không tìm thấy lời mời" });
         }
 
-        // ✅ BƯỚC 3: update trạng thái
+        // update trạng thái
         loiMoi.trangThai = "da_tu_choi";
         await loiMoi.save();
 

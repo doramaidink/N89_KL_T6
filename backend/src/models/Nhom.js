@@ -10,7 +10,7 @@ const Nhom = new Schema(
             id: { type: mongoose.Schema.Types.ObjectId, ref: "NguoiDung" },
             hoTen: String,
         },
-        // ✅ Thêm mảng thành viên để quản lý người tham gia
+        // Thêm mảng thành viên để quản lý người tham gia
         thanhVien: [
             {
                 user: { type: mongoose.Schema.Types.ObjectId, ref: "NguoiDung" },
@@ -22,7 +22,7 @@ const Nhom = new Schema(
         startTime: Date,
         endTime: Date,
 
-        // ✅ Lưu dữ liệu từ Step 2: Lịch trình
+        // Lưu dữ liệu từ Step 2: Lịch trình
         lichTrinh: {
             timeStart: { type: String, default: "08:00 AM" },
             location: { type: String, default: "" },
@@ -30,7 +30,7 @@ const Nhom = new Schema(
             timeEnd: { type: String, default: "05:00 PM" }
         },
 
-        // ✅ Lưu dữ liệu từ Step 3: An toàn & Liên hệ
+        // Lưu dữ liệu từ Step 3: An toàn & Liên hệ
         lienHeKhanCap: {
             hoTen: String,
             sdt: String
