@@ -5454,7 +5454,52 @@ input {
 
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
+/*anhr*/
+.chat-preview-images {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+}
 
+.chat-preview-item {
+  position: relative;
+  width: 70px;
+  height: 70px;
+}
+
+.chat-preview-item img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.chat-preview-item button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  cursor: pointer;
+}
+
+.chat-image-list {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chat-image-item {
+  width: 160px;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+}
 
 /*------------------------------------------ContentNhomchat-----------------*/
 /*---------------------------------------HeaderKhamPha------------------------------*/

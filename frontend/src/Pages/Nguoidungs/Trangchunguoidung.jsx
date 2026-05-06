@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import ContentTrangchu from '../../UI/Nguoidungs/ContentTrangchu';
 import Footer from '../../UI/Nguoidungs/Footer';
 import HeaderTaikhoan from '../../UI/Nguoidungs/Headers/HeaderTaikhoan';
+import ChatBot from '../../ChatBot'
 
 const Trangchunguoidung = () => {
   const { hoten } = useParams();
@@ -55,6 +56,7 @@ const Trangchunguoidung = () => {
       <HeaderTaikhoan user={user} />
       <ContentTrangchu data={data} user={user || data.user} />
       <Footer />
+      <ChatBot/>
     </div>
   );
 };
