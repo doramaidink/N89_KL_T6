@@ -18,6 +18,11 @@ const DiaDiem = new Schema({
   images:  [{ type: String }],
   dacDiemDiaDanh: [{ type: String }],
   slug: { type: String, unique: true },
+  trangThai: {
+  type: String,
+  enum: ['cho_duyet', 'da_duyet', 'tu_choi'],
+  default: 'cho_duyet'
+},
 }, {
   timestamps: true,
 });
@@ -28,5 +33,6 @@ DiaDiem.pre('save', function () {
     this.slug = this._id.toString();
   }
 });
+
 
 module.exports = mongoose.model('DiaDiem', DiaDiem);

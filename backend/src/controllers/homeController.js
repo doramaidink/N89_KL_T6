@@ -32,7 +32,7 @@ class homeController{
 }
 async khampha(req,res){
    try{
-    const diaDiems = await DiaDiem.find();
+    const diaDiems = await DiaDiem.find({trangThai:'da_duyet'})
     return res.status(200).json({
       diaDiems
     });
