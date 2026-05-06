@@ -163,34 +163,36 @@ const ContentBangdieukhien = () => {
               📭 Không có yêu cầu thuê gần đây
             </div>
           ) : (
-            loiMoi.map((item) => {
-              const khachHang = item.nhomId?.nguoiTao?.hoTen || "Không rõ";
-              const viTri = item.nhomId?.diaDiem?.tenDiaDiem || "Không rõ";
-              const ngayDat = item.createdAt
-                ? new Date(item.createdAt).toLocaleDateString("vi-VN")
-                : "Không rõ";
+            [...loiMoi]
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .map((item) => {
+                const khachHang = item.nhomId?.nguoiTao?.hoTen || "Không rõ";
+                const viTri = item.nhomId?.diaDiem?.tenDiaDiem || "Không rõ";
+                const ngayDat = item.createdAt
+                  ? new Date(item.createdAt).toLocaleDateString("vi-VN")
+                  : "Không rõ";
 
-              return (
-                <div className="doitac-row-yeucau" key={item._id}>
-                  <div>{khachHang}</div>
-                  <div>{viTri}</div>
-                  <div>{ngayDat}</div>
-                  <div>
-                    <span className="status-yeucau-pending">
-                      Lời mời
-                    </span>
+                return (
+                  <div className="doitac-row-yeucau" key={item._id}>
+                    <div>{khachHang}</div>
+                    <div>{viTri}</div>
+                    <div>{ngayDat}</div>
+                    <div>
+                      <span className="status-yeucau-pending">
+                        Lời mời
+                      </span>
+                    </div>
+                    <div>
+                      <button
+                        className="btn-chitiet-yeucau"
+                        onClick={() => setSelectedRequest(item)}
+                      >
+                        Chi tiết
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <button
-                      className="btn-chitiet-yeucau"
-                      onClick={() => setSelectedRequest(item)}
-                    >
-                      Chi tiết
-                    </button>
-                  </div>
-                </div>
-              );
-            })
+                );
+              })
           )}
         </div>
         {selectedRequest && (

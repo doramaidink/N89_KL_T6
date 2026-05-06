@@ -3,6 +3,7 @@ const NguoiDung = require('../models/NguoiDung');
 const DiaDiem = require('../models/DiaDiem');
 const ThanhToan = require('../models/ThanhToan');
 const DanhGiaDiaDiem = require('../models/DanhGiaDiaDiem');
+const LoiMoi = require('../models/LoiMoi');
 
 class doiTacController {
   async dangKyHuongDanVien(req, res) {
@@ -240,10 +241,34 @@ class doiTacController {
         status: 'paid'
       });
 
-      const allPending = await ThanhToan.find({
-        guideName: doiTac.hoTen,
-        status: 'pending'
-      }).sort({ createdAt: -1 }).limit(5);
+      const loiMois = await LoiMoi.find({
+        doiTacId: doiTac._id,
+        trangThai: "cho_xac_nhan"
+      })
+        .populate({
+          path: 'nhomId',
+          populate: [
+            {
+              path: 'nguoiTao',
+              select: 'hoTen'
+            },
+            {
+              path: 'diaDiem',
+              select: 'tenDiaDiem'
+            }
+          ]
+        });
+
+      
+      const allPending = Object.values(
+        loiMois.reduce((acc, item) => {
+          acc[item.nhomId?._id] = item;
+          return acc;
+        }, {})
+      );
+      console.log("ALL PENDING:", allPending.length);
+
+
 
       let diemTrungBinh = 0;
       let tongDanhGia = 0;
