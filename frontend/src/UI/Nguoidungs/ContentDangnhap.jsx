@@ -82,7 +82,7 @@ const ContentDangnhap = () => {
 
           <div className="content-contentdangnhap">
             {/* SĐT */}
-            <label>SỐ ĐIỆN THOẠI</label>
+            <label>EMAIL</label>
             <div className="input-group-dangnhap">
               <img className="img-dangnhap" src="/img/mail.png" alt="" />
               <input id="email" name="email" type="email" placeholder="Nhập email" />
