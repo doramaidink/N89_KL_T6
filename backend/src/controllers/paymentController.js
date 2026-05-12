@@ -3,6 +3,7 @@ const { createPayment } = require("../services/payosService");
 const bankInfo = require("../config/payosBankInfo");
 const ThanhToan = require("../models/ThanhToan");
 const LoiMoi = require("../models/LoiMoi");
+const Nhom = require("../models/Nhom");
 
 function sortObject(obj) {
   return Object.keys(obj || {})
@@ -65,12 +66,22 @@ async function taoLoiMoiSauThanhToan(payment) {
       doiTacId: payment.doiTacId,
       nguoiGuiId: payment.nguoiGuiId,
       loaiLoiMoi: payment.loaiLoiMoi || "tao_moi",
-      trangThai: "cho_xac_nhan" 
+      trangThai: "cho_xac_nhan"
     });
   }
 
   payment.daTaoLoiMoi = true;
   await payment.save();
+  if (payment.nhomId) {
+    await Nhom.findByIdAndUpdate(
+      payment.nhomId,
+      {
+        thanhToan: payment._id,
+      }
+    );
+
+    console.log("✅ ĐÃ UPDATE THANH TOÁN VÀO NHÓM");
+  }
 }
 
 class PaymentController {
@@ -220,10 +231,24 @@ class PaymentController {
       // TẠM THỜI CHO UPDATE TRƯỚC ĐỂ TEST LUỒNG
       // Sau khi chạy ổn rồi mình bật verify signature lại sau
       if (body.success === true || body.code === "00") {
+
         payment.status = "paid";
         payment.reference = data.reference || "";
         payment.transactionDateTime = data.transactionDateTime || "";
+
         await payment.save();
+
+        // UPDATE FK THANH TOÁN CHO NHÓM
+        if (payment.nhomId) {
+          await Nhom.findByIdAndUpdate(
+            payment.nhomId,
+            {
+              thanhToan: payment._id,
+            }
+          );
+
+          console.log("✅ ĐÃ UPDATE PAYMENT VÀO NHÓM");
+        }
 
         console.log("👉 TRƯỚC KHI TẠO LỜI MỜI:", {
           doiTacId: payment.doiTacId,

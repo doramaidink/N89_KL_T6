@@ -76,6 +76,7 @@ class nhomController {
     async layChiTietNhom(req, res) {
         try {
             const { id } = req.params;
+            const { userId } = req.query;
             // Populate thanhVien để lấy hoTen và image của từng người
             const nhom = await Nhom.findById(id)
                 .populate("nguoiTao.id", "hoTen image")
@@ -84,7 +85,26 @@ class nhomController {
 
             const tinNhan = await Chat.find({ nhomId: id }).sort({ thoiGian: 1 });
 
-            return res.status(200).json({ nhom, tinNhan });
+            let thanhToan = null;
+
+            if (userId) {
+                thanhToan = await ThanhToan.findOne({
+                    nhomId: id,
+                    nguoiGuiId: userId,
+                }).select("status amount orderCode");
+            }
+
+            return res.status(200).json({
+                nhom,
+                tinNhan,
+
+                thanhToan: {
+                    daThanhToan: thanhToan?.status === "paid",
+                    status: thanhToan?.status || "pending",
+                    amount: thanhToan?.amount || 0,
+                    orderCode: thanhToan?.orderCode || null,
+                },
+            });
         } catch (err) {
             return res.status(500).json({ message: "Lỗi lấy chi tiết nhóm" });
         }
@@ -123,19 +143,45 @@ class nhomController {
     async layNhomCuaToi(req, res) {
         try {
             const { userId } = req.params;
+
+            // lấy tất cả payment đã PAID
+            const paidPayments = await ThanhToan.find({
+                status: "paid"
+            }).select("nhomId");
+
+            // lấy danh sách nhomId đã thanh toán
+            const paidGroupIds = paidPayments.map(item =>
+                item.nhomId?.toString()
+            );
+
+            // lấy nhóm của user nhưng LOẠI các nhóm đã paid
             const nhoms = await Nhom.find({
-                $or: [
-                    { "nguoiTao.id": userId },
-                    { "thanhVien.user": userId }
+                $and: [
+                    {
+                        $or: [
+                            { "nguoiTao.id": userId },
+                            { "thanhVien.user": userId }
+                        ]
+                    },
+                    {
+                        _id: { $nin: paidGroupIds }
+                    }
                 ]
             })
                 .sort({ createdAt: -1 })
                 .populate("diaDiem")
                 .populate("nguoiTao.id", "hoTen");
 
-            return res.status(200).json({ nhoms });
+            return res.status(200).json({
+                nhoms
+            });
+
         } catch (error) {
-            return res.status(500).json({ message: "Lỗi server" });
+            console.log(error);
+
+            return res.status(500).json({
+                message: "Lỗi server"
+            });
         }
     }
 
@@ -208,7 +254,7 @@ class nhomController {
 
             console.log("REQ DATA:", { nhomId, userId, role });
 
-             
+
             const record = await Checkin.findOne({ nhomId });
 
             if (!record) {
@@ -294,7 +340,7 @@ class nhomController {
 
             console.log("CHECKIN LIST:", list);
 
-             
+
             const result = await Promise.all(
                 list.map(async (item) => {
                     const payment = await ThanhToan.findOne({
@@ -318,6 +364,7 @@ class nhomController {
             res.status(500).json({ message: "Lỗi lấy lịch sử" });
         }
     }
+
 }
 
 module.exports = new nhomController();

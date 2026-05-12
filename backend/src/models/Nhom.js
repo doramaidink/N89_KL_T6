@@ -34,7 +34,12 @@ const Nhom = new Schema(
         lienHeKhanCap: {
             hoTen: String,
             sdt: String
-        }
+        },
+        thanhToan: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "ThanhToan",
+            default: null,
+        },
     },
     { timestamps: true }
 );
