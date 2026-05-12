@@ -22,6 +22,20 @@ class nhomController {
 
     // Tạo nhóm
     async taoNhom(req, res) {
+        // kiểm tra số lượng
+        if (req.body.soLuong > 10) {
+
+            return res.status(400).json({
+                message: "Số lượng tối đa là 10 người"
+            });
+        }
+
+        if (req.body.soLuong < 1) {
+
+            return res.status(400).json({
+                message: "Số lượng phải lớn hơn 0"
+            });
+        }
         try {
             const data = req.body;
 
@@ -112,34 +126,66 @@ class nhomController {
 
     async thamGiaNhom(req, res) {
         try {
-            const { id } = req.params; // ID của nhóm
-            const { userId } = req.body; // ID người dùng muốn tham gia
+
+            const { id } = req.params;
+            const { userId } = req.body;
 
             const nhom = await Nhom.findById(id);
-            if (!nhom) return res.status(404).json({ message: "Không tìm thấy nhóm" });
 
-            // Kiểm tra xem đã tham gia chưa để tránh trùng lặp
-            const exists = nhom.thanhVien.some(
-                tv => tv.user.toString() === userId.toString()
-            );
-
-            if (!exists) {
-                nhom.thanhVien.push({
-                    user: userId,
-                    role: "thanh_vien"
+            if (!nhom) {
+                return res.status(404).json({
+                    message: "Không tìm thấy nhóm"
                 });
-                await nhom.save();// Lưu nhóm sau khi thêm thành viên mới 
+            }
+            // nhóm đầy
+            if (nhom.thanhVien.length >= nhom.soLuong) {
 
-                const io = req.app.get("io");
-                io.to(id).emit("update_member_list");
+                return res.status(400).json({
+                    message: "Nhóm đã đủ người"
+                });
             }
 
-            return res.status(200).json({ message: "Tham gia nhóm thành công", nhom });
+            // kiểm tra đã tham gia chưa
+            const exists = nhom.thanhVien.some(
+                (tv) =>
+                    tv.user.toString() === userId.toString()
+            );
+
+            // NẾU ĐÃ THAM GIA
+            if (exists) {
+                return res.status(400).json({
+                    message: "Bạn đã tham gia nhóm này rồi"
+                });
+            }
+
+            // thêm thành viên mới
+            nhom.thanhVien.push({
+                user: userId,
+                role: "thanh_vien"
+            });
+
+            await nhom.save();
+
+            // realtime socket
+            const io = req.app.get("io");
+
+            io.to(id).emit("update_member_list");
+
+            return res.status(200).json({
+                message: "Tham gia nhóm thành công",
+                nhom
+            });
+
         } catch (err) {
+
             console.error(err);
-            return res.status(500).json({ message: "Lỗi server" });
+
+            return res.status(500).json({
+                message: "Lỗi server"
+            });
         }
     }
+
     async layNhomCuaToi(req, res) {
         try {
             const { userId } = req.params;
