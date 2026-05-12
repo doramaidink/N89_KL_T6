@@ -90,6 +90,13 @@ body {
   font-size: 0.7rem;
   margin-top: 6px;
 }
+#form-message-matkhau {
+  color: red;
+  font-size: 0.7rem;
+  margin-top: 6px;
+  margin-right: 30px;
+}
+
 
 /* FORM CONTAINER */
 .form-dangki {
@@ -417,6 +424,23 @@ body {
   background: #2f80ed;
   color: white;
 }
+.password-wrapper {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #777;
+  font-size: 18px;
+}
+
+.password-wrapper input {
+  padding-right: 45px;
+}
 
 /*----------------------------------------------------------- ContentDangki --------------------------------------------------- */
 
@@ -579,6 +603,24 @@ body {
   font-size: 12px;
   color: #00e676;
   cursor: pointer;
+}
+.password-wrapper-dangnhap {
+  position: relative;
+}
+
+.toggle-password-dangnhap {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #777;
+  font-size: 18px;
+  z-index: 10;
+}
+
+.password-wrapper-dangnhap input {
+  padding-right: 45px;
 }
 
 /* -------------------------------------ContentDangnhap--------------------------------------------------------------- */

@@ -18,6 +18,9 @@ const ContentDangki = () => {
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -242,29 +245,65 @@ const ContentDangki = () => {
 
               <div className="group-contentdangki">
                 <label>Mật Khẩu</label>
-                <div className="congroup-contentdangki">
-                  <img className="imguser-contentdangki" src="/img/locked-computer.png" alt="" />
+
+                <div className="congroup-contentdangki password-wrapper">
+                  <img
+                    className="imguser-contentdangki"
+                    src="/img/locked-computer.png"
+                    alt=""
+                  />
+
                   <input
                     id="register-v2-password"
                     name="passWord"
                     placeholder="******"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                   />
-                  <span className="form-message"></span>
+
+                  <span
+                    className="toggle-password"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    <i className={showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"}></i>
+                  </span>
+
+                  <span id="form-message-matkhau" className="form-message"></span>
                 </div>
               </div>
 
               <div className="group-contentdangki">
                 <label>Nhập lại mật khẩu</label>
-                <div className="congroup-contentdangki">
-                  <img className="imguser-contentdangki" src="/img/locked-computer.png" alt="" />
+
+                <div className="congroup-contentdangki password-wrapper">
+                  <img
+                    className="imguser-contentdangki"
+                    src="/img/locked-computer.png"
+                    alt=""
+                  />
+
                   <input
                     name="confirmPassword"
                     id="register-v2-confirm-password"
                     placeholder="******"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                   />
-                  <span className="form-message"></span>
+
+                  <span
+                    className="toggle-password"
+                    onClick={() =>
+                      setShowConfirmPassword(!showConfirmPassword)
+                    }
+                  >
+                    <i
+                      className={
+                        showConfirmPassword
+                          ? "fa-solid fa-eye-slash"
+                          : "fa-solid fa-eye"
+                      }
+                    ></i>
+                  </span>
+
+                  <span id="form-message-matkhau" className="form-message"></span>
                 </div>
               </div>
 
@@ -287,13 +326,13 @@ const ContentDangki = () => {
                 >
                   Xem điều khoản
                 </button>
-              </div>      
+              </div>
             </div>
 
             <div className="footer-contentdangki">
               <div className="dacotaikhoan-dangki"> <p>Đã có tài khoản?</p> <a href="/dangnhap">Đăng nhập ngay</a>  </div>
-             
-               <button
+
+              <button
                 type="submit"
                 className={`dangkyngay-contentdangki ${!agreedTerms ? "btn-disabled-dangki" : ""}`}
                 disabled={loading || !agreedTerms}
@@ -301,7 +340,7 @@ const ContentDangki = () => {
                 {loading
                   ? "Đang gửi email xác nhận..."
                   : "Đăng ký ngay"}
-              </button>           
+              </button>
             </div>
           </form>
 
@@ -338,7 +377,7 @@ const ContentDangki = () => {
                     <li>Tôi hiểu rằng nền tảng có quyền từ chối hoặc khóa tài khoản nếu tôi vi phạm điều khoản hoặc gây nguy hiểm cho cộng đồng.</li>
                     <li>Tôi cam kết không đăng tải những nội dung 18+ hay những nội dung về cờ bạc online,... </li>
                     <li>Tôi xác nhận đã đọc và đồng ý với các điều khoản trước khi đăng ký tài khoản.</li>
-                    
+
                   </ul>
                 </div>
 
