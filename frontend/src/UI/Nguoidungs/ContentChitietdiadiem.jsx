@@ -26,6 +26,23 @@ const ContentChitietdiadiem = ({ user = null }) => {
   const [openJoinModal, setOpenJoinModal] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [openMapModal, setOpenMapModal] = useState(false);
+  //kiểm tra user đã tham gia nhóm chưa
+  const isUserInGroup = (group) => {
+
+    if (!user || !group?.thanhVien) {
+      return false;
+    }
+
+    return group.thanhVien.some((tv) => {
+
+      const memberId =
+        tv?.user?._id ||
+        tv?.user ||
+        tv?._id;
+
+      return String(memberId) === String(user.id || user._id);
+    });
+  };
   useEffect(() => {
 
     const shouldOpen = localStorage.getItem("autoOpenCreateGroup");
@@ -49,6 +66,7 @@ const ContentChitietdiadiem = ({ user = null }) => {
   });
 
   const [groupForm, setGroupForm] = useState({
+
     ten: "",
     moTa: "",
     soLuong: 10,
@@ -65,6 +83,10 @@ const ContentChitietdiadiem = ({ user = null }) => {
       hoTen: "",
       sdt: ""
     }
+  });
+  const [errors, setErrors] = useState({
+    hoTen: "",
+    sdt: ""
   });
 
   const handleInputChange = (e) => {
@@ -137,6 +159,31 @@ const ContentChitietdiadiem = ({ user = null }) => {
     }
     if (!groupForm.ten) {
       toast.warning("Vui lòng nhập tên nhóm");
+      return;
+    }
+
+    if (!groupForm.startTime) {
+      toast.warning("Vui lòng chọn ngày & giờ khởi hành");
+      return;
+    }
+
+    if (!groupForm.endTime) {
+      toast.warning("Vui lòng chọn thời gian kết thúc dự kiến");
+      return;
+    }
+
+    if (!groupForm.lichTrinh.location.trim()) {
+      toast.warning("Vui lòng nhập địa điểm / hoạt động");
+      return;
+    }
+
+    if (!groupForm.lienHeKhanCap.hoTen.trim()) {
+      toast.warning("Vui lòng nhập tên liên hệ khẩn cấp");
+      return;
+    }
+
+    if (!groupForm.lienHeKhanCap.sdt.trim()) {
+      toast.warning("Vui lòng nhập số điện thoại khẩn cấp");
       return;
     }
 
@@ -318,6 +365,9 @@ const ContentChitietdiadiem = ({ user = null }) => {
   console.log("diaDiem:", diaDiem);
   console.log("dacDiemDiaDanh:", diaDiem?.dacDiemDiaDanh);
 
+  console.log("USER:", user);
+  console.log("GROUPS:", groups);
+
 
 
   return (
@@ -471,12 +521,42 @@ const ContentChitietdiadiem = ({ user = null }) => {
                   <div className="nhom-item" key={item._id}>
                     <div>
                       <h4>{item.ten}</h4>
-                      <span>{item.moTa || "Trekking khám phá"}</span>
+                      <span>
+                        👥 {item.thanhVien?.length || 0}/{item.soLuong || 0} người
+                      </span>
                     </div>
-                    <button onClick={() => {
-                      setSelectedGroup(item);
-                      setOpenJoinModal(true);
-                    }}>Tham gia</button>
+                    <button
+                      onClick={() => {
+
+                        // user chưa login
+                        if (!user) {
+                          toast.error("Vui lòng đăng nhập!");
+                          return;
+                        }
+
+                        // ĐÃ tham gia -> hiện toast luôn
+                        if (isUserInGroup(item)) {
+
+                          toast.error("Bạn đã tham gia nhóm này rồi");
+
+                          // KHÔNG mở modal
+                          return;
+                        }
+                        // kiểm tra nhóm đã đầy chưa
+                        if ((item.thanhVien?.length || 0) >= item.soLuong) {
+
+                          toast.error("Nhóm đã đủ người");
+
+                          return;
+                        }
+
+                        // CHƯA tham gia -> mới mở modal
+                        setSelectedGroup(item);
+                        setOpenJoinModal(true);
+                      }}
+                    >
+                      Tham gia
+                    </button>
                   </div>
                 ))}
               </div>
@@ -690,22 +770,68 @@ const ContentChitietdiadiem = ({ user = null }) => {
 
                   <div className="step1-row-step1">
                     <div>
-                      <label>Ngày & Giờ khởi hành</label>
+                      <label>
+                        Ngày & Giờ khởi hành <span style={{ color: "red" }}>*</span>
+                      </label>
                       <input name="startTime" type="datetime-local" value={groupForm.startTime} onChange={handleInputChange} className="step1-input-step1" />
                     </div>
                     <div>
-                      <label>Kết thúc dự kiến</label>
+                      <label>
+                        Kết thúc dự kiến <span style={{ color: "red" }}>*</span>
+                      </label>
                       <input name="endTime" type="datetime-local" value={groupForm.endTime} onChange={handleInputChange} className="step1-input-step1" />
                     </div>
                   </div>
 
                   <div className="step1-row-step1">
-                    <input name="soLuong" type="number" value={groupForm.soLuong} onChange={handleInputChange} className="step1-input-step1" placeholder="Số lượng người" />
-                    <select name="doKho" value={groupForm.doKho} onChange={handleInputChange} className="step1-select-step1">
-                      <option>Dễ (Cho người mới)</option>
-                      <option>Trung bình (Có kinh nghiệm)</option>
-                      <option>Khó (Yêu cầu thể lực)</option>
-                    </select>
+
+                    <div>
+                      <label>Số lượng</label>
+
+                      <input
+                        name="soLuong"
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={groupForm.soLuong}
+                        onChange={(e) => {
+
+                          let value = Number(e.target.value);
+
+                          // không cho nhỏ hơn 1
+                          if (value < 1) value = 1;
+
+                          // không cho lớn hơn 10
+                          if (value > 10) {
+                            value = 10;
+                            toast.warning("Số lượng tối đa là 10 người");
+                          }
+
+                          setGroupForm((prev) => ({
+                            ...prev,
+                            soLuong: value
+                          }));
+                        }}
+                        className="step1-input-step1"
+                        placeholder="Tối đa 10 người"
+                      />
+                    </div>
+
+                    <div>
+                      <label>Mức độ khó</label>
+
+                      <select
+                        name="doKho"
+                        value={groupForm.doKho}
+                        onChange={handleInputChange}
+                        className="step1-select-step1"
+                      >
+                        <option>Dễ (Cho người mới)</option>
+                        <option>Trung bình (Có kinh nghiệm)</option>
+                        <option>Khó (Yêu cầu thể lực)</option>
+                      </select>
+                    </div>
+
                   </div>
                   <label>Mô tả chuyến đi</label>
                   <textarea name="moTa" value={groupForm.moTa} onChange={handleInputChange} className="step1-textarea-step1" />
@@ -738,7 +864,9 @@ const ContentChitietdiadiem = ({ user = null }) => {
                           />
                         </div>
                         <div>
-                          <label>ĐỊA ĐIỂM / HOẠT ĐỘNG</label>
+                          <label>
+                            ĐỊA ĐIỂM / HOẠT ĐỘNG <span style={{ color: "red" }}>*</span>
+                          </label>
                           <input
                             placeholder="Tập trung tại điểm ...."
                             value={groupForm.lichTrinh.location}
@@ -764,10 +892,7 @@ const ContentChitietdiadiem = ({ user = null }) => {
                     </div>
                   </div>
                 </div>
-                <div className="step2-addday-step2">
-                  <span><img className="sum-step2" src="/img/sum.png" alt="" /></span>
-                  <p>Thêm Ngày mới</p>
-                </div>
+
                 <div className="step2-footer-step2">
                   <button className="back-step2" onClick={() => setStepGroup(1)}>← Quay lại</button>
                   <button className="next-step2" onClick={() => setStepGroup(3)}>Tiếp theo: Thiết lập An toàn →</button>
@@ -823,18 +948,102 @@ const ContentChitietdiadiem = ({ user = null }) => {
                   <div className="step3-check-icon">✔</div>
                 </div>
 
-                <h4 className="step3-contact-title-step3">Thông tin liên hệ khẩn cấp</h4>
+                <h4 className="step3-contact-title-step3">
+                  Thông tin liên hệ khẩn cấp <span style={{ color: "red" }}>*</span>
+                </h4>
                 <div className="step3-row-step3">
-                  <input
-                    placeholder="Họ và tên người thân"
-                    value={groupForm.lienHeKhanCap.hoTen}
-                    onChange={(e) => setGroupForm({ ...groupForm, lienHeKhanCap: { ...groupForm.lienHeKhanCap, hoTen: e.target.value } })}
-                  />
-                  <input
-                    placeholder="Số điện thoại"
-                    value={groupForm.lienHeKhanCap.sdt}
-                    onChange={(e) => setGroupForm({ ...groupForm, lienHeKhanCap: { ...groupForm.lienHeKhanCap, sdt: e.target.value } })}
-                  />
+
+                  {/* Họ tên */}
+                  <div className="step3-input-box">
+
+                    <input
+                      placeholder="Nhập họ tên liên hệ khẩn cấp"
+                      value={groupForm.lienHeKhanCap.hoTen}
+                      onChange={(e) => {
+
+                        const value = e.target.value;
+
+                        // chỉ cho chữ
+                        if (/^[a-zA-ZÀ-ỹ\s]*$/.test(value)) {
+
+                          setGroupForm({
+                            ...groupForm,
+                            lienHeKhanCap: {
+                              ...groupForm.lienHeKhanCap,
+                              hoTen: value
+                            }
+                          });
+
+                          setErrors((prev) => ({
+                            ...prev,
+                            hoTen: ""
+                          }));
+
+                        } else {
+
+                          setErrors((prev) => ({
+                            ...prev,
+                            hoTen: "Vui lòng nhập chữ số"
+                          }));
+
+                        }
+                      }}
+                    />
+
+                    {errors.hoTen && (
+                      <span className="input-error">
+                        {errors.hoTen}
+                      </span>
+                    )}
+
+                  </div>
+
+                  {/* Số điện thoại */}
+                  <div className="step3-input-box">
+
+                    <input
+                      placeholder="Nhập số điện thoại khẩn cấp"
+                      value={groupForm.lienHeKhanCap.sdt}
+                      maxLength={10}
+                      onChange={(e) => {
+
+                        const value = e.target.value;
+
+                        // chỉ cho số
+                        if (/^\d*$/.test(value)) {
+
+                          setGroupForm({
+                            ...groupForm,
+                            lienHeKhanCap: {
+                              ...groupForm.lienHeKhanCap,
+                              sdt: value
+                            }
+                          });
+
+                          setErrors((prev) => ({
+                            ...prev,
+                            sdt: ""
+                          }));
+
+                        } else {
+
+                          setErrors((prev) => ({
+                            ...prev,
+                            sdt: "Vui lòng nhập số điện thoại hợp lệ"
+                          }));
+
+                        }
+                      }}
+                    />
+
+                    {errors.sdt && (
+                      <span className="input-error">
+                        {errors.sdt}
+                      </span>
+                    )}
+
+                  </div>
+
                 </div>
 
                 <div className="step3-warning-step3">

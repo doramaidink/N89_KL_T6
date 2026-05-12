@@ -7,6 +7,8 @@ const ContentThongbao = ({ user }) => {
 
   const [notifications, setNotifications] = useState([]);
 
+  const [showAll, setShowAll] = useState(false);
+
   useEffect(() => {
     fetch("http://localhost:5000/thongbao?type=user")
       .then(res => res.json())
@@ -15,6 +17,10 @@ const ContentThongbao = ({ user }) => {
         setNotifications(data);
       });
   }, []);
+
+  const displayedNotifications = showAll
+    ? notifications
+    : notifications.slice(0, 4);
 
   return (
     <div className="container-thongbao">
@@ -38,10 +44,15 @@ const ContentThongbao = ({ user }) => {
 
           <div className="header-thongbao">
             <h3>🔔 Thư hệ thống</h3>
-            <span>Xem tất cả</span>
+            <span
+              onClick={() => setShowAll(!showAll)}
+              style={{ cursor: "pointer" }}
+            >
+              {showAll ? "Ẩn bớt" : "Xem tất cả"}
+            </span>
           </div>
 
-          {notifications.map(item => (
+          {displayedNotifications.map(item => (
             <div className="item-noti-thongbao" key={item._id}>
 
               <div className="icon-thongbao green-thongbao">🔔</div>
@@ -63,9 +74,7 @@ const ContentThongbao = ({ user }) => {
             </div>
           ))}
 
-          <div className="more-thongbao">
-            Xem các thông báo cũ hơn
-          </div>
+
 
         </div>
 

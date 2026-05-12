@@ -86,8 +86,8 @@ const ContentNhom = ({ user }) => {
                 <img src={getImageUrl(group.diaDiem?.image)} alt={group.ten} />
 
                 <span className={`badge ${group.nguoiTao.id === (user.id || user._id)
-                    ? "leader"
-                    : "active"
+                  ? "leader"
+                  : "active"
                   }`}>
                   {group.nguoiTao.id === (user.id || user._id)
                     ? "TRƯỞNG NHÓM"
@@ -98,7 +98,9 @@ const ContentNhom = ({ user }) => {
               <div className="info-nhom">
                 <h3>{group.ten}</h3>
                 <p>📍 {group.diaDiem?.tenDiaDiem || "Địa điểm chưa xác định"}</p>
-                <p>👥 {group.thanhVien?.length || 0} thành viên</p>
+                <p>
+                  👥 {group.thanhVien?.length || 0}/{group.soLuong || 0} người
+                </p>
 
                 <button onClick={() => navigate(`/nhomchat/${group._id}`)}>
                   Vào nhóm →
