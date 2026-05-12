@@ -35,12 +35,12 @@ const getInitials = (name = '') => {
 
 const getImageUrl = (image) => {
   if (!image) return '';
-  if (image.startsWith('http')) return image;
-  if (image.startsWith('/img')) return `${API_URL}${image}`;
-  if (image.startsWith('img')) return `${API_URL}/${image}`;
 
-  const clean = image.startsWith('/') ? image.slice(1) : image;
-  return `${API_URL}/${clean}`;
+  if (image.startsWith('http')) {
+    return image;
+  }
+
+  return image;
 };
 
 const formatDate = (date) => {
@@ -300,11 +300,14 @@ const ContentDonDangKy = () => {
 
                     <td>
                       <div className="ddk-user-info">
-                        {item.image ? (
+                        {(item.anhKhuonMat || item.image) ? (
                           <img
                             className="ddk-avatar-img"
                             src={getImageUrl(item.anhKhuonMat || item.image)}
                             alt={item.name}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
                           />
                         ) : (
                           <div className="ddk-avatar">
@@ -581,7 +584,13 @@ const DocPreview = ({ title, image }) => {
             Xem file PDF
           </a>
         ) : (
-          <img src={url} alt={title} />
+          <img
+            src={url}
+            alt={title}
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
         )
       ) : (
         <p>Chưa có</p>

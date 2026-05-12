@@ -163,94 +163,126 @@ class QuanTriVienController {
   }
 
   async donDangky(req, res) {
-    try {
-      const { slug } = req.params;
+  try {
+    const { slug } = req.params;
 
-      const admin = await QuanTriVien.findOne({ slug });
-      if (!admin) {
-        return res.status(404).json({
-          message: 'Không tìm thấy quản trị viên'
-        });
-      }
+    const admin = await QuanTriVien.findOne({ slug });
 
-      const hoSoDangKy = await DoiTac.find({})
-        .sort({ createdAt: -1 })
-        .populate('nguoiDung', 'hoTen email vaiTro image trangThai')
-        .populate('cacDiaDiemDangKy', 'tenDiaDiem khuVuc tinh image slug')
-        .populate('diaDiemGiaCa.diaDiem', 'tenDiaDiem khuVuc tinh image slug');
-
-      const applicants = hoSoDangKy.map((item) => ({
-        id: `#BP-${String(item._id).slice(-6).toUpperCase()}`,
-        _id: item._id,
-
-        nguoiDung: item.nguoiDung?._id || '',
-        userName: item.nguoiDung?.hoTen || '',
-        userEmail: item.nguoiDung?.email || '',
-        userRole: item.nguoiDung?.vaiTro || '',
-
-        name: item.hoTen || 'Chưa có tên',
-        hoTen: item.hoTen || 'Chưa có tên',
-        email: item.nguoiDung?.email || '',
-        phone: item.soDienThoai || '',
-        soDienThoai: item.soDienThoai || '',
-        soCCCD: item.soCCCD || '',
-        ngaySinh: item.ngaySinh || null,
-
-        diaChi: item.diaChi || '',
-        queQuan: item.queQuan || '',
-        city: item.tinhDangKy || 'Chưa cập nhật',
-        tinhDangKy: item.tinhDangKy || '',
-
-        image: item.image || '',
-        anhCCCDMatTruoc: item.anhCCCDMatTruoc || '',
-        anhCCCDMatSau: item.anhCCCDMatSau || '',
-        anhKhuonMat: item.anhKhuonMat || '',
-        lyLichTuPhap: item.lyLichTuPhap || '',
-
-        gioiThieuBanThan: item.gioiThieuBanThan || '',
-        kyNangDacBiet: item.kyNangDacBiet || [],
-        ngonNguHoTro: item.ngonNguHoTro || [],
-        kinhNghiem: item.kinhNghiem || '',
-        soNamKinhNghiem: item.soNamKinhNghiem || 0,
-        exp: `${item.soNamKinhNghiem || 0} năm`,
-        giaThue: item.giaThue || 0,
-
-        cacDiaDiemDangKy: item.cacDiaDiemDangKy || [],
-        diaDiemGiaCa: item.diaDiemGiaCa || [],
-
-        faceMatched: item.faceMatched,
-        faceDistance: item.faceDistance,
-        verificationStatus: item.verificationStatus,
-
-        trangThaiHoSo: item.trangThaiHoSo || 'cho_duyet',
-        status:
-          item.trangThaiHoSo === 'da_duyet'
-            ? 'ĐÃ DUYỆT'
-            : item.trangThaiHoSo === 'tu_choi'
-              ? 'TỪ CHỐI'
-              : 'CHỜ DUYỆT',
-
-        lyDoTuChoi: item.lyDoTuChoi || '',
-        ngayDuyet: item.ngayDuyet || null,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
-
-        avatar: (item.hoTen || 'UV')
-          .split(' ')
-          .filter(Boolean)
-          .slice(0, 2)
-          .map(x => x[0]?.toUpperCase())
-          .join('')
-      }));
-
-      return res.status(200).json({ applicants });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({
-        message: 'Lỗi server khi lấy danh sách đơn đăng ký'
+    if (!admin) {
+      return res.status(404).json({
+        message: 'Không tìm thấy quản trị viên'
       });
     }
+
+    const hoSoDangKy = await DoiTac.find({})
+      .sort({ createdAt: -1 })
+      .populate('nguoiDung', 'hoTen email vaiTro image trangThai')
+      .populate(
+        'cacDiaDiemDangKy',
+        'tenDiaDiem khuVuc tinh image slug'
+      )
+      .populate(
+        'diaDiemGiaCa.diaDiem',
+        'tenDiaDiem khuVuc tinh image slug'
+      );
+
+    const fixImage = (img) => {
+      if (!img) return '';
+
+      if (img.startsWith('http')) return img;
+
+      if (img.startsWith('/')) return img;
+
+      return `/${img}`;
+    };
+
+    const applicants = hoSoDangKy.map((item) => ({
+      id: `#BP-${String(item._id).slice(-6).toUpperCase()}`,
+      _id: item._id,
+
+      nguoiDung: item.nguoiDung?._id || '',
+
+      userName: item.nguoiDung?.hoTen || '',
+      userEmail: item.nguoiDung?.email || '',
+      userRole: item.nguoiDung?.vaiTro || '',
+
+      name: item.hoTen || 'Chưa có tên',
+      hoTen: item.hoTen || 'Chưa có tên',
+
+      email: item.nguoiDung?.email || '',
+
+      phone: item.soDienThoai || '',
+      soDienThoai: item.soDienThoai || '',
+
+      soCCCD: item.soCCCD || '',
+      ngaySinh: item.ngaySinh || null,
+
+      diaChi: item.diaChi || '',
+      queQuan: item.queQuan || '',
+
+      city: item.tinhDangKy || 'Chưa cập nhật',
+      tinhDangKy: item.tinhDangKy || '',
+
+      // QUAN TRỌNG
+      image: fixImage(item.image),
+      anhCCCDMatTruoc: fixImage(item.anhCCCDMatTruoc),
+      anhCCCDMatSau: fixImage(item.anhCCCDMatSau),
+      anhKhuonMat: fixImage(item.anhKhuonMat),
+      lyLichTuPhap: fixImage(item.lyLichTuPhap),
+
+      gioiThieuBanThan: item.gioiThieuBanThan || '',
+
+      kyNangDacBiet: item.kyNangDacBiet || [],
+      ngonNguHoTro: item.ngonNguHoTro || [],
+
+      kinhNghiem: item.kinhNghiem || '',
+
+      soNamKinhNghiem: item.soNamKinhNghiem || 0,
+      exp: `${item.soNamKinhNghiem || 0} năm`,
+
+      giaThue: item.giaThue || 0,
+
+      cacDiaDiemDangKy: item.cacDiaDiemDangKy || [],
+      diaDiemGiaCa: item.diaDiemGiaCa || [],
+
+      faceMatched: item.faceMatched,
+      faceDistance: item.faceDistance,
+      verificationStatus: item.verificationStatus,
+
+      trangThaiHoSo: item.trangThaiHoSo || 'cho_duyet',
+
+      status:
+        item.trangThaiHoSo === 'da_duyet'
+          ? 'ĐÃ DUYỆT'
+          : item.trangThaiHoSo === 'tu_choi'
+            ? 'TỪ CHỐI'
+            : 'CHỜ DUYỆT',
+
+      lyDoTuChoi: item.lyDoTuChoi || '',
+
+      ngayDuyet: item.ngayDuyet || null,
+
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+
+      avatar: (item.hoTen || 'UV')
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(x => x[0]?.toUpperCase())
+        .join('')
+    }));
+
+    return res.status(200).json({ applicants });
+
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      message: 'Lỗi server khi lấy danh sách đơn đăng ký'
+    });
   }
+}
   async DuyetDiaDiem(req, res) {
     try {
       const data = await DiaDiem.find({})

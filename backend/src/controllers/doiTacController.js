@@ -76,8 +76,9 @@ class doiTacController {
 
       const frontendPublicPath = path.join(
         __dirname,
-        '../../frontend/public/img/huongdanvien'
+        '../../../frontend/public/img/huongdanvien'
       );
+      console.log(frontendPublicPath);
 
       if (!fs.existsSync(frontendPublicPath)) {
         fs.mkdirSync(frontendPublicPath, { recursive: true });
@@ -112,6 +113,10 @@ class doiTacController {
         const finalName = `${newName}${ext}`;
 
         const finalPath = path.join(newFolderPath, finalName);
+
+        //debug
+        console.log("DIR:", __dirname);
+        console.log("SAVE:", finalPath);
 
         fs.renameSync(file.path, finalPath);
 
