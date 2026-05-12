@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 const ContentDangnhap = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "/js/validator.js";
@@ -92,13 +93,45 @@ const ContentDangnhap = () => {
             {/* PASSWORD */}
             <div className="password-row-dangnhap">
               <label>MẬT KHẨU</label>
-              <span onClick={() => navigate("/quen-mat-khau")} style={{ cursor: "pointer" }} className="forgot-dangnhap">Quên mật khẩu?</span>
+
+              <span
+                onClick={() => navigate("/quen-mat-khau")}
+                style={{ cursor: "pointer" }}
+                className="forgot-dangnhap"
+              >
+                Quên mật khẩu?
+              </span>
             </div>
 
-            <div className="input-group-dangnhap">
-              <img className="img-dangnhap" src="/img/locked-computer.png" alt="" />
-              <input name="passWord" className="login-v2-input" type="password" id="login-v2-password" placeholder="Nhập mật khẩu" />
-              <span className="form-message"></span>
+            <div className="input-group-dangnhap password-wrapper-dangnhap">
+              <img
+                className="img-dangnhap"
+                src="/img/locked-computer.png"
+                alt=""
+              />
+
+              <input
+                name="passWord"
+                className="login-v2-input"
+                type={showPassword ? "text" : "password"}
+                id="login-v2-password"
+                placeholder="Nhập mật khẩu"
+              />
+
+              <span
+                className="toggle-password-dangnhap"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                <i
+                  className={
+                    showPassword
+                      ? "fa-solid fa-eye-slash"
+                      : "fa-solid fa-eye"
+                  }
+                ></i>
+              </span>
+
+              <span id="form-message-matkhau" className="form-message"></span>
             </div>
 
             <button type="submit" className="btn-main-dangnhap">ĐĂNG NHẬP NGAY</button>
