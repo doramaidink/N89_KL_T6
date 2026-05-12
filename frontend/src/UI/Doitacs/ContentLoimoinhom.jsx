@@ -235,9 +235,7 @@ const ContentLoimoinhom = () => {
             </button>
           )}
         </div>
-        <button className="btn-create-group" onClick={() => setIsCreating(true)}>
-          <UserPlus size={18} /> Tạo nhóm mới
-        </button>
+         
       </div>
       <div className="loimoi-grid">
         {/* DANH SÁCH LỜI MỜI */}
