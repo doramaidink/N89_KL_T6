@@ -55,7 +55,10 @@ const ContentNhomchat = ({ user }) => {
   const [currentInput, setCurrentInput] = useState("");
   const [selectedImages, setSelectedImages] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
+  //xem ảnh
   const [selectedImage, setSelectedImage] = useState(null);
+  //xem kho ảnh nhóm
+  const [showGallery, setShowGallery] = useState(false);
   const chatEndRef = useRef(null);
 
   //checkin-checkout time
@@ -67,7 +70,9 @@ const ContentNhomchat = ({ user }) => {
 
   const [inputCheckinCode, setInputCheckinCode] = useState(["", "", "", "", "", ""]);
   const [inputCheckoutCode, setInputCheckoutCode] = useState(["", "", "", "", "", ""]);
-
+  const allImages = messages.flatMap((msg) =>
+    Array.isArray(msg.hinhAnh) ? msg.hinhAnh : []
+  );
 
 
 
@@ -371,7 +376,12 @@ const ContentNhomchat = ({ user }) => {
         <div className="sidebar-section">
           <p className="sidebar-label">THAO TÁC NHANH</p>
           <div className="sidebar-item"><span>🔗</span> Mời thành viên</div>
-          <div className="sidebar-item"><span>🖼</span> Kho ảnh nhóm</div>
+          <div
+            className="sidebar-item"
+            onClick={() => setShowGallery(true)}
+          >
+            <span>🖼</span> Kho ảnh nhóm
+          </div>
         </div>
 
 
@@ -412,7 +422,10 @@ const ContentNhomchat = ({ user }) => {
                           src={img}
                           alt="Ảnh chat"
                           className="chat-image-item"
-                          onClick={() => setSelectedImage(img)}
+                          onClick={() => {
+                            setShowGallery(false);
+                            setSelectedImage(img);
+                          }}
                         />
                       ))}
                     </div>
@@ -627,6 +640,46 @@ const ContentNhomchat = ({ user }) => {
             className="full-image-modal"
             onClick={(e) => e.stopPropagation()}
           />
+        </div>
+      )}
+      {showGallery && (
+        <div
+          className="gallery-overlay"
+          onClick={() => setShowGallery(false)}
+        >
+          <div
+            className="gallery-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="gallery-header">
+              <h2>🖼 Kho ảnh nhóm</h2>
+
+              <button
+                className="gallery-close"
+                onClick={() => setShowGallery(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="gallery-grid">
+              {allImages.length > 0 ? (
+                allImages.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt="Ảnh nhóm"
+                    className="gallery-image"
+                    onClick={() => setSelectedImage(img)}
+                  />
+                ))
+              ) : (
+                <p className="gallery-empty">
+                  Chưa có ảnh nào trong nhóm
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
