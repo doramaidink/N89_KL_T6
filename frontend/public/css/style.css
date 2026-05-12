@@ -4707,6 +4707,10 @@ input {
   color: white;
   border: 1px solid rgba(255, 153, 51, 0.2);
 }
+.step1-select-step1 option{
+    background: #1f2937;
+    color: white;
+}
 
 /* LOCK INPUT */
 .step1-input-lock-step1 {
