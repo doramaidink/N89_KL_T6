@@ -10967,6 +10967,55 @@ html {
 
 /*----------------------------------------------ContentThongKe--------------------------------------------
 -------------------------------------------------------------------------------------*/
+.bar-chart-container {
+  border: 1px solid #27272a;
+  border-radius: 12px;
+  padding: 25px;
+  overflow: hidden;
+}
+
+.bar-chart-placeholder {
+  width: 100%;
+  height: 260px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+}
+
+.bar-group {
+  width: 60px;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.bar-value {
+  color: #22c55e;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.bar {
+  width: 42px;
+  border-radius: 12px 12px 0 0;
+  transition: 0.4s;
+}
+
+.bar:hover {
+  opacity: 0.8;
+  transform: translateY(-4px);
+}
+
+.bar-day {
+  margin-top: 10px;
+  color: #a1a1aa;
+  font-size: 12px;
+}
 
 .content-container {
   height: calc(100vh - 70px) !important;
@@ -11149,50 +11198,7 @@ html {
   background: rgba(16, 185, 129, 0.1);
 }
 
-/* Thùng chứa các cột */
-.bar-chart-container {
-  border: 1px solid #27272a;
-  border-radius: 8px;
-  padding: 30px 20px 15px 20px;
-}
 
-.bar-chart-placeholder {
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-end;
-  height: 200px;
-  /* Chiều cao cố định của biểu đồ */
-  gap: 10px;
-}
-
-.bar-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  height: 100%;
-  justify-content: flex-end;
-}
-
-.bar {
-  width: 100%;
-  max-width: 40px;
-  background: #064e3b;
-  border-radius: 4px 4px 0 0;
-  transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  display: block !important;
-}
-
-
-.bar-active {
-  background: #34d399 !important;
-}
-
-.bar-day {
-  color: #a1a1aa;
-  font-size: 12px;
-}
 
 /*--------------------------------------------------------------
   Giao dịch & Đối tác (Bottom Grid)
@@ -12748,6 +12754,11 @@ html {
 
 
 /*------------------------------ContentQuanLyBaoCao--------------------------------------------*/
+.baocao-btn-submit.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 .quanlybaocao-container {
   background-color: #09090b;
   color: #ffffff;

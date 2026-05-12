@@ -17,28 +17,28 @@ const ContentQuanLyBaoCao = () => {
   const [selectedReport, setSelectedReport] = useState(null);
 
   const getImageUrl = (image) => {
-  if (!image) return "";
-  if (image.startsWith("http")) return image;
+    if (!image) return "";
+    if (image.startsWith("http")) return image;
 
-  if (image.startsWith("/uploads")) {
-    return `${API_URL}${image}`;
-  }
+    if (image.startsWith("/uploads")) {
+      return `${API_URL}${image}`;
+    }
 
-  if (image.startsWith("uploads")) {
-    return `${API_URL}/${image}`;
-  }
+    if (image.startsWith("uploads")) {
+      return `${API_URL}/${image}`;
+    }
 
-  if (image.startsWith("/img")) {
-    return `${API_URL}${image}`;
-  }
+    if (image.startsWith("/img")) {
+      return `${API_URL}${image}`;
+    }
 
-  if (image.startsWith("img")) {
-    return `${API_URL}/${image}`;
-  }
+    if (image.startsWith("img")) {
+      return `${API_URL}/${image}`;
+    }
 
-  const cleanPath = image.startsWith("/") ? image.slice(1) : image;
-  return `${API_URL}/${cleanPath}`;
-};
+    const cleanPath = image.startsWith("/") ? image.slice(1) : image;
+    return `${API_URL}/${cleanPath}`;
+  };
 
   const fetchReports = async () => {
     try {
@@ -60,7 +60,7 @@ const ContentQuanLyBaoCao = () => {
       if (!res.ok) {
         throw new Error(
           data.message ||
-            "Không lấy được danh sách báo cáo"
+          "Không lấy được danh sách báo cáo"
         );
       }
 
@@ -73,7 +73,7 @@ const ContentQuanLyBaoCao = () => {
       console.log(error);
       alert(
         error.message ||
-          "Lỗi khi tải danh sách báo cáo"
+        "Lỗi khi tải danh sách báo cáo"
       );
       setReports([]);
     } finally {
@@ -224,14 +224,19 @@ const ContentQuanLyBaoCao = () => {
     phanHoiAdmin,
     trangThai,
   }) => {
+    if (!phanHoiAdmin?.trim()) {
+      alert(
+        "Vui lòng nhập nội dung phản hồi"
+      );
+      return;
+    }
     try {
       if (!selectedReport?._id) return;
 
       const res = await fetch(
         `${API_URL}/quantrivien/${encodeURIComponent(
           slug
-        )}/quanlybaocao/${
-          selectedReport._id
+        )}/quanlybaocao/${selectedReport._id
         }/phanhoi`,
         {
           method: "PATCH",
@@ -251,7 +256,7 @@ const ContentQuanLyBaoCao = () => {
       if (!res.ok) {
         throw new Error(
           data.message ||
-            "Phản hồi thất bại"
+          "Phản hồi thất bại"
         );
       }
 
@@ -273,7 +278,7 @@ const ContentQuanLyBaoCao = () => {
 
       alert(
         error.message ||
-          "Phản hồi báo cáo thất bại"
+        "Phản hồi báo cáo thất bại"
       );
     }
   };
@@ -716,13 +721,25 @@ const ReplyReportModal = ({
           </button>
 
           <button
-            className="baocao-btn-submit"
-            onClick={() =>
+            className={`baocao-btn-submit ${!phanHoiAdmin.trim()
+              ? "disabled"
+              : ""
+              }`}
+            disabled={!phanHoiAdmin.trim()}
+            onClick={() => {
+              if (!phanHoiAdmin.trim()) {
+                alert(
+                  "Vui lòng nhập nội dung phản hồi"
+                );
+                return;
+              }
+
               onSubmit({
-                phanHoiAdmin,
+                phanHoiAdmin:
+                  phanHoiAdmin.trim(),
                 trangThai,
-              })
-            }
+              });
+            }}
           >
             <Send size={16} />
             Gửi phản hồi

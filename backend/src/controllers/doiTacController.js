@@ -4,6 +4,8 @@ const DiaDiem = require('../models/DiaDiem');
 const ThanhToan = require('../models/ThanhToan');
 const DanhGiaDiaDiem = require('../models/DanhGiaDiaDiem');
 const LoiMoi = require('../models/LoiMoi');
+const fs = require('fs');
+const path = require('path');
 
 class doiTacController {
   async dangKyHuongDanVien(req, res) {
@@ -72,11 +74,67 @@ class doiTacController {
         return res.status(400).json({ message: 'Thiếu ảnh selfie' });
       }
 
-      const anhCCCDMatTruoc = `/img/huongdanvien/${req.files.anhCCCDMatTruoc[0].filename}`;
-      const anhCCCDMatSau = `/img/huongdanvien/${req.files.anhCCCDMatSau[0].filename}`;
-      const anhKhuonMat = `/img/huongdanvien/${req.files.anhKhuonMat[0].filename}`;
+      const frontendPublicPath = path.join(
+        __dirname,
+        '../../frontend/public/img/huongdanvien'
+      );
+
+      if (!fs.existsSync(frontendPublicPath)) {
+        fs.mkdirSync(frontendPublicPath, { recursive: true });
+      }
+
+      const folders = fs.readdirSync(frontendPublicPath);
+
+      const numbers = folders
+        .filter(name => name.startsWith('huongdanvien'))
+        .map(name => {
+          const num = parseInt(name.replace('huongdanvien', ''));
+          return isNaN(num) ? 0 : num;
+        });
+
+      const nextNumber = numbers.length > 0
+        ? Math.max(...numbers) + 1
+        : 11;
+
+      const folderName = `huongdanvien${nextNumber}`;
+
+      const newFolderPath = path.join(frontendPublicPath, folderName);
+
+      if (!fs.existsSync(newFolderPath)) {
+        fs.mkdirSync(newFolderPath, { recursive: true });
+      }
+
+      const moveFile = (file, newName) => {
+        if (!file) return '';
+
+        const ext = path.extname(file.originalname);
+
+        const finalName = `${newName}${ext}`;
+
+        const finalPath = path.join(newFolderPath, finalName);
+
+        fs.renameSync(file.path, finalPath);
+
+        return `img/huongdanvien/${folderName}/${finalName}`;
+      };
+
+      const anhCCCDMatTruoc = moveFile(
+        req.files.anhCCCDMatTruoc?.[0],
+        'cccd_truoc'
+      );
+
+      const anhCCCDMatSau = moveFile(
+        req.files.anhCCCDMatSau?.[0],
+        'cccd_sau'
+      );
+
+      const anhKhuonMat = moveFile(
+        req.files.anhKhuonMat?.[0],
+        'face'
+      );
+
       const lyLichTuPhap = req.files?.lyLichTuPhap?.[0]
-        ? `/img/huongdanvien/${req.files.lyLichTuPhap[0].filename}`
+        ? moveFile(req.files.lyLichTuPhap[0], 'lylich')
         : '';
 
       let dsDiaDiem = [];
@@ -141,9 +199,9 @@ class doiTacController {
 
         image: anhKhuonMat,
         thuMucAnh: 'img/huongdanvien',
-        anhCCCDMatTruoc,
-        anhCCCDMatSau,
-        anhKhuonMat,
+        anhCCCDMatTruoc: anhCCCDMatTruoc,
+        anhCCCDMatSau: anhCCCDMatSau,
+        anhKhuonMat: anhKhuonMat,
         lyLichTuPhap,
 
         verificationStatus: 'cho_xac_thuc',
@@ -259,7 +317,7 @@ class doiTacController {
           ]
         });
 
-      
+
       const allPending = Object.values(
         loiMois.reduce((acc, item) => {
           acc[item.nhomId?._id] = item;
@@ -404,7 +462,7 @@ class doiTacController {
 
       await NguoiDung.findByIdAndUpdate(doiTac.nguoiDung, {
         hoTen: doiTac.hoTen,
-        image: doiTac.image
+        image: doiTac.anhKhuonMat || doiTac.image
       });
 
       return res.status(200).json({

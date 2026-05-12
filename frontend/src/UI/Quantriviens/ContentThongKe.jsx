@@ -160,18 +160,32 @@ const ContentThongKe = ({ slug }) => {
         <div className="bar-chart-container">
           <div className="bar-chart-placeholder">
             {(data.doanhThu7Ngay || []).map((item, idx) => {
-              const percent = `${Math.max((Number(item.doanhThu || 0) / maxRevenue) * 100, 10)}%`;
+              const revenue = Number(item.doanhThu || 0);
 
+              const height =
+                revenue <= 0
+                  ? 0
+                  : Math.max((revenue / maxRevenue) * 220, 12);
               return (
-                <div key={idx} className="bar-group" title={`${item.ngay}: ${formatMoney(item.doanhThu)}`}>
+                <div key={idx} className="bar-group">
+                  <span className="bar-value">
+                    {formatCompactMoney(revenue)}
+                  </span>
+
                   <div
                     className="bar"
                     style={{
-                      height: percent,
-                      backgroundColor: item.active ? '#22c55e' : '#276749'
+                      height: `${height}px`,
+                      display: revenue <= 0 ? 'none' : 'block',
+                      background: item.active
+                        ? '#22c55e'
+                        : '#14532d'
                     }}
-                  ></div>
-                  <span className="bar-day">{item.thu || item.ngay}</span>
+                  />
+
+                  <span className="bar-day">
+                    {item.thu || item.ngay}
+                  </span>
                 </div>
               );
             })}
@@ -185,7 +199,6 @@ const ContentThongKe = ({ slug }) => {
         <div className="transactions-table">
           <div className="table-header">
             <h3>Giao dịch gần đây</h3>
-            <button className="link-text-green">Xem tất cả</button>
           </div>
 
           <div className="search-box-container">
@@ -203,7 +216,7 @@ const ContentThongKe = ({ slug }) => {
             <thead>
               <tr>
                 <th>KHÁCH HÀNG</th>
-                <th>DỊCH VỤ</th>
+                <th>Đối Tác</th>
                 <th>NGÀY</th>
                 <th>SỐ TIỀN</th>
                 <th>TRẠNG THÁI</th>
@@ -264,18 +277,12 @@ const ContentThongKe = ({ slug }) => {
                     </div>
                     <span className="partner-name">{p.hoTen}</span>
                   </div>
-
-                  <button className="btn-action-circle">➜</button>
                 </div>
               ))
             ) : (
               <p>Chưa có đối tác mới</p>
             )}
           </div>
-
-          <button className="btn-full-width">
-            XEM TẤT CẢ ĐỐI TÁC ({data.cards?.tongDoiTac || 0})
-          </button>
         </div>
       </div>
     </div>

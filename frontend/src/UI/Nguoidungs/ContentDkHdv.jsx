@@ -4,13 +4,15 @@ import { toast } from "react-toastify";
 const API_TINH = "https://provinces.open-api.vn/api";
 
 const MIEN_TRUNG_KEYWORDS = [
+  // Bắc Trung Bộ
   "thanh hoa",
   "nghe an",
   "ha tinh",
   "quang binh",
   "quang tri",
   "thua thien hue",
-  "hue",
+
+  // Nam Trung Bộ
   "da nang",
   "quang nam",
   "quang ngai",
@@ -19,6 +21,13 @@ const MIEN_TRUNG_KEYWORDS = [
   "khanh hoa",
   "ninh thuan",
   "binh thuan",
+
+  // Tây Nguyên
+  "kon tum",
+  "gia lai",
+  "dak lak",
+  "dak nong",
+  "lam dong",
 ];
 
 const normalizeVietnamese = (str = "") =>

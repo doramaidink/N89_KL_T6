@@ -158,12 +158,12 @@ const ContentDonDangKy = () => {
         prev.map((item) =>
           item._id === id
             ? {
-                ...item,
-                trangThaiHoSo: 'da_duyet',
-                status: 'ĐÃ DUYỆT',
-                userRole: 'doiTac',
-                ngayDuyet: new Date().toISOString(),
-              }
+              ...item,
+              trangThaiHoSo: 'da_duyet',
+              status: 'ĐÃ DUYỆT',
+              userRole: 'doiTac',
+              ngayDuyet: new Date().toISOString(),
+            }
             : item
         )
       );
@@ -176,6 +176,18 @@ const ContentDonDangKy = () => {
           userRole: 'doiTac',
           ngayDuyet: new Date().toISOString(),
         }));
+      }
+      if (selectedApplicant?.nguoiDung) {
+        const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+        if (currentUser.id === selectedApplicant.nguoiDung) {
+          currentUser.image =
+            selectedApplicant.anhKhuonMat || selectedApplicant.image;
+
+          currentUser.vaiTro = "doiTac";
+
+          localStorage.setItem("user", JSON.stringify(currentUser));
+        }
       }
 
       alert('Đã duyệt hồ sơ và chuyển tài khoản thành đối tác');
@@ -291,7 +303,7 @@ const ContentDonDangKy = () => {
                         {item.image ? (
                           <img
                             className="ddk-avatar-img"
-                            src={getImageUrl(item.image)}
+                            src={getImageUrl(item.anhKhuonMat || item.image)}
                             alt={item.name}
                           />
                         ) : (
@@ -312,13 +324,12 @@ const ContentDonDangKy = () => {
 
                     <td>
                       <span
-                        className={`ddk-status-badge ${
-                          item.status === 'ĐÃ DUYỆT'
-                            ? 'status-ok'
-                            : item.status === 'TỪ CHỐI'
+                        className={`ddk-status-badge ${item.status === 'ĐÃ DUYỆT'
+                          ? 'status-ok'
+                          : item.status === 'TỪ CHỐI'
                             ? 'status-no'
                             : 'status-wait'
-                        }`}
+                          }`}
                       >
                         <span className="ddk-dot"></span>
                         {item.status}
@@ -405,8 +416,11 @@ const CvModal = ({ open, data, onClose, onApprove, onRejectDelete }) => {
 
         <div className="ddk-cv-header">
           <div className="ddk-cv-profile">
-            {data.image ? (
-              <img src={getImageUrl(data.image)} alt={data.hoTen} />
+            {(data.anhKhuonMat || data.image) ? (
+              <img
+                src={getImageUrl(data.anhKhuonMat || data.image)}
+                alt={data.hoTen}
+              />
             ) : (
               <div className="ddk-cv-avatar">
                 {data.avatar || getInitials(data.hoTen)}
@@ -417,13 +431,12 @@ const CvModal = ({ open, data, onClose, onApprove, onRejectDelete }) => {
               <h2>{data.hoTen}</h2>
               <p>{data.tinhDangKy}</p>
               <span
-                className={`ddk-cv-status ${
-                  data.status === 'ĐÃ DUYỆT'
-                    ? 'ok'
-                    : data.status === 'TỪ CHỐI'
+                className={`ddk-cv-status ${data.status === 'ĐÃ DUYỆT'
+                  ? 'ok'
+                  : data.status === 'TỪ CHỐI'
                     ? 'no'
                     : 'wait'
-                }`}
+                  }`}
               >
                 {data.status}
               </span>

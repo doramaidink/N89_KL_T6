@@ -3,6 +3,7 @@ const NguoiDung = require('../models/NguoiDung');
 const DoiTac = require('../models/DoiTac');
 const DiaDiem = require('../models/DiaDiem');
 const BaoCao = require('../models/BaoCao');
+const ThanhToan = require('../models/ThanhToan');
 function formatVeVao(value) {
   if (value === null || value === undefined || value === '') {
     return 'Miễn phí';
@@ -91,20 +92,28 @@ class QuanTriVienController {
         });
 
         sevenDays.push({
-          day: start.toLocaleDateString('vi-VN', { weekday: 'long' }),
-          date: start.toLocaleDateString('vi-VN'),
-          users: soNguoiDungMoi,
-          partners: soDoiTacMoi,
-          total: soNguoiDungMoi + soDoiTacMoi,
+          thu: start.toLocaleDateString('vi-VN', { weekday: 'short' }),
+          ngay: start.toLocaleDateString('vi-VN'),
+          doanhThu: soNguoiDungMoi + soDoiTacMoi,
+          active: i === 6
         });
       }
-
+      const tongDoanhThuThang = sevenDays.reduce(
+        (sum, item) => sum + item.doanhThu,
+        0
+      );
+      const giaoDichGanDay = await ThanhToan.find({})
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .populate('nguoiGuiId', 'hoTen')
+        .populate('doiTacId', 'hoTen');
       return res.status(200).json({
         admin: {
           hoTen: admin.hoTen,
           email: admin.email,
           slug: admin.slug,
         },
+
         cards: {
           tongNguoiDung,
           tongDoiTac,
@@ -114,8 +123,36 @@ class QuanTriVienController {
           donDangKyChoDuyet,
           diaDiemChoDuyet,
         },
-        chart: sevenDays,
+
+        doanhThu7Ngay: sevenDays,
+
+        tongDoanhThuThang,
+
         doiTacMoi,
+        giaoDichGanDay: giaoDichGanDay.map((item) => ({
+          _id: item._id,
+
+          khachHang:
+            item.nguoiGuiId?.hoTen || 'Người dùng',
+
+          dichVu:
+            item.guideName ||
+            item.doiTacId?.hoTen ||
+            'Dịch vụ',
+
+          ngay: item.createdAt
+            ? new Date(item.createdAt).toLocaleDateString('vi-VN')
+            : '---',
+
+          soTien: item.amount || 0,
+
+          trangThai:
+            item.status === 'paid'
+              ? 'THÀNH CÔNG'
+              : item.status === 'pending'
+                ? 'ĐANG XỬ LÝ'
+                : 'THẤT BẠI'
+        }))
       });
     } catch (error) {
       console.log(error);
@@ -276,61 +313,61 @@ class QuanTriVienController {
     }
   }
   async PhanHoiBaoCao(req, res) {
-  try {
-    const { slug, id } = req.params;
-    const { phanHoiAdmin, trangThai } = req.body;
+    try {
+      const { slug, id } = req.params;
+      const { phanHoiAdmin, trangThai } = req.body;
 
-    const admin = await QuanTriVien.findOne({ slug });
-    if (!admin) {
-      return res.status(404).json({
-        message: 'Không tìm thấy quản trị viên'
-      });
-    }
-
-    const baoCao = await BaoCao.findByIdAndUpdate(
-      id,
-      {
-        phanHoiAdmin: phanHoiAdmin || '',
-        trangThai: trangThai || 'da_giai_quyet',
-      },
-      { new: true }
-    ).populate('nguoiDung', 'hoTen email image');
-
-    if (!baoCao) {
-      return res.status(404).json({
-        message: 'Không tìm thấy báo cáo'
-      });
-    }
-
-    return res.status(200).json({
-      message: 'Phản hồi báo cáo thành công',
-      report: {
-        id: `#REP-${String(baoCao._id).slice(-6).toUpperCase()}`,
-        _id: baoCao._id,
-        user: baoCao.nguoiDung?.hoTen || 'Ẩn danh',
-        email: baoCao.nguoiDung?.email || '',
-        type: baoCao.loaiBaoCao,
-        viTri: baoCao.viTri || '',
-        desc: baoCao.moTa,
-        image: baoCao.hinhAnh || '',
-        phanHoiAdmin: baoCao.phanHoiAdmin || '',
-        createdAt: baoCao.createdAt,
-        rawStatus: baoCao.trangThai,
-        status:
-          baoCao.trangThai === 'dang_xu_ly'
-            ? 'ĐANG XỬ LÝ'
-            : baoCao.trangThai === 'da_giai_quyet'
-            ? 'ĐÃ XỬ LÝ'
-            : 'TỪ CHỐI',
+      const admin = await QuanTriVien.findOne({ slug });
+      if (!admin) {
+        return res.status(404).json({
+          message: 'Không tìm thấy quản trị viên'
+        });
       }
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: 'Lỗi server khi phản hồi báo cáo'
-    });
+
+      const baoCao = await BaoCao.findByIdAndUpdate(
+        id,
+        {
+          phanHoiAdmin: phanHoiAdmin || '',
+          trangThai: trangThai || 'da_giai_quyet',
+        },
+        { new: true }
+      ).populate('nguoiDung', 'hoTen email image');
+
+      if (!baoCao) {
+        return res.status(404).json({
+          message: 'Không tìm thấy báo cáo'
+        });
+      }
+
+      return res.status(200).json({
+        message: 'Phản hồi báo cáo thành công',
+        report: {
+          id: `#REP-${String(baoCao._id).slice(-6).toUpperCase()}`,
+          _id: baoCao._id,
+          user: baoCao.nguoiDung?.hoTen || 'Ẩn danh',
+          email: baoCao.nguoiDung?.email || '',
+          type: baoCao.loaiBaoCao,
+          viTri: baoCao.viTri || '',
+          desc: baoCao.moTa,
+          image: baoCao.hinhAnh || '',
+          phanHoiAdmin: baoCao.phanHoiAdmin || '',
+          createdAt: baoCao.createdAt,
+          rawStatus: baoCao.trangThai,
+          status:
+            baoCao.trangThai === 'dang_xu_ly'
+              ? 'ĐANG XỬ LÝ'
+              : baoCao.trangThai === 'da_giai_quyet'
+                ? 'ĐÃ XỬ LÝ'
+                : 'TỪ CHỐI',
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: 'Lỗi server khi phản hồi báo cáo'
+      });
+    }
   }
-}
 
   async ThongBaoHeThong(req, res) {
     return res.status(200).json([]);
