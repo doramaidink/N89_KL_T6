@@ -23,6 +23,10 @@ const DiaDiem = new Schema({
     enum: ['cho_duyet', 'da_duyet', 'tu_choi'],
     default: 'cho_duyet'
   },
+  toaDo: {
+    lat: Number,
+    lng: Number
+  }
 }, {
   timestamps: true,
 });

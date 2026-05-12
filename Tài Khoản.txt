@@ -1,0 +1,21 @@
+Quản trị viên:
+-----1------
+tk:admin@backpacking.vn
+mk:adminbackpacking
+-----2-----
+tk:admin1@backpacking.vn
+mk:adminbackpacking
+----3-------
+tk: admin2@backpacking.vn
+mk:adminbackpacking
+
+ĐỐi tác:
+----1-----
+tk:tranviethoanghao@gmail.com
+mk:123456
+----2-----
+tk:voguocthanh@gmail.com
+mk:123456
+----3----
+tk:ketlac2004@gmail.com
+mk:123456

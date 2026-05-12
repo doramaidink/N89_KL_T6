@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import io from "socket.io-client";
+import MapCheckin from "../../Pages/Quantriviens/MapCheckin";
 
 const ContentChitietdiadiem = ({ user = null }) => {
   const { slug } = useParams();
@@ -24,6 +25,7 @@ const ContentChitietdiadiem = ({ user = null }) => {
 
   const [openJoinModal, setOpenJoinModal] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [openMapModal, setOpenMapModal] = useState(false);
   useEffect(() => {
 
     const shouldOpen = localStorage.getItem("autoOpenCreateGroup");
@@ -356,8 +358,11 @@ const ContentChitietdiadiem = ({ user = null }) => {
                 >
                   {loadingGuides ? "Đang tải..." : "Thuê Hướng Dẫn Viên"}
                 </button>
-                <button className="btn-hero btn-hero-outline">
-                  Chia sẻ địa điểm
+                <button
+                  className="btn-hero btn-hero-outline"
+                  onClick={() => setOpenMapModal(true)}
+                >
+                  Xem địa chỉ
                 </button>
               </div>
             </div>
@@ -842,6 +847,79 @@ const ContentChitietdiadiem = ({ user = null }) => {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {/* POPUP MAP ĐỊA CHỈ */}
+      {openMapModal && (
+        <div
+          className="guide-place-modal-overlay"
+          onClick={() => setOpenMapModal(false)}
+        >
+          <div
+            className="guide-place-modal"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "900px",
+              width: "95%",
+            }}
+          >
+            <div className="guide-place-header">
+              <div>
+                <span className="guide-place-subtitle">
+                  BẢN ĐỒ ĐỊA ĐIỂM
+                </span>
+
+                <h2>{diaDiem.tenDiaDiem}</h2>
+
+                <p>
+                  {diaDiem.khuVuc}
+                </p>
+              </div>
+
+              <button
+                className="guide-place-close"
+                onClick={() => setOpenMapModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div
+              style={{
+                marginTop: "20px",
+                borderRadius: "15px",
+                overflow: "hidden",
+              }}
+            >
+              {diaDiem?.toaDo?.lat && diaDiem?.toaDo?.lng ? (
+                <MapCheckin
+                  userCheckin={{
+                    lat: Number(diaDiem.toaDo.lat),
+                    lng: Number(diaDiem.toaDo.lng),
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    padding: "30px",
+                    textAlign: "center",
+                    background: "#f5f5f5",
+                  }}
+                >
+                  Địa điểm này chưa có tọa độ bản đồ.
+                </div>
+              )}
+            </div>
+            <div
+              style={{
+                marginTop: "15px",
+                padding: "15px",
+                background: "#f5f5f5",
+                borderRadius: "12px",
+              }}
+            >
+              <strong>Khu vực:</strong> {diaDiem.khuVuc}
+            </div>
           </div>
         </div>
       )}
