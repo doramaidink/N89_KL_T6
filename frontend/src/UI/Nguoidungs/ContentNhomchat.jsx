@@ -55,6 +55,7 @@ const ContentNhomchat = ({ user }) => {
   const [currentInput, setCurrentInput] = useState("");
   const [selectedImages, setSelectedImages] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
   const chatEndRef = useRef(null);
 
   //checkin-checkout time
@@ -373,12 +374,7 @@ const ContentNhomchat = ({ user }) => {
           <div className="sidebar-item"><span>🖼</span> Kho ảnh nhóm</div>
         </div>
 
-        <div className="sidebar-section">
-          <p className="sidebar-label">THÔNG TIN CHUYẾN ĐI</p>
-          <div className="sidebar-item"><span>📍</span> Điểm hẹn</div>
-          <div className="sidebar-item"><span>📝</span> Mô tả chuyến đi</div>
-          <div className="sidebar-item"><span>📋</span> Cam kết</div>
-        </div>
+
       </div>
 
       {/* ===== CHAT MAIN CONTENT ===== */}
@@ -400,7 +396,12 @@ const ContentNhomchat = ({ user }) => {
                     🌟 HDV
                   </span>
                 )}
-                <div className="bubble-nhomchat">
+                <div
+                  className={`bubble-nhomchat ${Array.isArray(m.hinhAnh) && m.hinhAnh.length > 0
+                    ? "bubble-image-only"
+                    : ""
+                    }`}
+                >
                   {m.noiDung && <div>{m.noiDung}</div>}
 
                   {Array.isArray(m.hinhAnh) && m.hinhAnh.length > 0 && (
@@ -411,6 +412,7 @@ const ContentNhomchat = ({ user }) => {
                           src={img}
                           alt="Ảnh chat"
                           className="chat-image-item"
+                          onClick={() => setSelectedImage(img)}
                         />
                       ))}
                     </div>
@@ -605,6 +607,26 @@ const ContentNhomchat = ({ user }) => {
             </button>
           </div>
 
+        </div>
+      )}
+      {selectedImage && (
+        <div
+          className="image-modal-overlay"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button
+            className="close-image-modal"
+            onClick={() => setSelectedImage(null)}
+          >
+            ×
+          </button>
+
+          <img
+            src={selectedImage}
+            alt="Full"
+            className="full-image-modal"
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
 

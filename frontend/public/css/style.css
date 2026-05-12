@@ -5677,19 +5677,129 @@ input {
   color: white;
   cursor: pointer;
 }
-
+.bubble-image-only {
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
 .chat-image-list {
-  margin-top: 8px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
+}
+
+.bubble-nhomchat img {
+  border-radius: 14px !important;
 }
 
 .chat-image-item {
-  width: 160px;
-  max-height: 160px;
-  object-fit: cover;
-  border-radius: 12px;
+  width: 260px !important;
+  height: 260px !important;
+
+  min-width: 260px !important;
+  min-height: 260px !important;
+
+  max-width: 260px !important;
+  max-height: 260px !important;
+
+  border-radius: 16px !important;
+
+  object-fit: cover !important;
+
+  display: block !important;
+
+  overflow: hidden !important;
+
+  border: none !important;
+
+  padding: 0 !important;
+
+  background: transparent !important;
+}
+
+.chat-image-item:hover {
+  transform: scale(1.02);
+  opacity: 0.95;
+}
+.image-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 999999;
+
+  animation: fadeInImage 0.2s ease;
+}
+
+.full-image-modal {
+  max-width: 90vw;
+  max-height: 90vh;
+
+  border-radius: 16px;
+
+  object-fit: contain;
+
+  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+
+  animation: zoomImage 0.2s ease;
+}
+
+.close-image-modal {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+
+  width: 45px;
+  height: 45px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(255,255,255,0.15);
+
+  color: white;
+
+  font-size: 30px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.close-image-modal:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.1);
+}
+
+.chat-image-item {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.chat-image-item:hover {
+  transform: scale(1.03);
+}
+
+@keyframes fadeInImage {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomImage {
+  from {
+    transform: scale(0.8);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 
 /*------------------------------------------ContentNhomchat-----------------*/
