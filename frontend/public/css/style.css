@@ -14724,6 +14724,447 @@ img {
   cursor: pointer;
   border: 1px dashed #10b981;
 }
+.qldd-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.qldd-modal {
+  position: relative;
+  width: min(920px, 96vw);
+  max-height: 94vh;
+  overflow-y: auto;
+  border-radius: 14px;
+  background: #050505;
+  color: #ffffff;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.75);
+}
+
+.qldd-modal-preview {
+  padding: 22px;
+  background: #050505;
+  color: #ffffff;
+  border: 1px solid #171717;
+}
+
+.qldd-preview-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 20;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.qldd-preview-close:hover {
+  background: #1f2937;
+}
+
+.qldd-preview-header {
+  padding-right: 46px;
+  margin-bottom: 14px;
+}
+
+.qldd-preview-header h2 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  line-height: 1.2;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.qldd-preview-header p {
+  margin: 0;
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 800px;
+}
+
+.qldd-preview-gallery {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+  margin: 16px 0 16px;
+}
+
+.qldd-preview-main-img {
+  height: 305px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #18181b;
+}
+
+.qldd-preview-side-imgs {
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.qldd-preview-sub-img {
+  height: 95px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #18181b;
+}
+
+.qldd-preview-main-img img,
+.qldd-preview-sub-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.qldd-preview-status {
+  margin: 8px 0 16px;
+}
+
+.qldd-preview-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.qldd-preview-badge.active {
+  background: #064e3b;
+  color: #d1fae5;
+}
+
+.qldd-preview-badge.pending {
+  background: #3f2f06;
+  color: #fde68a;
+}
+
+.qldd-preview-badge.rejected {
+  background: #262626;
+  color: #ffffff;
+}
+
+.qldd-preview-info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 16px 0 22px;
+}
+
+.qldd-preview-info-grid .qldd-info-card {
+  background: #262626;
+  border-radius: 13px;
+  padding: 14px;
+  color: #ffffff;
+  min-height: 78px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.qldd-preview-info-grid .qldd-info-card svg {
+  color: #ffffff;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.qldd-preview-info-grid .qldd-info-card span {
+  display: block;
+  color: #ffffff;
+  opacity: 0.85;
+  font-size: 11px;
+  margin-bottom: 7px;
+}
+
+.qldd-preview-info-grid .qldd-info-card strong {
+  display: block;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.qldd-preview-section {
+  margin-top: 18px;
+}
+
+.qldd-preview-section h4 {
+  margin: 0 0 10px;
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.qldd-preview-section p {
+  margin: 0 0 10px;
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.qldd-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.qldd-tags span {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #262626;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.qldd-modal-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+  padding: 16px 0 0;
+  border-top: 1px solid #2a2a2a;
+  background: #050505;
+}
+
+.qldd-btn-cancel,
+.qldd-btn-save {
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.qldd-btn-cancel {
+  background: #ef4444;
+  color: white;
+}
+
+.qldd-btn-save {
+  background: #16a34a;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Form chỉnh sửa trong modal */
+.qldd-modal-preview .qldd-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.qldd-modal-preview .qldd-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 13px;
+}
+
+.qldd-modal-preview .qldd-form-group label {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.qldd-modal-preview .qldd-form-group input,
+.qldd-modal-preview .qldd-form-group select,
+.qldd-modal-preview .qldd-form-group textarea {
+  width: 100%;
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 11px 12px;
+  outline: none;
+  font-size: 13px;
+}
+
+.qldd-modal-preview .qldd-form-group input:focus,
+.qldd-modal-preview .qldd-form-group select:focus,
+.qldd-modal-preview .qldd-form-group textarea:focus {
+  border-color: #10b981;
+}
+
+.qldd-modal-preview .qldd-form-group textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+/* Xóa cảm giác bảng bị chui lên dưới modal */
+.quanlydiadiem-container:has(.qldd-modal-overlay) {
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .qldd-modal {
+    width: 96vw;
+    max-height: 92vh;
+  }
+
+  .qldd-modal-preview {
+    padding: 16px;
+  }
+
+  .qldd-preview-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .qldd-preview-side-imgs {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: none;
+  }
+
+  .qldd-preview-sub-img {
+    height: 82px;
+  }
+
+  .qldd-preview-main-img {
+    height: 230px;
+  }
+
+  .qldd-preview-info-grid,
+  .qldd-modal-preview .qldd-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.qldd-edit-image-section {
+  margin-bottom: 18px;
+}
+
+.qldd-edit-image-section > label {
+  display: block;
+  color: white;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.qldd-edit-main-image {
+  position: relative;
+  display: block;
+  height: 260px;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #18181b;
+  border: 1px solid #2a2a2a;
+}
+
+.qldd-edit-main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.qldd-edit-main-image span {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.qldd-edit-sub-images {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.qldd-edit-sub-image,
+.qldd-add-sub-image {
+  height: 95px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #18181b;
+  border: 1px solid #2a2a2a;
+  position: relative;
+}
+
+.qldd-edit-sub-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.qldd-edit-sub-image button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 999px;
+  background: #ef4444;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.qldd-add-sub-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+  font-size: 36px;
+  font-weight: 900;
+  cursor: pointer;
+  border: 1px dashed #10b981;
+}
+
+.qldd-empty-upload {
+  width: 100%;
+  height: 240px;
+  border: 2px dashed #00d084;
+  border-radius: 18px;
+  background: #111318;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.qldd-empty-upload:hover {
+  border-color: #00ffae;
+  background: #161a20;
+}
+
+.qldd-upload-plus {
+  font-size: 54px;
+  font-weight: 700;
+  color: #00d084;
+  line-height: 1;
+}
+
+.qldd-empty-upload span {
+  color: #d1d5db;
+  font-size: 15px;
+  font-weight: 600;
+}
 /*------------------------------ContentQuanLyDiaDiem--------------------------------------------*/
 
 
