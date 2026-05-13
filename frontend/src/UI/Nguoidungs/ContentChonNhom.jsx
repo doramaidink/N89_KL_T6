@@ -34,9 +34,13 @@ const ContentChonNhom = () => {
 
         // 3. LỌC: Chỉ giữ lại các nhóm thuộc địa điểm này
         const filteredGroups = res.data.nhoms.filter(group => {
-          // Kiểm tra diaDiem của nhóm có khớp với địa điểm đang thuê không
           const groupPlaceId = group.diaDiem?._id || group.diaDiem;
-          return String(groupPlaceId) === String(selectedPlaceId);
+
+          return (
+            String(groupPlaceId) === String(selectedPlaceId)
+            &&
+            !group.thanhToan
+          );
         });
 
         setMyGroups(filteredGroups);

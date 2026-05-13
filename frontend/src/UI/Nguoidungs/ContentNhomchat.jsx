@@ -72,6 +72,8 @@ const ContentNhomchat = ({ user }) => {
   const [checkinType, setCheckinType] = useState("auto");
   const [generatedCode, setGeneratedCode] = useState("");
   const [savedCheckinCode, setSavedCheckinCode] = useState("");
+  const [savedCheckinType, setSavedCheckinType] = useState("");
+  const [isCheckedOut, setIsCheckedOut] = useState(false);
   const [inputCheckoutCode, setInputCheckoutCode] = useState(["", "", "", "", "", ""]);
   const allImages = messages.flatMap((msg) =>
     Array.isArray(msg.hinhAnh) ? msg.hinhAnh : []
@@ -116,7 +118,8 @@ const ContentNhomchat = ({ user }) => {
         role: user.vaiTro === "doiTac" ? "hdv" : "user",
         lat: pos.coords.latitude,
         lng: pos.coords.longitude,
-        code: finalCode
+        code: finalCode,
+        checkinType
       };
 
       console.log("🚀 CHECKIN PAYLOAD:", payload);
@@ -137,6 +140,8 @@ const ContentNhomchat = ({ user }) => {
           setGeneratedCode(code);
         }
         alert("Checkin thành công");
+        setSavedCheckinCode(finalCode);
+        setSavedCheckinType(checkinType);
         // CHỈ đóng modal khi tự nhập mã
         if (checkinType === "manual") {
           setShowCheckinModal(false);
@@ -231,7 +236,18 @@ const ContentNhomchat = ({ user }) => {
             ) {
 
               setSavedCheckinCode(record.userCode);
-              setGeneratedCode(record.userCode);
+              setSavedCheckinType(record.userCheckinType);
+
+              if (record.userCheckinType === "auto") {
+
+                setGeneratedCode(record.userCode);
+
+              } else {
+
+                setInputCheckinCode(
+                  record.userCode.split("")
+                );
+              }
             }
           }
 
@@ -244,7 +260,39 @@ const ContentNhomchat = ({ user }) => {
             ) {
 
               setSavedCheckinCode(record.hdvCode);
-              setGeneratedCode(record.hdvCode);
+              setSavedCheckinType(record.hdvCheckinType);
+
+              if (record.hdvCheckinType === "auto") {
+
+                setGeneratedCode(record.hdvCode);
+
+              } else {
+
+                setInputCheckinCode(
+                  record.hdvCode.split("")
+                );
+              }
+            }
+          }
+          // USER
+          if (
+            record.userId?.toString() ===
+            (user._id || user.id)?.toString()
+          ) {
+
+            if (record.userCheckout) {
+              setIsCheckedOut(true);
+            }
+          }
+
+          // HDV
+          if (
+            record.hdvId?.toString() ===
+            (user._id || user.id)?.toString()
+          ) {
+
+            if (record.hdvCheckout) {
+              setIsCheckedOut(true);
             }
           }
         }
@@ -553,8 +601,18 @@ const ContentNhomchat = ({ user }) => {
               onClick={() => {
 
                 if (savedCheckinCode) {
-                  setGeneratedCode(savedCheckinCode);
-                  setCheckinType("auto");
+
+                  setCheckinType(savedCheckinType);
+
+                  if (savedCheckinType === "auto") {
+                    setGeneratedCode(savedCheckinCode);
+                  }
+
+                  if (savedCheckinType === "manual") {
+                    setInputCheckinCode(
+                      savedCheckinCode.split("")
+                    );
+                  }
                 }
 
                 setShowCheckinModal(true);
@@ -565,7 +623,15 @@ const ContentNhomchat = ({ user }) => {
             <button
               className={`btn-checkout ${!canCheckOut ? "disabled-btn" : ""}`}
               disabled={!canCheckOut}
-              onClick={() => setShowCheckoutModal(true)}
+              onClick={() => {
+
+                if (isCheckedOut) {
+                  alert("Bạn đã hoàn thành chuyến đi");
+                  return;
+                }
+
+                setShowCheckoutModal(true);
+              }}
             >
               <span>⬅️</span>CHECK OUT
             </button>
@@ -670,6 +736,11 @@ const ContentNhomchat = ({ user }) => {
               <button
                 className={checkinType === "auto" ? "active-type" : ""}
                 onClick={() => setCheckinType("auto")}
+
+                disabled={
+                  !!savedCheckinCode &&
+                  savedCheckinType === "manual"
+                }
               >
                 Hệ thống tự tạo mã
               </button>
@@ -689,52 +760,59 @@ const ContentNhomchat = ({ user }) => {
             </div>
 
             {/* MANUAL */}
-            {checkinType === "manual" && (
+            {(
+              checkinType === "manual" ||
+              savedCheckinType === "manual"
+            ) && (
 
-              <div className="code-input-group">
+                <div className="code-input-group">
 
-                {inputCheckinCode.map((digit, index) => (
+                  {inputCheckinCode.map((digit, index) => (
 
-                  <input
-                    key={index}
-                    type="text"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handleChangeCode(e, index)}
-                    className="code-input-box"
-                  />
+                    <input
+                      key={index}
+                      type="text"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleChangeCode(e, index)}
+                      className="code-input-box"
+                      disabled={!!savedCheckinCode}
+                    />
 
-                ))}
+                  ))}
 
-              </div>
+                </div>
 
-            )}
+              )}
 
             {/* AUTO */}
-            {checkinType === "auto" && (
+            {(
+              checkinType === "auto" ||
+              savedCheckinType === "auto"
+            ) && (
 
-              <div className="auto-code-note">
+                <div className="auto-code-note">
 
-                {!generatedCode ? (
+                  {!generatedCode ? (
 
-                  <p>Hệ thống sẽ tự tạo mã checkin cho bạn vui lòng bấm xác nhận</p>
+                    <p>Hệ thống sẽ tự tạo mã checkin cho bạn vui lòng bấm xác nhận</p>
 
-                ) : (
+                  ) : (
 
-                  <>
-                    <p>Mã checkin của bạn</p>
+                    <>
+                      <p>Mã checkin của bạn</p>
 
-                    <div className="generated-code-box">
-                      {generatedCode}
-                    </div>
-                  </>
+                      <div className="generated-code-box">
+                        {generatedCode}
+                      </div>
+                    </>
 
-                )}
+                  )}
 
-              </div>
+                </div>
 
-            )}
-            {!generatedCode && (
+              )}
+            {!savedCheckinCode && (
 
               <button
                 onClick={handleCheckIn}

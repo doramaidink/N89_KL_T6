@@ -35,7 +35,25 @@ const checkinSchema = new mongoose.Schema({
     status: {
         type: String,
         default: "checking"
-    }
+    },
+    userCheckout: {
+        type: Boolean,
+        default: false
+    },
+
+    hdvCheckout: {
+        type: Boolean,
+        default: false
+    },
+    userCheckinType: {
+        type: String,
+        default: ""
+    },
+
+    hdvCheckinType: {
+        type: String,
+        default: ""
+    },
 });
 
 module.exports = mongoose.model("Checkin", checkinSchema);

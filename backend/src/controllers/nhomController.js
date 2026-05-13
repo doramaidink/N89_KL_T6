@@ -195,27 +195,20 @@ class nhomController {
             const { userId } = req.params;
 
             // lấy tất cả payment đã PAID
-            const paidPayments = await ThanhToan.find({
-                status: "paid"
-            }).select("nhomId");
+            // const paidPayments = await ThanhToan.find({
+            //     status: "paid"
+            // }).select("nhomId");
 
             // lấy danh sách nhomId đã thanh toán
-            const paidGroupIds = paidPayments.map(item =>
-                item.nhomId?.toString()
-            );
+            // const paidGroupIds = paidPayments.map(item =>
+            //     item.nhomId?.toString()
+            // );
 
             // lấy nhóm của user nhưng LOẠI các nhóm đã paid
             const nhoms = await Nhom.find({
-                $and: [
-                    {
-                        $or: [
-                            { "nguoiTao.id": userId },
-                            { "thanhVien.user": userId }
-                        ]
-                    },
-                    {
-                        _id: { $nin: paidGroupIds }
-                    }
+                $or: [
+                    { "nguoiTao.id": userId },
+                    { "thanhVien.user": userId }
                 ]
             })
                 .sort({ createdAt: -1 })
@@ -237,7 +230,7 @@ class nhomController {
 
     async checkin(req, res) {
         try {
-            const { nhomId, userId, role, lat, lng, code } = req.body;
+            const { nhomId, userId, role, lat, lng, code, checkinType } = req.body;
             let finalCode = code;
 
             // nếu frontend không gửi code
@@ -273,6 +266,7 @@ class nhomController {
 
                 record.userId = userId;
                 record.userCode = finalCode;
+                record.userCheckinType = checkinType;
                 record.checkinAt = new Date();
 
                 // UAN TRỌNG
@@ -287,8 +281,7 @@ class nhomController {
 
                 record.hdvId = userId;
                 record.hdvCode = finalCode;
-
-                // ✅ THÊM DÒNG NÀY
+                record.hdvCheckinType = checkinType; 
                 record.checkinLocationHdv = { lat, lng };
             }
 
@@ -323,19 +316,21 @@ class nhomController {
             // HDV
             if (role === "hdv") {
                 if (!record.hdvCode || record.hdvCode !== code) {
-                    return res.status(400).json({ message: "Sai mã HDV" });
+                    return res.status(400).json({ message: "Sai mã Checkin" });
                 }
 
                 record.checkoutLocationHdv = { lat, lng };
+                record.hdvCheckout = true;
             }
 
             // USER
             else {
                 if (!record.userCode || record.userCode !== code) {
-                    return res.status(400).json({ message: "Sai mã User" });
+                    return res.status(400).json({ message: "Sai mã checkin" });
                 }
 
                 record.checkoutLocationUser = { lat, lng };
+                record.userCheckout = true;
             }
 
             record.checkoutAt = new Date();
