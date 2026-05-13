@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import {
   Search,
   Plus,
@@ -27,7 +28,6 @@ const getInitials = (name = '') => {
     .map(word => word[0]?.toUpperCase())
     .join('');
 };
-
 const getImageUrl = (image) => {
   if (!image) return '';
 

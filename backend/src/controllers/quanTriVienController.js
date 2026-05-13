@@ -670,7 +670,6 @@ class QuanTriVienController {
       });
     }
   }
-
   async TuChoiDiaDiem(req, res) {
     try {
       const { id } = req.params;
@@ -709,11 +708,31 @@ class QuanTriVienController {
       const { id } = req.params;
 
       const oldDiaDiem = await DiaDiem.findById(id);
+
       if (!oldDiaDiem) {
-        return res.status(404).json({ message: "Không tìm thấy địa điểm" });
+        return res.status(404).json({
+          message: "Không tìm thấy địa điểm"
+        });
       }
 
       const body = req.body;
+
+      const tenDiaDiem = body.tenDiaDiem?.trim();
+
+      // KIỂM TRA TRÙNG TRƯỚC KHI UPDATE
+      const diaDiemTrung = await DiaDiem.findOne({
+        _id: { $ne: id },
+        tenDiaDiem: {
+          $regex: `^${tenDiaDiem}$`,
+          $options: 'i'
+        }
+      });
+
+      if (diaDiemTrung) {
+        return res.status(400).json({
+          message: 'Địa điểm đã tồn tại'
+        });
+      }
 
       const image = req.files?.image?.[0]
         ? `/img/${req.files.image[0].filename}`
@@ -730,9 +749,11 @@ class QuanTriVienController {
       const diaDiem = await DiaDiem.findByIdAndUpdate(
         id,
         {
-          tenDiaDiem: body.tenDiaDiem,
+          tenDiaDiem,
           moTa: body.moTa,
-          gioiThieu: body.gioiThieu ? JSON.parse(body.gioiThieu) : [],
+          gioiThieu: body.gioiThieu
+            ? JSON.parse(body.gioiThieu)
+            : [],
           doKho: body.doKho,
           veVao: body.veVao,
           quangduong: body.quangduong,
@@ -741,11 +762,18 @@ class QuanTriVienController {
           hot: body.hot === "true",
           image,
           images: [...oldImages, ...newImages],
-          dacDiemDiaDanh: body.dacDiemDiaDanh ? JSON.parse(body.dacDiemDiaDanh) : [],
+          dacDiemDiaDanh: body.dacDiemDiaDanh
+            ? JSON.parse(body.dacDiemDiaDanh)
+            : [],
           trangThai: body.trangThai,
           toaDo: {
-            lat: body.toaDoLat ? Number(body.toaDoLat) : oldDiaDiem.toaDo?.lat,
-            lng: body.toaDoLng ? Number(body.toaDoLng) : oldDiaDiem.toaDo?.lng,
+            lat: body.toaDoLat
+              ? Number(body.toaDoLat)
+              : oldDiaDiem.toaDo?.lat,
+
+            lng: body.toaDoLng
+              ? Number(body.toaDoLng)
+              : oldDiaDiem.toaDo?.lng,
           },
         },
         { new: true }
@@ -755,9 +783,13 @@ class QuanTriVienController {
         message: "Cập nhật địa điểm thành công",
         data: diaDiem,
       });
+
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ message: "Lỗi server khi cập nhật địa điểm" });
+
+      return res.status(500).json({
+        message: "Lỗi server khi cập nhật địa điểm"
+      });
     }
   }
   async DuyetHoSoDoiTac(req, res) {
@@ -861,6 +893,133 @@ class QuanTriVienController {
       return res.status(500).json({ message: 'Lỗi server khi thêm địa điểm' });
     }
   }
+
+  async capNhatDoiTac(req, res) {
+  try {
+
+    const { id } = req.params;
+
+    const doiTac = await DoiTac.findById(id);
+
+    if (!doiTac) {
+      return res.status(404).json({
+        message: 'Không tìm thấy đối tác'
+      });
+    }
+
+    const {
+      hoTen,
+      soDienThoai,
+      soCCCD,
+      diaChi,
+      queQuan,
+      tinhDangKy,
+      gioiThieuBanThan,
+      kinhNghiem,
+      soNamKinhNghiem,
+      giaThue,
+      kyNangDacBiet,
+      ngonNguHoTro,
+      xacMinhTaiKhoan,
+      trangThaiHoSo,
+      danhSachChungChi,
+    } = req.body;
+
+    // ─────────────────────────────
+    // UPDATE FIELD
+    // ─────────────────────────────
+    if (hoTen) doiTac.hoTen = hoTen;
+
+    if (soDienThoai)
+      doiTac.soDienThoai = soDienThoai;
+
+    if (soCCCD)
+      doiTac.soCCCD = soCCCD;
+
+    if (diaChi)
+      doiTac.diaChi = diaChi;
+
+    if (queQuan)
+      doiTac.queQuan = queQuan;
+
+    if (tinhDangKy)
+      doiTac.tinhDangKy = tinhDangKy;
+
+    if (gioiThieuBanThan)
+      doiTac.gioiThieuBanThan =
+        gioiThieuBanThan;
+
+    if (kinhNghiem)
+      doiTac.kinhNghiem = kinhNghiem;
+
+    if (soNamKinhNghiem)
+      doiTac.soNamKinhNghiem =
+        soNamKinhNghiem;
+
+    if (giaThue)
+      doiTac.giaThue = giaThue;
+
+    if (trangThaiHoSo)
+      doiTac.trangThaiHoSo =
+        trangThaiHoSo;
+
+    // ─────────────────────────────
+    // KỸ NĂNG
+    // ─────────────────────────────
+    if (kyNangDacBiet) {
+      doiTac.kyNangDacBiet =
+        typeof kyNangDacBiet === 'string'
+          ? JSON.parse(kyNangDacBiet)
+          : kyNangDacBiet;
+    }
+
+    if (ngonNguHoTro) {
+      doiTac.ngonNguHoTro =
+        typeof ngonNguHoTro === 'string'
+          ? JSON.parse(ngonNguHoTro)
+          : ngonNguHoTro;
+    }
+
+    // ─────────────────────────────
+    // XÁC MINH TÀI KHOẢN
+    // ─────────────────────────────
+    if (xacMinhTaiKhoan) {
+      doiTac.xacMinhTaiKhoan =
+        xacMinhTaiKhoan;
+    }
+
+    // ─────────────────────────────
+    // CHỨNG CHỈ
+    // ─────────────────────────────
+    if (danhSachChungChi) {
+
+      doiTac.danhSachChungChi =
+        typeof danhSachChungChi === 'string'
+          ? JSON.parse(danhSachChungChi)
+          : danhSachChungChi;
+    }
+
+    // ─────────────────────────────
+    // SAVE
+    // ─────────────────────────────
+    await doiTac.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Cập nhật đối tác thành công',
+      doiTac,
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi server',
+    });
+  }
+};
 }
 
 module.exports = new QuanTriVienController();

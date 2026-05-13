@@ -2942,37 +2942,38 @@ input {
   color: white;
   gap: 30px;
 }
-.btn-submit-thongbao{
-    width: 100%;
-    height: 52px;
 
-    border: none;
-    border-radius: 12px;
+.btn-submit-thongbao {
+  width: 100%;
+  height: 52px;
 
-    background: #374151;
-    color: #9ca3af;
+  border: none;
+  border-radius: 12px;
 
-    font-size: 16px;
-    font-weight: 700;
+  background: #374151;
+  color: #9ca3af;
 
-    cursor: not-allowed;
+  font-size: 16px;
+  font-weight: 700;
 
-    transition: 0.25s;
+  cursor: not-allowed;
+
+  transition: 0.25s;
 }
 
 /* BUTTON ACTIVE */
-.active-btn-thongbao{
-    background: linear-gradient(90deg, #00ff9c, #00d084);
-    color: #000;
+.active-btn-thongbao {
+  background: linear-gradient(90deg, #00ff9c, #00d084);
+  color: #000;
 
-    cursor: pointer;
+  cursor: pointer;
 
-    box-shadow: 0 0 18px rgba(0,255,156,0.35);
+  box-shadow: 0 0 18px rgba(0, 255, 156, 0.35);
 }
 
-.active-btn-thongbao:hover{
-    transform: translateY(-2px);
-    opacity: 0.95;
+.active-btn-thongbao:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
 }
 
 /* SIDEBAR */
@@ -5367,19 +5368,21 @@ input {
   transition: 0.2s;
 }
 
-.active-type{
+.active-type {
   background: #00ff9c !important;
   color: #000 !important;
 }
-.checkin-type-box button:disabled{
+
+.checkin-type-box button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
   background: #374151 !important;
   color: #9ca3af !important;
 }
-.modal-checkin button:disabled{
-    opacity: 0.5;
-    cursor: not-allowed;
+
+.modal-checkin button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .generated-code-box {
@@ -12199,6 +12202,27 @@ html {
   color: #71717a;
 }
 
+.user-detail-item input,
+.user-detail-item select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-top: 8px;
+}
+
+.save-btn {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
 /*------------------------------ContentThongKeNguoiDung----------------------------------------*/
 
 
@@ -15166,11 +15190,12 @@ img {
     grid-template-columns: 1fr;
   }
 }
+
 .qldd-edit-image-section {
   margin-bottom: 18px;
 }
 
-.qldd-edit-image-section > label {
+.qldd-edit-image-section>label {
   display: block;
   color: white;
   font-size: 13px;
@@ -15286,6 +15311,9 @@ img {
   font-size: 15px;
   font-weight: 600;
 }
+=======
+
+>>>>>>> 46c8692e9a8b00d722bae1f74ef6749264e0c1c5
 /*------------------------------ContentQuanLyDiaDiem--------------------------------------------*/
 
 

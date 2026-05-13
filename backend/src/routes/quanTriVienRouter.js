@@ -13,9 +13,9 @@ const storage = multer.diskStorage({
     cb(null, unique + path.extname(file.originalname));
   },
 });
- 
+
 const upload = multer({ storage });
- 
+
 // ─── Địa điểm ─────────────────────────────────────────────────────────────────
 // THÊM MỚI - phải đặt TRƯỚC route /:slug/... để tránh conflict
 router.post(
@@ -26,9 +26,13 @@ router.post(
   ]),
   quanTriVienController.ThemDiaDiem
 );
- 
+router.patch(
+  '/doitac/:id',
+  quanTriVienController.capNhatDoiTac
+);
+
 router.get("/:slug/quanlydiadiem", quanTriVienController.QuanLyDiaDiem);
- 
+
 router.patch(
   "/:slug/quanlydiadiem/:id",
   upload.fields([
@@ -37,29 +41,29 @@ router.patch(
   ]),
   quanTriVienController.CapNhatDiaDiem
 );
- 
+
 router.patch(
   "/:slug/duyetdiadiem/:id/duyet",
   quanTriVienController.DuyetDiaDiemAction
 );
- 
+
 router.patch(
   "/:slug/duyetdiadiem/:id/tuchoi",
   quanTriVienController.TuChoiDiaDiem
 );
- 
+
 router.get("/:slug/duyetdiadiem", quanTriVienController.DuyetDiaDiem);
- 
+
 // ─── Thống kê & Dashboard ─────────────────────────────────────────────────────
 router.get("/:slug/thongke", quanTriVienController.thongke);
 router.get("/:slug/thongkenguoidung", quanTriVienController.ThongKeNguoiDung);
 router.get("/:slug/thongbaohethong", quanTriVienController.ThongBaoHeThong);
- 
+
 // ─── Đơn đăng ký đối tác ──────────────────────────────────────────────────────
 router.get("/:slug/dondangky", quanTriVienController.donDangky);
 router.patch("/:slug/dondangky/:id/duyet", quanTriVienController.DuyetHoSoDoiTac);
 router.delete("/:slug/dondangky/:id/tuchoi", quanTriVienController.TuChoiVaXoaHoSoDoiTac);
- 
+
 // ─── Báo cáo ──────────────────────────────────────────────────────────────────
 router.get("/:slug/quanlybaocao", quanTriVienController.QuanLyBaoCao);
 router.patch("/:slug/quanlybaocao/:id/phanhoi", quanTriVienController.PhanHoiBaoCao);

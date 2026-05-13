@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import {
   Search,
   Plus,
@@ -17,6 +18,7 @@ import {
   Save,
 } from 'lucide-react';
 import { useParams } from 'react-router-dom';
+
 
 const API_URL = 'http://localhost:5000';
 
@@ -179,6 +181,7 @@ const ContentQuanLyDiaDiem = () => {
   const handleSaveEdit = async (updatedLocation) => {
     try {
       const formData = new FormData();
+
       formData.append('tenDiaDiem', updatedLocation.tenDiaDiem);
       formData.append('moTa', updatedLocation.moTa);
       formData.append('gioiThieu', JSON.stringify(updatedLocation.gioiThieu));
@@ -191,23 +194,43 @@ const ContentQuanLyDiaDiem = () => {
       formData.append('dacDiemDiaDanh', JSON.stringify(updatedLocation.dacDiemDiaDanh));
       formData.append('trangThai', updatedLocation.trangThai);
       formData.append('oldImages', JSON.stringify(updatedLocation.imagesRaw || []));
-      formData.append('toaDoLat', updatedLocation.toaDo?.lat ?? '');
-      formData.append('toaDoLng', updatedLocation.toaDo?.lng ?? '');
-      if (updatedLocation.imageFile) formData.append('image', updatedLocation.imageFile);
-      if (updatedLocation.newImageFiles?.length > 0) {
-        updatedLocation.newImageFiles.forEach((file) => formData.append('images', file));
+      formData.append('toaDoLat', updatedLocation.toaDoLat ?? '');
+      formData.append('toaDoLng', updatedLocation.toaDoLng ?? '');
+
+      if (updatedLocation.imageFile) {
+        formData.append('image', updatedLocation.imageFile);
       }
-      const res = await fetch(`${API_URL}/quantrivien/${slug}/quanlydiadiem/${updatedLocation._id}`, {
-        method: 'PATCH',
-        body: formData,
-      });
+
+      if (updatedLocation.newImageFiles?.length > 0) {
+        updatedLocation.newImageFiles.forEach((file) => {
+          formData.append('images', file);
+        });
+      }
+
+      const res = await fetch(
+        `${API_URL}/quantrivien/${slug}/quanlydiadiem/${updatedLocation._id}`,
+        {
+          method: 'PATCH',
+          body: formData,
+        }
+      );
+
       const result = await res.json();
-      if (!res.ok) throw new Error(result.message || 'Cập nhật thất bại');
-      alert('Cập nhật địa điểm thành công');
-      window.location.reload();
+
+      if (!res.ok) {
+        throw new Error(result.message || 'Cập nhật thất bại');
+      }
+
+      toast.success('Cập nhật địa điểm thành công');
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1200);
+
     } catch (error) {
       console.log(error);
-      alert(error.message || 'Cập nhật thất bại');
+
+      toast.error(error.message || 'Địa điểm đã tồn tại');
     }
   };
 
@@ -218,13 +241,23 @@ const ContentQuanLyDiaDiem = () => {
         method: 'POST',
         body: formData,
       });
+
       const result = await res.json();
-      if (!res.ok) throw new Error(result.message || 'Thêm địa điểm thất bại');
-      alert('Thêm địa điểm thành công');
-      window.location.reload();
+
+      if (!res.ok) {
+        throw new Error(result.message || 'Thêm địa điểm thất bại');
+      }
+
+      toast.success('Thêm địa điểm thành công');
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1200);
+
     } catch (error) {
       console.log(error);
-      alert(error.message || 'Có lỗi xảy ra');
+
+      toast.error(error.message || 'Tên địa điểm đã tồn tại');
     }
   };
 

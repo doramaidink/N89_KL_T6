@@ -183,7 +183,9 @@ const ContentDuyetDiaDiem = () => {
     } catch (error) {
       console.log(error);
 
-      toast.error('Duyệt thất bại');
+      toast.error(
+        error?.response?.data?.message || 'Duyệt thất bại'
+      );
     }
   };
 
@@ -449,7 +451,7 @@ const ModalChiTietDiaDiem = ({ isOpen, onClose, data, handleApprove, handleRejec
   const status = getStatus();
 
   return (
-    <div className="modal-dd-overlay"   onClick={onClose}>
+    <div className="modal-dd-overlay" onClick={onClose}>
       <div className="modal-dd-box" onClick={(e) => e.stopPropagation()}>
         <div className="modal-dd-header" >
           <div>

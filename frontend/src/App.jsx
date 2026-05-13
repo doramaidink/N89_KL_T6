@@ -62,6 +62,11 @@ function App() {
   }, []);
 
   return <>
+    <Toaster
+      position="top-right"
+      richColors
+      duration={2000}
+    />
     <ToastContainer position="top-right" autoClose={2000} />
     <BrowserRouter>
 
