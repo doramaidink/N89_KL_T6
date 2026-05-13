@@ -98,6 +98,9 @@ class nhomController {
                 .populate("diaDiem"); //lấy thông tin các thành viên
 
             const tinNhan = await Chat.find({ nhomId: id }).sort({ thoiGian: 1 });
+            const checkinRecord = await Checkin.findOne({
+                nhomId: id
+            });
 
             let thanhToan = null;
 
@@ -111,6 +114,7 @@ class nhomController {
             return res.status(200).json({
                 nhom,
                 tinNhan,
+                checkinRecord,
 
                 thanhToan: {
                     daThanhToan: thanhToan?.status === "paid",
@@ -234,6 +238,15 @@ class nhomController {
     async checkin(req, res) {
         try {
             const { nhomId, userId, role, lat, lng, code } = req.body;
+            let finalCode = code;
+
+            // nếu frontend không gửi code
+            if (!finalCode) {
+
+                finalCode = Math.floor(
+                    100000 + Math.random() * 900000
+                ).toString();
+            }
 
             if (!nhomId || !userId || lat == null || lng == null || !code) {
                 return res.status(400).json({ message: "Thiếu dữ liệu" });
@@ -259,7 +272,7 @@ class nhomController {
                 }
 
                 record.userId = userId;
-                record.userCode = code;
+                record.userCode = finalCode;
                 record.checkinAt = new Date();
 
                 // UAN TRỌNG
@@ -273,7 +286,7 @@ class nhomController {
                 }
 
                 record.hdvId = userId;
-                record.hdvCode = code;
+                record.hdvCode = finalCode;
 
                 // ✅ THÊM DÒNG NÀY
                 record.checkinLocationHdv = { lat, lng };

@@ -69,6 +69,9 @@ const ContentNhomchat = ({ user }) => {
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 
   const [inputCheckinCode, setInputCheckinCode] = useState(["", "", "", "", "", ""]);
+  const [checkinType, setCheckinType] = useState("auto");
+  const [generatedCode, setGeneratedCode] = useState("");
+  const [savedCheckinCode, setSavedCheckinCode] = useState("");
   const [inputCheckoutCode, setInputCheckoutCode] = useState(["", "", "", "", "", ""]);
   const allImages = messages.flatMap((msg) =>
     Array.isArray(msg.hinhAnh) ? msg.hinhAnh : []
@@ -89,9 +92,20 @@ const ContentNhomchat = ({ user }) => {
     }
 
     navigator.geolocation.getCurrentPosition(async (pos) => {
-      const finalCode = inputCheckinCode.join("");
+      let finalCode = inputCheckinCode.join("");
+
+      // AUTO RANDOM CODE
+      if (checkinType === "auto") {
+
+        finalCode = Math.floor(
+          100000 + Math.random() * 900000
+        ).toString();
+      }
       const isValid = inputCheckinCode.every(d => d !== "");
-      if (finalCode.length < 6) {
+      if (
+        checkinType === "manual" &&
+        finalCode.length < 6
+      ) {
         alert("Nhập đủ 6 số");
         return;
       }
@@ -108,9 +122,25 @@ const ContentNhomchat = ({ user }) => {
       console.log("🚀 CHECKIN PAYLOAD:", payload);
 
       try {
-        await axios.post("http://localhost:5000/nhom/checkin", payload);
+        const res = await axios.post(
+          "http://localhost:5000/nhom/checkin",
+          payload
+        );
+        // HIỂN THỊ MÃ AUTO
+        if (checkinType === "auto") {
+
+          const code =
+            user.vaiTro === "doiTac"
+              ? res.data.record.hdvCode
+              : res.data.record.userCode;
+
+          setGeneratedCode(code);
+        }
         alert("Checkin thành công");
-        setShowCheckinModal(false);
+        // CHỈ đóng modal khi tự nhập mã
+        if (checkinType === "manual") {
+          setShowCheckinModal(false);
+        }
       } catch (err) {
         console.log(err);
 
@@ -188,6 +218,36 @@ const ContentNhomchat = ({ user }) => {
       const res = await axios.get(`http://localhost:5000/nhom/detail/${groupId}`);
 
       if (res.data.nhom) {
+        const record = res.data.checkinRecord;
+
+        if (record && user) {
+
+          // USER
+          if (user?.vaiTro !== "doiTac") {
+
+            if (
+              record.userId?.toString() ===
+              (user._id || user.id)?.toString()
+            ) {
+
+              setSavedCheckinCode(record.userCode);
+              setGeneratedCode(record.userCode);
+            }
+          }
+
+          // HDV
+          else {
+
+            if (
+              record.hdvId?.toString() ===
+              (user._id || user.id)?.toString()
+            ) {
+
+              setSavedCheckinCode(record.hdvCode);
+              setGeneratedCode(record.hdvCode);
+            }
+          }
+        }
         setGroupData(res.data.nhom);
         setMessages(res.data.tinNhan || []);
         socketRef.current.emit("join_room", {
@@ -490,7 +550,15 @@ const ContentNhomchat = ({ user }) => {
             <button
               className={`btn-checkin ${!canCheckIn ? "disabled-btn" : ""}`}
               disabled={!canCheckIn}
-              onClick={() => setShowCheckinModal(true)}
+              onClick={() => {
+
+                if (savedCheckinCode) {
+                  setGeneratedCode(savedCheckinCode);
+                  setCheckinType("auto");
+                }
+
+                setShowCheckinModal(true);
+              }}
             >
               <span>➡️</span>CHECK IN
             </button>
@@ -597,27 +665,84 @@ const ContentNhomchat = ({ user }) => {
             </button>
             <h2>TẠO MÃ CHECKIN</h2>
 
-            {/* <div className="code-box">
-              {checkinCode.split("").map((c, i) => (
-                <span key={i}>{c}</span>
-              ))}
-            </div> */}
-            <div className="code-input-group">
-              {inputCheckinCode.map((digit, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleChangeCode(e, index)}
-                  className="code-input-box"
-                />
-              ))}
+            <div className="checkin-type-box">
+
+              <button
+                className={checkinType === "auto" ? "active-type" : ""}
+                onClick={() => setCheckinType("auto")}
+              >
+                Hệ thống tự tạo mã
+              </button>
+
+              <button
+                className={checkinType === "manual" ? "active-type" : ""}
+                onClick={() => {
+                  if (!generatedCode) {
+                    setCheckinType("manual");
+                  }
+                }}
+                disabled={!!generatedCode}
+              >
+                Tự nhập mã
+              </button>
+
             </div>
 
-            <button onClick={handleCheckIn}>
-              XÁC NHẬN
-            </button>
+            {/* MANUAL */}
+            {checkinType === "manual" && (
+
+              <div className="code-input-group">
+
+                {inputCheckinCode.map((digit, index) => (
+
+                  <input
+                    key={index}
+                    type="text"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleChangeCode(e, index)}
+                    className="code-input-box"
+                  />
+
+                ))}
+
+              </div>
+
+            )}
+
+            {/* AUTO */}
+            {checkinType === "auto" && (
+
+              <div className="auto-code-note">
+
+                {!generatedCode ? (
+
+                  <p>Hệ thống sẽ tự tạo mã checkin cho bạn vui lòng bấm xác nhận</p>
+
+                ) : (
+
+                  <>
+                    <p>Mã checkin của bạn</p>
+
+                    <div className="generated-code-box">
+                      {generatedCode}
+                    </div>
+                  </>
+
+                )}
+
+              </div>
+
+            )}
+            {!generatedCode && (
+
+              <button
+                onClick={handleCheckIn}
+              >
+                XÁC NHẬN
+              </button>
+
+            )}
           </div>
 
         </div>

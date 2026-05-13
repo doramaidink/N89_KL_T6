@@ -25,8 +25,8 @@ const ContentThongBaoHeThong = () => {
         body: JSON.stringify({
           tieuDe: form.tieuDe,
           noiDung: form.noiDung,
-          loai: doiTuong,          
-          loaiThongBao: loaiThongBao  
+          loai: doiTuong,
+          loaiThongBao: loaiThongBao
         })
 
       });
@@ -142,8 +142,10 @@ const ContentThongBaoHeThong = () => {
           </div>
 
           <button
-            className="btn-submit-thongbao"
+            className={`btn-submit-thongbao ${form.tieuDe.trim() ? "active-btn-thongbao" : ""
+              }`}
             onClick={handleSubmit}
+            disabled={!form.tieuDe.trim()}
           >
             Phát hành thông báo
           </button>
