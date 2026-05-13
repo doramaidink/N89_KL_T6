@@ -90,6 +90,7 @@ body {
   font-size: 0.7rem;
   margin-top: 6px;
 }
+
 #form-message-matkhau {
   color: red;
   font-size: 0.7rem;
@@ -424,6 +425,7 @@ body {
   background: #2f80ed;
   color: white;
 }
+
 .password-wrapper {
   position: relative;
 }
@@ -604,6 +606,7 @@ body {
   color: #00e676;
   cursor: pointer;
 }
+
 .password-wrapper-dangnhap {
   position: relative;
 }
@@ -2939,6 +2942,38 @@ input {
   color: white;
   gap: 30px;
 }
+.btn-submit-thongbao{
+    width: 100%;
+    height: 52px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: #374151;
+    color: #9ca3af;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: not-allowed;
+
+    transition: 0.25s;
+}
+
+/* BUTTON ACTIVE */
+.active-btn-thongbao{
+    background: linear-gradient(90deg, #00ff9c, #00d084);
+    color: #000;
+
+    cursor: pointer;
+
+    box-shadow: 0 0 18px rgba(0,255,156,0.35);
+}
+
+.active-btn-thongbao:hover{
+    transform: translateY(-2px);
+    opacity: 0.95;
+}
 
 /* SIDEBAR */
 .sidebar-thongbao {
@@ -3631,6 +3666,7 @@ input {
     padding: 40px 20px;
   }
 }
+
 .quanlybaocao-btn-view,
 .quanlybaocao-btn-reply {
   border: none;
@@ -3810,7 +3846,7 @@ input {
   .baocao-modal-info {
     grid-template-columns: 1fr;
   }
-} 
+}
 
 
 /*-----------------------------------ContentBaocao------------------------------------------*/
@@ -4707,9 +4743,10 @@ input {
   color: white;
   border: 1px solid rgba(255, 153, 51, 0.2);
 }
-.step1-select-step1 option{
-    background: #1f2937;
-    color: white;
+
+.step1-select-step1 option {
+  background: #1f2937;
+  color: white;
 }
 
 /* LOCK INPUT */
@@ -5206,7 +5243,7 @@ input {
   gap: 10px;
 }
 
-.step3-row-step3 input{
+.step3-row-step3 input {
   width: 100%;
   padding: 14px 16px;
   border-radius: 12px;
@@ -5217,13 +5254,14 @@ input {
   color: white;
   font-size: 15px;
 }
-.step3-input-box{
+
+.step3-input-box {
   width: 100%;
   display: flex;
   flex-direction: column;
 }
 
-.input-error{
+.input-error {
   color: #ff4d4f;
   font-size: 13px;
   margin-top: 6px;
@@ -5231,8 +5269,8 @@ input {
   font-weight: 500;
 }
 
-.step3-row-step3 input::placeholder{
-  color: rgba(255,255,255,0.55);
+.step3-row-step3 input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
   opacity: 1;
 }
 
@@ -5292,6 +5330,76 @@ input {
   background-color: #0a0e0c;
   color: #ffffff;
   overflow: hidden;
+}
+
+.checkin-type-box {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.checkin-type-box button {
+  flex: 1;
+
+  min-height: 70px;
+  padding: 10px 12px;
+
+  border: none;
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  background: #1f2937;
+  color: white;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+  line-height: 1.4;
+
+  word-break: break-word;
+
+  transition: 0.2s;
+}
+
+.active-type{
+  background: #00ff9c !important;
+  color: #000 !important;
+}
+.checkin-type-box button:disabled{
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: #374151 !important;
+  color: #9ca3af !important;
+}
+.modal-checkin button:disabled{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.generated-code-box {
+  margin-top: 15px;
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 8px;
+  color: #4ade80;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.auto-code-note {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #4ade80;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .sidebar-nhomchat,
@@ -5754,11 +5862,13 @@ input {
   color: white;
   cursor: pointer;
 }
+
 .bubble-image-only {
   padding: 0 !important;
   background: transparent !important;
   border: none !important;
 }
+
 .chat-image-list {
   display: flex;
 
@@ -5794,13 +5904,14 @@ input {
 
   transition: 0.2s ease;
 
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .chat-image-item:hover {
   transform: scale(1.02);
   opacity: 0.95;
 }
+
 .image-modal-overlay {
   position: fixed;
   inset: 0;
@@ -5823,7 +5934,7 @@ input {
 
   object-fit: contain;
 
-  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
 
   animation: zoomImage 0.2s ease;
 }
@@ -5839,7 +5950,7 @@ input {
   border: none;
   border-radius: 50%;
 
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
 
   color: white;
 
@@ -5851,7 +5962,7 @@ input {
 }
 
 .close-image-modal:hover {
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
   transform: scale(1.1);
 }
 
@@ -5868,6 +5979,7 @@ input {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -5877,6 +5989,7 @@ input {
   from {
     transform: scale(0.8);
   }
+
   to {
     transform: scale(1);
   }
@@ -5888,7 +6001,7 @@ input {
 .gallery-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.92);
+  background: rgba(0, 0, 0, 0.92);
 
   display: flex;
   justify-content: center;
@@ -5912,7 +6025,7 @@ input {
   display: flex;
   flex-direction: column;
 
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .gallery-header {
@@ -5924,7 +6037,7 @@ input {
 
   padding: 0 25px;
 
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 
   color: white;
 }
@@ -5941,7 +6054,7 @@ input {
   border: none;
   border-radius: 50%;
 
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
 
   color: white;
 
@@ -5983,19 +6096,20 @@ input {
 
   padding: 6px;
 
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .gallery-image:hover {
   transform: scale(1.03);
 
-  box-shadow: 0 10px 30px rgba(0,255,150,0.3);
+  box-shadow: 0 10px 30px rgba(0, 255, 150, 0.3);
 }
 
 .gallery-empty {
   color: white;
   font-size: 18px;
 }
+
 /* ================= KHO ẢNH NHÓM ================= */
 /* ================= XEM ẢNH FULL ================= */
 
@@ -6003,7 +6117,7 @@ input {
   position: fixed;
   inset: 0;
 
-  background: rgba(0,0,0,0.95);
+  background: rgba(0, 0, 0, 0.95);
 
   display: flex;
   justify-content: center;
@@ -6035,7 +6149,7 @@ input {
   border: none;
   border-radius: 50%;
 
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
 
   color: white;
 
@@ -6047,7 +6161,7 @@ input {
 }
 
 .close-image-modal:hover {
-  background: rgba(255,255,255,0.22);
+  background: rgba(255, 255, 255, 0.22);
 }
 
 @keyframes zoomImage {
@@ -6061,6 +6175,7 @@ input {
     opacity: 1;
   }
 }
+
 /* ================= XEM ẢNH FULL ================= */
 /*---------------------------------------HeaderKhamPha------------------------------*/
 .btnkhampha-headerkhampha {
@@ -12865,7 +12980,7 @@ html {
 
 .modal-status-wait {
   background: #fef3c7;
- color: white;
+  color: white;
 }
 
 .modal-dd-info-grid {
@@ -12887,12 +13002,12 @@ html {
 .modal-dd-info-card span {
   display: block;
   font-size: 12px;
- color: white;
+  color: white;
   margin-bottom: 4px;
 }
 
 .modal-dd-info-card strong {
- color: white;
+  color: white;
   font-size: 14px;
 }
 
@@ -12907,7 +13022,7 @@ html {
 }
 
 .modal-dd-section p {
- color: white;
+  color: white;
   line-height: 1.7;
   margin: 8px 0;
 }
@@ -12976,6 +13091,7 @@ html {
   cursor: not-allowed;
   pointer-events: none;
 }
+
 .quanlybaocao-container {
   background-color: #09090b;
   color: #ffffff;
@@ -13313,6 +13429,7 @@ html {
   font-size: 12px;
   padding: 0 4px;
 }
+
 .user-detail-overlay {
   position: fixed;
   inset: 0;
@@ -13527,6 +13644,7 @@ html {
     grid-template-columns: 1fr;
   }
 }
+
 .user-info-cell {
   display: flex;
   align-items: center;
@@ -14110,6 +14228,7 @@ img {
   color: #000;
   border-color: #10b981;
 }
+
 .qldd-modal-preview {
   position: relative;
   background: #ffffff;
@@ -14277,6 +14396,7 @@ img {
     height: 230px;
   }
 }
+
 .qldd-action-btn {
   width: 34px;
   height: 34px;
@@ -14637,11 +14757,12 @@ img {
     grid-template-columns: 1fr;
   }
 }
+
 .qldd-edit-image-section {
   margin-bottom: 18px;
 }
 
-.qldd-edit-image-section > label {
+.qldd-edit-image-section>label {
   display: block;
   color: white;
   font-size: 13px;
@@ -14724,6 +14845,7 @@ img {
   cursor: pointer;
   border: 1px dashed #10b981;
 }
+<<<<<<< HEAD
 .qldd-modal-overlay {
   position: fixed;
   inset: 0;
@@ -15165,6 +15287,9 @@ img {
   font-size: 15px;
   font-weight: 600;
 }
+=======
+
+>>>>>>> 46c8692e9a8b00d722bae1f74ef6749264e0c1c5
 /*------------------------------ContentQuanLyDiaDiem--------------------------------------------*/
 
 
@@ -15473,6 +15598,7 @@ img {
   background: #10b981;
   border-radius: 50%;
 }
+
 .ddk-empty {
   text-align: center;
   padding: 24px;
@@ -15764,6 +15890,7 @@ img {
 }
 
 @media (max-width: 900px) {
+
   .ddk-cv-grid,
   .ddk-cv-doc-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -15775,6 +15902,7 @@ img {
 }
 
 @media (max-width: 640px) {
+
   .ddk-cv-grid,
   .ddk-cv-doc-grid {
     grid-template-columns: 1fr;
