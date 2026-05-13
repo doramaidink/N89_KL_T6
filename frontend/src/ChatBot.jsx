@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
 
-const WEBHOOK_URL = "https://duckien123.app.n8n.cloud/webhook/chat";
+const WEBHOOK_URL = "https://tien12233.app.n8n.cloud/webhook/chat";
 
 const ChatbotN8n = () => {
     const [open, setOpen] = useState(false);
