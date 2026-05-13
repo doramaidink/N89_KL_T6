@@ -288,12 +288,7 @@ const ContentThongKeNguoiDung = () => {
               </button>
             </div>
 
-            <NavLink to="/dangki">
-              <button className="btn-create-acc">
-                <Plus size={15} />
-                Tạo tài khoản
-              </button>
-            </NavLink>
+            
           </div>
         </div>
 
