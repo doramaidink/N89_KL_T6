@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const ContentThanhToan = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const ContentThanhToan = () => {
     const user = JSON.parse(localStorage.getItem("user"));
 
     const orderCodeFromUrl = searchParams.get("orderCode");
-//lấy data hướng dẫn viên
+    //lấy data hướng dẫn viên
     if (data) {
       setGuide(data);
     }
@@ -116,12 +117,20 @@ const ContentThanhToan = () => {
         if (result.status === "paid" && !daBaoThanhCong.current) {
           daBaoThanhCong.current = true;
 
-          alert("Bạn đã thanh toán thành công!");
+          toast.success("Thanh toán thành công!", {
+            position: "top-right",
+            autoClose: 2500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+          });
 
           localStorage.removeItem("selectedGuide");
 
-          // Đổi đường dẫn fake cũ
-          navigate("/nhom");
+          // chờ toast hiện xong rồi chuyển trang
+          setTimeout(() => {
+            navigate("/nhom");
+          }, 2500);
         }
       } catch (err) {
         console.error("Lỗi kiểm tra trạng thái thanh toán:", err);
@@ -231,10 +240,10 @@ const ContentThanhToan = () => {
                   {paymentStatus === "paid"
                     ? "Đã thanh toán"
                     : paymentStatus === "cancelled"
-                    ? "Đã hủy"
-                    : paymentStatus === "failed"
-                    ? "Thất bại"
-                    : "Chưa thanh toán"}
+                      ? "Đã hủy"
+                      : paymentStatus === "failed"
+                        ? "Thất bại"
+                        : "Chưa thanh toán"}
                 </strong>
               </div>
             </div>
