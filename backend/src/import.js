@@ -6,60 +6,35 @@ dotenv.config();
 
 const dataDiaDiem = [
   {
-    tenDiaDiem: "Núi zzzz ",
-    moTa: "Núi zzzzlà điểm trekking còn khá hoang sơ, nổi bật với địa hình núi rừng hùng vĩ và cảnh quan thiên nhiên nguyên sinh. Đây là lựa chọn phù hợp cho những ai muốn khám phá những cung đường ít người biết đến.",
+    tenDiaDiem: "Mũi Đôi",
+    moTa: "Mũi Đôi là điểm cực Đông trên đất liền của Việt Nam, thuộc bán đảo Hòn Gốm, xã Vạn Thạnh, tỉnh Khánh Hòa. Nơi đây nổi tiếng với vẻ đẹp hoang sơ của những bãi đá tự nhiên, biển xanh trong và khung cảnh bình minh tuyệt đẹp – là nơi được nhiều người lựa chọn để chinh phục và đón ánh mặt trời đầu tiên trên đất liền Việt Nam.",
     gioiThieu: [
-      "Núi zzzz nằm tại tỉnh Quảng Nam, thuộc khu vực miền Trung Việt Nam, nơi vẫn giữ được vẻ đẹp tự nhiên gần như nguyên vẹn. Khu vực này có địa hình đồi núi xen kẽ rừng rậm, tạo nên những cung đường trekking đầy thử thách nhưng cũng rất hấp dẫn đối với người yêu thích khám phá.",
-      "Trên hành trình chinh phục, du khách sẽ băng qua những cánh rừng xanh mát, suối nhỏ và các sườn núi dốc. Không khí trong lành, ít dấu chân du lịch đại trà giúp nơi đây mang lại cảm giác yên bình và tách biệt hoàn toàn với sự ồn ào của thành phố.",
-      "Ngoài cảnh quan thiên nhiên, khu vực quanh Núi zzzz còn gắn liền với đời sống của người dân địa phương, mang đậm nét văn hóa miền núi. Đây không chỉ là hành trình trekking mà còn là cơ hội để trải nghiệm thiên nhiên và tìm lại sự cân bằng, thư giãn trong không gian hoang sơ."
+      "Mũi Đôi còn được gọi là Mũi Bà Dầu, nổi bật với hai khối đá lớn nằm sát nhau hướng ra biển nên người dân địa phương gọi là “Mũi Đôi”. Đây là địa điểm mang ý nghĩa đặc biệt đối với những người yêu thích khám phá và chinh phục các cột mốc địa lý của Việt Nam.",
+      "Hành trình đến Mũi Đôi thường bắt đầu từ Đầm Môn, nơi du khách sẽ đi bộ xuyên qua những đồi cát, bãi đá và các đoạn đường ven biển. Cung đường trekking mang đến nhiều trải nghiệm thú vị khi người tham gia được ngắm nhìn thiên nhiên hoang sơ, những bãi biển nhỏ và khung cảnh biển trời rộng lớn.",
+      "Điểm nổi bật nhất tại Mũi Đôi là cột mốc cực Đông được đặt trên các tảng đá sát biển. Nhiều du khách lựa chọn cắm trại qua đêm để đón bình minh và lưu giữ khoảnh khắc mặt trời xuất hiện đầu tiên trên đất liền Việt Nam, tạo nên một trải nghiệm đáng nhớ cho hành trình khám phá."
     ],
-    doKho: "Dêzz",
-    veVao: "freezzz",
-    tinh: "Quảng Namzzz",
-    quangduong: "6-8kmzzz",
-    khuVuc: "Quảng Namzzz",
+    doKho: "Khó",
+    veVao: "50.000 VNĐ",
+    tinh: "Khánh Hòa",
+    quangduong: "14-18km",
+    khuVuc: "làng chài Đầm Môn",
     hot: false,
     trangThai: "cho_duyet",
-
-    image: "/img/núi bằng am/núi bằng am.jpg",
+    image: "/img/MuiDoi/MuiDoi.jpg",
     images: [
-      "/img/núi bằng am/núi bằng am1.jpg",
-      "/img/núi bằng am/núi bằng am2.jpg",
+      "/img/MuiDoi/MuiDoi1.jpg",
+      "/img/MuiDoi/MuiDoi2.jpg",
+
     ],
 
     dacDiemDiaDanh: [
-      "Trong rừng",
-      "Leo cao",
-    ]
-  },
-
-  {
-    tenDiaDiem: "mmm",
-    moTa: "mmmmmmmlà ngọn núi lửa đã tắt nổi bật với địa hình hùng vĩ và cung trekking thử thách. Đây là điểm đến lý tưởng cho những ai yêu thích khám phá thiên nhiên hoang sơ của Tây Nguyên.",
-    gioiThieu: [
-      "mmmmmm nằm tại tỉnh Gia Lai, gần thành phố Pleiku, là một trong những ngọn núi cao và đẹp của khu vực Tây Nguyên. Với độ cao khoảng 1.400m, nơi đây từng là núi lửa cổ nên địa hình khá đặc biệt, gồm các sườn dốc, rừng rậm và những đoạn đường đất đỏ bazan đặc trưng.",
-      "Hành trình trekking Chư Nâm thường mất khoảng 1 ngày, phù hợp với người có thể lực khá. Trên đường đi, bạn sẽ băng qua rừng thông, rừng nguyên sinh và các đoạn dốc khá “gắt”, đòi hỏi sự kiên trì và sức bền.",
-      "Khi lên đến đỉnh, bạn sẽ được chiêm ngưỡng toàn cảnh núi rừng Tây Nguyên rộng lớn, đặc biệt có thể nhìn thấy Biển Hồ T’Nưng từ trên cao. Khoảnh khắc săn mây vào sáng sớm hoặc ngắm hoàng hôn tại đây là trải nghiệm rất đáng nhớ đối với dân trekking."
-    ],
-    doKho: "Caommm",
-    veVao: "Miễn phímmm",
-    tinh: "Gia Laimmm",
-    quangduong: "20km",
-    khuVuc: "Gia Laimmmm",
-    hot: false,
-    trangThai: "cho_duyet",
-    image: "/img/chư nâm/chư nâm.jpg",
-    images: [
-      "/img/chư nâm/chư nâm1.jpg",
-      "/img/chư nâm/chư nâm2.jpg",
-      "/img/chư nâm/chư nâm3.jpg",
-    ],
-
-    dacDiemDiaDanh: [
-      "rừng",
-      "đồi",
+      "Biển",
       "Cung đường nguy hiểm"
-    ]
+    ],
+    toaDo: {
+      lat: 12.6489,
+      lng: 109.4625
+    }
   }
 ];
 

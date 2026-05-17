@@ -16892,3 +16892,52 @@ img {
 }
 
 /*------------------------------ContentCheckinAdmin--------------------------------------------*/
+
+
+.lienhe img{
+  width:30px;
+  height: 30px;
+
+}
+.hdv-clear-filter-btn {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #ef4444;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  white-space: nowrap;
+  
+}
+
+.hdv-clear-filter-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+.load-more-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.load-more-btn {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  background: #0ea5e9;
+  color: white;
+  transition: all .3s;
+}
+
+.load-more-btn:hover {
+  transform: translateY(-3px);
+}
+
+.load-more-btn:active {
+  transform: scale(.96);
+}

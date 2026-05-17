@@ -55,6 +55,12 @@ const ContentHuongdanvien = ({ user = null }) => {
     if (!price && price !== 0) return "Liên hệ";
     return `${Number(price).toLocaleString("vi-VN")}đ`;
   };
+  //Xóa bộ lọc
+  const clearFilters = () => {
+    setKeyword("");
+    setSelectedLanguage("");
+    setSelectedPrice("");
+  };
 
   const filteredHuongDanViens = useMemo(() => {
     return huongdanviens.filter((item) => {
@@ -94,9 +100,9 @@ const ContentHuongdanvien = ({ user = null }) => {
     }
 
     const rawImage = place?.diaDiem?.image || "";
-  const fullImage = rawImage.startsWith("http") 
-    ? rawImage 
-    : `http://localhost:5000/${rawImage.startsWith('/') ? rawImage.slice(1) : rawImage}`;
+    const fullImage = rawImage.startsWith("http")
+      ? rawImage
+      : `http://localhost:5000/${rawImage.startsWith('/') ? rawImage.slice(1) : rawImage}`;
 
     const selectedGuideForPayment = {
       ...guide,
@@ -189,6 +195,15 @@ const ContentHuongdanvien = ({ user = null }) => {
               <option value="500to1m">500k - 1 triệu</option>
               <option value="over1m">Trên 1 triệu</option>
             </select>
+
+            {(keyword || selectedLanguage || selectedPrice) && (
+              <button
+                className="hdv-clear-filter-btn"
+                onClick={clearFilters}
+              >
+                ✕ Xóa bộ lọc
+              </button>
+            )}
           </div>
         </section>
 

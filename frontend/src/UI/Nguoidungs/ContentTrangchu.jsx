@@ -237,8 +237,8 @@ const ContentTrangchu = ({ data, user = null }) => {
           </div>
 
           <div className="cta-right-trangchu">
-            <img src="/images/beach.jpg" alt="" />
-            <img src="/images/forest.jpg" alt="" />
+            <img src="/img/huongdanvien/huongdanvien1/face.jpg" alt="" />
+            <img src="/img/huongdanvien/huongdanvien6/face.png" alt="" />
           </div>
         </div>
 

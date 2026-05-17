@@ -19,10 +19,10 @@ const Footer = () => {
         {/* COL 2 */}
         <div className="footer-col">
           <h4>KHÁM PHÁ</h4>
-          <p>Miền Bắc</p>
-          <p>Miền Trung</p>
-          <p>Miền Tây</p>
-          <p>Tây Nguyên</p>
+          <p>Dưới Biển</p>
+          <p>Trên Núi</p>
+          <p>Trong Rừng</p>
+          <p>Đồi Dóc</p>
         </div>
 
         {/* COL 3 */}
@@ -36,14 +36,16 @@ const Footer = () => {
 
         {/* COL 4 */}
         <div className="footer-col newsletter">
-          <h4>ĐĂNG KÝ BẢN TIN</h4>
+          <h4>Phản ánh/ Góp ý</h4>
           <p>
-            Nhận thông tin về các cung đường mới nhất mỗi tuần.
+            Chúng tôi luôn lắng nghe và trân trọng mọi ý kiến đóng góp để cải thiện dịch vụ và mang đến trải nghiệm tốt nhất cho cộng đồng.
           </p>
-
-          <div className="input-box-footer">
-            <input placeholder="Email của bạn" />
-            <button>➤</button>
+            <p>Gửi phản ánh/ góp ý qua :</p>
+          <div className="lienhe">
+            <h2>SĐT: 0382130809</h2>
+          </div>
+           <div className="lienhe">
+            <h2>Email: vqthanh1999@gmail.com</h2>
           </div>
         </div>
 
