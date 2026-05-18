@@ -1,6 +1,7 @@
 const LoiMoi = require("../models/LoiMoi");
 const Nhom = require("../models/Nhom");
 const DoiTac = require("../models/DoiTac");
+const ThongBao = require("../models/ThongBao");
 
 exports.taoLoiMoi = async (req, res) => {
     try {
@@ -70,7 +71,10 @@ exports.acceptLoiMoi = async (req, res) => {
     try {
         const { loiMoiId } = req.params;
 
-        const loiMoi = await LoiMoi.findById(loiMoiId);
+        // const loiMoi = await LoiMoi.findById(loiMoiId);
+        const loiMoi = await LoiMoi.findById(loiMoiId)
+            .populate("doiTacId", "hoTen")
+            .populate("nhomId", "ten");
 
         if (!loiMoi) {
             return res.status(404).json({ message: "Không tìm thấy lời mời" });
@@ -108,6 +112,17 @@ exports.acceptLoiMoi = async (req, res) => {
                 }
             }
             await nhom.save();
+            await ThongBao.create({
+                nguoiNhan: loiMoi.nguoiGuiId,
+
+                tieuDe: "Yêu cầu tham gia nhóm đã được chấp nhận",
+
+                noiDung: `Hướng dẫn viên ${loiMoi.doiTacId.hoTen} đã chấp nhận yêu cầu tham gia nhóm ${loiMoi.nhomId.ten}`,
+
+                loai: "user",
+
+                loaiThongBao: "he_thong"
+            });
         }
 
         //  xóa lời mời
@@ -128,7 +143,10 @@ exports.rejectLoiMoi = async (req, res) => {
         const { loiMoiId } = req.params;
 
         // tìm lời mời
-        const loiMoi = await LoiMoi.findById(loiMoiId);
+        // const loiMoi = await LoiMoi.findById(loiMoiId);
+        const loiMoi = await LoiMoi.findById(loiMoiId)
+            .populate("doiTacId", "hoTen")
+            .populate("nhomId", "ten");
 
         // check tồn tại
         if (!loiMoi) {
@@ -138,6 +156,20 @@ exports.rejectLoiMoi = async (req, res) => {
         // update trạng thái
         loiMoi.trangThai = "da_tu_choi";
         await loiMoi.save();
+
+        await ThongBao.create({
+
+            nguoiNhan: loiMoi.nguoiGuiId,
+
+            tieuDe: "Yêu cầu tham gia nhóm bị từ chối",
+
+            noiDung: `Hướng dẫn viên ${loiMoi.doiTacId.hoTen} đã từ chối yêu cầu tham gia nhóm tại địa điểm ${loiMoi.nhomId.ten}. Vui lòng kiểm tra email để nhận phản hồi hoàn tiền.`,
+
+            loai: "user",
+
+            loaiThongBao: "canh_bao"
+
+        });
 
         res.json({ message: "Đã từ chối lời mời" });
 

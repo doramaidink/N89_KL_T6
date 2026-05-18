@@ -74,10 +74,10 @@ const ContentChitietdiadiem = ({ user = null }) => {
     startTime: "",
     endTime: "",
     lichTrinh: {
-      timeStart: "08:00 AM",
+      // timeStart: " ",
       location: "",
       note: "",
-      timeEnd: "05:00 PM"
+      // timeEnd: " "
     },
     lienHeKhanCap: {
       hoTen: "",

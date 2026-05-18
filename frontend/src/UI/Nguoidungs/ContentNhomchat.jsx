@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import io from "socket.io-client";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const socket = io.connect("http://localhost:5000");
 
@@ -84,12 +85,12 @@ const ContentNhomchat = ({ user }) => {
 
   const handleCheckIn = () => {
     if (!inputCheckinCode) {
-      alert("Nhập mã checkin");
+      toast.error("Nhập mã checkin");
       return;
     }
 
     if (!navigator.geolocation) {
-      alert("Không hỗ trợ GPS");
+      toast.error("Không hỗ trợ GPS");
       return;
     }
 
@@ -108,7 +109,7 @@ const ContentNhomchat = ({ user }) => {
         checkinType === "manual" &&
         finalCode.length < 6
       ) {
-        alert("Nhập đủ 6 số");
+        toast.error("Nhập đủ 6 số");
         return;
       }
 
@@ -139,7 +140,7 @@ const ContentNhomchat = ({ user }) => {
 
           setGeneratedCode(code);
         }
-        alert("Checkin thành công");
+        toast.success("Checkin thành công");
         setSavedCheckinCode(finalCode);
         setSavedCheckinType(checkinType);
         // CHỈ đóng modal khi tự nhập mã
@@ -149,7 +150,7 @@ const ContentNhomchat = ({ user }) => {
       } catch (err) {
         console.log(err);
 
-        alert(
+        toast.error(
           err.response?.data?.message || "Checkin lỗi"
         );
       }
@@ -161,7 +162,7 @@ const ContentNhomchat = ({ user }) => {
 
     const isValid = inputCheckoutCode.every(d => d !== "");
     if (!isValid) {
-      alert("Nhập đủ 6 số");
+      toast.error("Nhập đủ 6 số");
       return;
     }
 
@@ -176,7 +177,7 @@ const ContentNhomchat = ({ user }) => {
           code: finalCode
         });
 
-        alert("Checkout thành công");
+        toast.success("Checkout thành công");
         setShowCheckoutModal(false);
 
         if (user.vaiTro === "doiTac") {
@@ -187,7 +188,7 @@ const ContentNhomchat = ({ user }) => {
       } catch (err) {
         console.log(err);
 
-        alert(
+        toast.error(
           err.response?.data?.message || "Checkout lỗi"
         );
       }

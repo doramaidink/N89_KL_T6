@@ -10,12 +10,18 @@ const ContentThongbao = ({ user }) => {
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:5000/thongbao?type=user")
+
+    const userLocal = JSON.parse(localStorage.getItem("user"));
+
+    fetch(
+      `http://localhost:5000/thongbao?userId=${userLocal.id}`
+    )
       .then(res => res.json())
       .then(data => {
         console.log("NOTI:", data);
         setNotifications(data);
       });
+
   }, []);
 
   const displayedNotifications = showAll

@@ -21,25 +21,44 @@ exports.createThongBao = async (req, res) => {
 //  Lấy thông báo
 exports.getThongBao = async (req, res) => {
     try {
-        const { type } = req.query;
+
+        const { userId, type } = req.query;
 
         let filter = {};
 
-        if (type === "user") {
-            filter.loai = { $in: ["user", "all"] };
-        } 
-        else if (type === "doitac") {
-            filter.loai = { $in: ["doitac", "all"] };
+        // THÔNG BÁO RIÊNG USER
+        if (userId) {
+
+            filter = {
+                $or: [
+                    { nguoiNhan: userId },
+                    { loai: "all" }
+                ]
+            };
         }
-        else {
-            filter = {}; // lấy hết (debug)
+
+        // fallback cũ
+        else if (type === "user") {
+
+            filter.loai = { $in: ["user", "all"] };
+        }
+
+        else if (type === "doitac") {
+
+            filter.loai = { $in: ["doitac", "all"] };
         }
 
         const thongBaos = await ThongBao.find(filter)
             .sort({ createdAt: -1 });
 
         res.json(thongBaos);
+
     } catch (err) {
-        res.status(500).json({ message: "Lỗi server" });
+
+        console.log(err);
+
+        res.status(500).json({
+            message: "Lỗi server"
+        });
     }
 };

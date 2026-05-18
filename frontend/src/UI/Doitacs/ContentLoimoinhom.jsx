@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ContentTaonhom from './ContentTaonhom';
+import { toast } from "react-toastify";
 import { UserPlus, Check, X, MapPin, Calendar, Users, ShieldCheck, Zap, Search, Trees, Sparkles } from "lucide-react";
 
 const ContentLoimoinhom = () => {
@@ -144,7 +145,7 @@ const ContentLoimoinhom = () => {
         }
       );
 
-      alert("Đã từ chối");
+      toast.success("Đã từ chối");
 
       // ❗ cập nhật UI ngay
       setInvitations((prev) =>

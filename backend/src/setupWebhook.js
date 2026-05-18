@@ -4,7 +4,7 @@ const axios = require("axios");
 async function setupWebhook() {
   try {
     const webhookUrl =
-      "https://crispness-recite-livestock.ngrok-free.dev/payment/webhook"; // Thay bằng URL webhook của bạn
+      "https://smock-extrude-opposing.ngrok-free.dev/payment/webhook"; // Thay bằng URL webhook của bạn
 
     const response = await axios.post(
       "https://api-merchant.payos.vn/confirm-webhook",
