@@ -14,8 +14,10 @@ const route = require('./routes');
 const Chat = require('./models/Chat');
 const { kiemDuyetNoiDung } = require("./services/aiKiemDuyetService");
 const NguoiDung = require("./models/NguoiDung");
+const CryptoJS = require("crypto-js");
 
 dotenv.config();
+const SECRET_KEY = "backpacking_chat_secret";
 
 // --- MIDDLEWARE ---
 app.use(express.json({ limit: "50mb" }));
@@ -61,44 +63,59 @@ io.on("connection", (socket) => {
     );
   });
 
- socket.on("send_message", async (data) => {
-  try {
-    const {
-      groupId,
-      senderId,
-      senderName,
-      message,
-      vaiTro,
-      hinhAnh = []
-    } = data;
+  socket.on("send_message", async (data) => {
+    let decryptedMessage = "";
 
-    // ===== KIỂM DUYỆT AI =====
-    const ketQua = await kiemDuyetNoiDung(message, hinhAnh);
+    try {
+      const bytes = CryptoJS.AES.decrypt(
+        data.message,
+        SECRET_KEY
+      );
 
-    if (!ketQua.hopLe) {
-      socket.emit("message_blocked", {
-        message: ketQua.lyDo
-      });
- 
-      return;
+      decryptedMessage = bytes.toString(CryptoJS.enc.Utf8);
+    } catch {
+      decryptedMessage = "";
     }
+    try {
+      const {
+        groupId,
+        senderId,
+        senderName,
+        message,
+        vaiTro,
+        hinhAnh = []
+      } = data;
 
-    // ===== LƯU DB =====
-    const newMessage = await Chat.create({
-      nhomId: groupId,
-      senderId,
-      hoTen: senderName,
-      noiDung: message,
-      hinhAnh
-    });
+      // ===== KIỂM DUYỆT AI =====
+      const ketQua = await kiemDuyetNoiDung(
+        decryptedMessage,
+        hinhAnh
+      );
 
-    // ===== GỬI CHO NHÓM =====
-    io.to(groupId).emit("receive_message", newMessage);
+      if (!ketQua.hopLe) {
+        socket.emit("message_blocked", {
+          message: ketQua.lyDo
+        });
 
-  } catch (err) {
-    console.log(err);
-  }
-});
+        return;
+      }
+
+      // ===== LƯU DB =====
+      const newMessage = await Chat.create({
+        nhomId: groupId,
+        senderId,
+        hoTen: senderName,
+        noiDung: message,
+        hinhAnh
+      });
+
+      // ===== GỬI CHO NHÓM =====
+      io.to(groupId).emit("receive_message", newMessage);
+
+    } catch (err) {
+      console.log(err);
+    }
+  });
   socket.on("new_member_joined", (data) => {
     io.to(data.groupId).emit("update_member_list");
   });

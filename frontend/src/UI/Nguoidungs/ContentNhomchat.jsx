@@ -3,8 +3,10 @@ import { useParams } from "react-router-dom";
 import io from "socket.io-client";
 import axios from "axios";
 import { toast } from "react-toastify";
+import CryptoJS from "crypto-js";
 
 const socket = io.connect("http://localhost:5000");
+const SECRET_KEY = "backpacking_chat_secret";
 
 const ContentNhomchat = ({ user }) => {
 
@@ -378,11 +380,18 @@ const ContentNhomchat = ({ user }) => {
   const handleSend = () => {
     if ((!currentInput.trim() && selectedImages.length === 0) || !user) return;
 
+    const encryptedMessage = currentInput.trim()
+      ? CryptoJS.AES.encrypt(
+        currentInput.trim(),
+        SECRET_KEY
+      ).toString()
+      : "";
+
     const msgData = {
       groupId,
       senderId: user.id || user._id,
       senderName: user.hoTen,
-      message: currentInput.trim(),
+      message: encryptedMessage,
       vaiTro: user.vaiTro,
       hinhAnh: selectedImages,
     };
@@ -521,7 +530,22 @@ const ContentNhomchat = ({ user }) => {
                     : ""
                     }`}
                 >
-                  {m.noiDung && <div>{m.noiDung}</div>}
+                  {m.noiDung && (
+                    <div>
+                      {(() => {
+                        try {
+                          const bytes = CryptoJS.AES.decrypt(
+                            m.noiDung,
+                            SECRET_KEY
+                          );
+
+                          return bytes.toString(CryptoJS.enc.Utf8);
+                        } catch {
+                          return "Tin nhắn lỗi";
+                        }
+                      })()}
+                    </div>
+                  )}
 
                   {Array.isArray(m.hinhAnh) && m.hinhAnh.length > 0 && (
                     <div className="chat-image-list">
