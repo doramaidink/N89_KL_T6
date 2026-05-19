@@ -281,7 +281,7 @@ class nhomController {
 
                 record.hdvId = userId;
                 record.hdvCode = finalCode;
-                record.hdvCheckinType = checkinType; 
+                record.hdvCheckinType = checkinType;
                 record.checkinLocationHdv = { lat, lng };
             }
 
@@ -416,6 +416,68 @@ class nhomController {
         } catch (err) {
             console.log(err);
             res.status(500).json({ message: "Lỗi lấy lịch sử" });
+        }
+    }
+    async roiNhom(req, res) {
+        try {
+
+            const { id } = req.params;
+            const { userId } = req.body;
+
+            const nhom = await Nhom.findById(id);
+
+            if (!nhom) {
+                return res.status(404).json({
+                    message: "Không tìm thấy nhóm"
+                });
+            }
+
+            // không cho trưởng nhóm out
+            if (
+                nhom.nguoiTao?.id?.toString() === userId.toString()
+            ) {
+                return res.status(400).json({
+                    message: "Trưởng nhóm không thể rời nhóm"
+                });
+            }
+            // không cho hướng dẫn viên rời nhóm
+            const hdv = nhom.thanhVien.find(
+                (tv) =>
+                    tv.user.toString() === userId.toString() &&
+                    tv.role === "huong_dan_vien"
+            );
+
+            if (hdv) {
+                return res.status(400).json({
+                    message: "Hướng dẫn viên không thể rời nhóm"
+                });
+            }
+
+            // xóa thành viên
+            nhom.thanhVien = nhom.thanhVien.filter(
+                (tv) =>
+                    tv.user.toString() !== userId.toString()
+            );
+
+            await nhom.save();
+
+            // realtime
+            const io = req.app.get("io");
+
+            io.to(id).emit("update_member_list");
+
+            res.json({
+                message: "Đã rời nhóm",
+                nhom
+            });
+
+        } catch (err) {
+
+            console.log(err);
+
+            res.status(500).json({
+                message: "Lỗi server"
+            });
         }
     }
 

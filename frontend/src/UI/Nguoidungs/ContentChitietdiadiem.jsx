@@ -5,7 +5,9 @@ import { toast } from "react-toastify";
 import io from "socket.io-client";
 import MapCheckin from "../../Pages/Quantriviens/MapCheckin";
 
-const ContentChitietdiadiem = ({ user = null }) => {
+const ContentChitietdiadiem = () => {
+  const user =
+    JSON.parse(localStorage.getItem("user")) || null;
   const { slug } = useParams();
 
   const socket = io.connect("http://localhost:5000");

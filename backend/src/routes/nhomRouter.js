@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const nhomController = require("../controllers/nhomController");
 
-
+router.post("/roi-nhom/:id", nhomController.roiNhom);
 //  Để lấy danh sách nhóm của một người dùng
 router.get("/user/:userId", nhomController.layNhomCuaToi);
 

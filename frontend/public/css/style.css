@@ -5339,6 +5339,17 @@ input {
   color: #ffffff;
   overflow: hidden;
 }
+.leave-group-btn{
+  margin-top: 10px;
+  color: #ff6b6b;
+  border: 1px solid rgba(255,0,0,0.3);
+  transition: 0.3s;
+}
+
+.leave-group-btn:hover{
+  background: rgba(255,0,0,0.12);
+  color: #ff4d4d;
+}
 
 .checkin-type-box {
   display: flex;

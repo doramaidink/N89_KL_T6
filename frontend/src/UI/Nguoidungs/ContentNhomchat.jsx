@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -9,6 +9,7 @@ const socket = io.connect("http://localhost:5000");
 const SECRET_KEY = "backpacking_chat_secret";
 
 const ContentNhomchat = ({ user }) => {
+  const navigate = useNavigate();
 
 
 
@@ -375,6 +376,38 @@ const ContentNhomchat = ({ user }) => {
     setSelectedImages(base64Images);
     setPreviewImages(base64Images);
   };
+  const handleLeaveGroup = async () => {
+
+    const confirmLeave = window.confirm(
+      "Bạn chắc chắn muốn rời nhóm chứ?"
+    );
+
+    if (!confirmLeave) return;
+
+    try {
+
+      await axios.post(
+        `http://localhost:5000/nhom/roi-nhom/${groupId}`,
+        {
+          userId: user._id || user.id
+        }
+      );
+
+      toast.success("Đã rời nhóm");
+
+      // về trang khám phá user
+      navigate(`/${encodeURIComponent(user.hoTen)}/khamphauser`);
+
+    } catch (err) {
+
+      console.log(err);
+
+      toast.error(
+        err.response?.data?.message ||
+        "Rời nhóm thất bại"
+      );
+    }
+  };
 
   // 6. Hàm xử lý gửi tin nhắn
   const handleSend = () => {
@@ -499,6 +532,13 @@ const ContentNhomchat = ({ user }) => {
             onClick={() => setShowGallery(true)}
           >
             <span>🖼</span> Kho ảnh nhóm
+          </div>
+          <div
+            className="sidebar-item leave-group-btn"
+            onClick={handleLeaveGroup}
+          >
+            <span>🚪</span>
+            Rời nhóm
           </div>
         </div>
 
