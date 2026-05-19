@@ -503,6 +503,7 @@ class doiTacController {
   async themDiaDiem(req, res) {
     try {
       const { slug } = req.params;
+
       const {
         tenDiaDiem,
         moTa,
@@ -512,40 +513,198 @@ class doiTacController {
         quangduong,
         khuVuc,
         tinh,
-        dacDiemDiaDanh = [],
-        images = [],
-        image = ''
+        lat,
+        lng,
+        dacDiemDiaDanh
       } = req.body;
 
       const doiTac = await DoiTac.findOne({ slug });
+
       if (!doiTac) {
-        return res.status(404).json({ message: 'Không tìm thấy đối tác' });
+        return res.status(404).json({
+          message: "Không tìm thấy đối tác"
+        });
       }
 
-      const diaDiem = await DiaDiem.create({
-        tenDiaDiem,
-        moTa,
-        gioiThieu: Array.isArray(gioiThieu) ? gioiThieu : [gioiThieu].filter(Boolean),
-        doKho,
-        veVao,
-        quangduong,
-        khuVuc,
-        tinh,
-        dacDiemDiaDanh: Array.isArray(dacDiemDiaDanh) ? dacDiemDiaDanh : [],
-        images: Array.isArray(images) ? images : [],
-        image
-      });
+      // ===== tạo thư mục frontend/public/img/diadiem =====
 
-      doiTac.cacDiaDiemDangKy.push(diaDiem._id);
+      const frontendPublicPath = path.join(
+        __dirname,
+        "../../../frontend/public/img/diadiem"
+      );
+
+      if (!fs.existsSync(frontendPublicPath)) {
+        fs.mkdirSync(frontendPublicPath, {
+          recursive: true
+        });
+      }
+
+      // ===== tạo folder riêng từng địa điểm =====
+
+      const folders = fs.readdirSync(frontendPublicPath);
+
+      const numbers = folders
+        .filter(name => name.startsWith("diadiem"))
+        .map(name => {
+          const num = parseInt(
+            name.replace("diadiem", "")
+          );
+
+          return isNaN(num)
+            ? 0
+            : num;
+        });
+
+      const nextNumber =
+        numbers.length > 0
+          ? Math.max(...numbers) + 1
+          : 1;
+
+      const folderName =
+        `diadiem${nextNumber}`;
+
+      const newFolderPath =
+        path.join(
+          frontendPublicPath,
+          folderName
+        );
+
+      if (!fs.existsSync(newFolderPath)) {
+
+        fs.mkdirSync(
+          newFolderPath,
+          { recursive: true }
+        );
+
+      }
+
+      // ===== hàm di chuyển file =====
+
+      const moveFile = (file, newName) => {
+
+        if (!file) return '';
+
+        const ext =
+          path.extname(
+            file.originalname
+          );
+
+        const finalName =
+          `${newName}${ext}`;
+
+        const finalPath =
+          path.join(
+            newFolderPath,
+            finalName
+          );
+
+        fs.renameSync(
+          file.path,
+          finalPath
+        );
+
+        return `img/diadiem/${folderName}/${finalName}`;
+      };
+
+      // ===== ảnh chính =====
+
+      const mainImage =
+        req.files?.image?.[0]
+          ? moveFile(
+            req.files.image[0],
+            "main"
+          )
+          : '';
+
+      // ===== ảnh phụ =====
+
+      let subImages = [];
+
+      if (req.files?.images) {
+
+        subImages =
+          req.files.images.map(
+            (file, index) =>
+              moveFile(
+                file,
+                `sub_${index + 1}`
+              )
+          );
+
+      }
+
+      // ===== parse dữ liệu =====
+
+      const gioiThieuData =
+        gioiThieu
+          ? JSON.parse(gioiThieu)
+          : [];
+
+      const dacDiem =
+        dacDiemDiaDanh
+          ? JSON.parse(
+            dacDiemDiaDanh
+          )
+          : [];
+
+      // ===== lưu database =====
+
+      const diaDiem =
+        await DiaDiem.create({
+
+          tenDiaDiem,
+          moTa,
+
+          gioiThieu:
+            gioiThieuData,
+
+          doKho,
+          veVao,
+          quangduong,
+          khuVuc,
+          tinh,
+
+          toaDo: {
+            lat: Number(lat || 0),
+            lng: Number(lng || 0)
+          },
+
+          dacDiemDiaDanh:
+            dacDiem,
+
+          image: mainImage,
+
+          images: subImages
+        });
+
+      doiTac
+        .cacDiaDiemDangKy
+        .push(
+          diaDiem._id
+        );
+
       await doiTac.save();
 
       return res.status(201).json({
-        message: 'Thêm địa điểm thành công',
+
+        message:
+          "Thêm địa điểm thành công",
+
         diaDiem
+
       });
+
     } catch (error) {
+
       console.log(error);
-      return res.status(500).json({ message: 'Lỗi server khi thêm địa điểm' });
+
+      return res.status(500).json({
+
+        message:
+          "Lỗi server khi thêm địa điểm"
+
+      });
+
     }
   }
   async layHoSo(req, res) {

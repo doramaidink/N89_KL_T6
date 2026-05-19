@@ -30,6 +30,8 @@ const ContentThemdiadiem = () => {
     quangduong: "",
     khuVuc: "",
     tinh: "",
+    lat: "",
+    lng: "",
     hot: false,
     dacDiemDiaDanhText: "",
   });
@@ -226,7 +228,8 @@ const ContentThemdiadiem = () => {
       payload.append("tinh", formData.tinh);
       payload.append("hot", String(formData.hot));
       payload.append("dacDiemDiaDanh", JSON.stringify(dacDiemDiaDanh));
-
+      payload.append("lat", formData.lat);
+      payload.append("lng", formData.lng);
       payload.append("image", mainImage);
 
       subImages.forEach((file) => {
@@ -324,6 +327,33 @@ const ContentThemdiadiem = () => {
                     placeholder="VD: Pleiku, Gia Lai"
                   />
                 </div>
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="input-group">
+                <label>VĨ ĐỘ (LAT)</label>
+
+                <input
+                  type="number"
+                  step="any"
+                  name="lat"
+                  value={formData.lat}
+                  onChange={handleChange}
+                  placeholder="VD: 15.979122"
+                />
+              </div>
+
+              <div className="input-group">
+                <label>KINH ĐỘ (LNG)</label>
+
+                <input
+                  type="number"
+                  step="any"
+                  name="lng"
+                  value={formData.lng}
+                  onChange={handleChange}
+                  placeholder="VD:108.265771"
+                />
               </div>
             </div>
 
