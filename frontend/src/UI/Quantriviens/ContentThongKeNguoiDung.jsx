@@ -192,9 +192,8 @@ const ContentThongKeNguoiDung = () => {
                 <div key={idx} className="user-bar-group">
                   <div className="bar-track">
                     <div
-                      className={`user-bar ${
-                        item.active ? 'active-bar' : ''
-                      }`}
+                      className={`user-bar ${item.active ? 'active-bar' : ''
+                        }`}
                       style={{ height: percent }}
                     ></div>
                   </div>
@@ -261,34 +260,31 @@ const ContentThongKeNguoiDung = () => {
           <div className="header-actions">
             <div className="tab-buttons">
               <button
-                className={`tab-btn ${
-                  activeTab === 'tatca' ? 'active' : ''
-                }`}
+                className={`tab-btn ${activeTab === 'tatca' ? 'active' : ''
+                  }`}
                 onClick={() => setActiveTab('tatca')}
               >
                 Tất cả
               </button>
 
               <button
-                className={`tab-btn ${
-                  activeTab === 'nguoidung' ? 'active' : ''
-                }`}
+                className={`tab-btn ${activeTab === 'nguoidung' ? 'active' : ''
+                  }`}
                 onClick={() => setActiveTab('nguoidung')}
               >
                 Người dùng
               </button>
 
               <button
-                className={`tab-btn ${
-                  activeTab === 'doitac' ? 'active' : ''
-                }`}
+                className={`tab-btn ${activeTab === 'doitac' ? 'active' : ''
+                  }`}
                 onClick={() => setActiveTab('doitac')}
               >
                 Đối tác
               </button>
             </div>
 
-            
+
           </div>
         </div>
 
@@ -335,11 +331,10 @@ const ContentThongKeNguoiDung = () => {
                           />
                         ) : (
                           <div
-                            className={`avatar-box ${
-                              acc.type === 'ĐỐI TÁC'
-                                ? 'bg-partner'
-                                : 'bg-user'
-                            }`}
+                            className={`avatar-box ${acc.type === 'ĐỐI TÁC'
+                              ? 'bg-partner'
+                              : 'bg-user'
+                              }`}
                           >
                             {acc.avatar || getInitials(acc.name)}
                           </div>
@@ -359,11 +354,10 @@ const ContentThongKeNguoiDung = () => {
 
                     <td>
                       <span
-                        className={`badge-type ${
-                          acc.type === 'ĐỐI TÁC'
-                            ? 'type-partner'
-                            : 'type-user'
-                        }`}
+                        className={`badge-type ${acc.type === 'ĐỐI TÁC'
+                          ? 'type-partner'
+                          : 'type-user'
+                          }`}
                       >
                         {acc.type}
                       </span>
@@ -372,11 +366,10 @@ const ContentThongKeNguoiDung = () => {
                     <td>
                       <div className="status-cell">
                         <span
-                          className={`status-dot ${
-                            acc.status === 'Hoạt động'
-                              ? 'dot-active'
-                              : 'dot-locked'
-                          }`}
+                          className={`status-dot ${acc.status === 'Hoạt động'
+                            ? 'dot-active'
+                            : 'dot-locked'
+                            }`}
                         ></span>
 
                         <span
@@ -433,6 +426,60 @@ const ContentThongKeNguoiDung = () => {
 };
 
 const UserDetailModal = ({ open, data, onClose }) => {
+
+  const [editData, setEditData] = useState({});
+
+  useEffect(() => {
+    if (data) {
+      setEditData({
+        ...data,
+        tenChuTaiKhoan: data.tenChuTaiKhoan || "",
+        soTaiKhoan: data.soTaiKhoan || "",
+        tenNganHang: data.tenNganHang || "",
+        chiNhanhNganHang: data.chiNhanhNganHang || "",
+      });
+    }
+  }, [data]);
+
+  const handleChange = (field, value) => {
+    setEditData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSave = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/quantrivien/${data.id}/capnhattaikhoan`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editData)
+        }
+      );
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        toast.error(result.message);
+        return;
+      }
+
+      toast.success("Cập nhật thành công");
+      onClose();
+
+    } catch (err) {
+      console.log(err);
+      toast.error("Lỗi cập nhật");
+    }
+  };
+  const handleCancel = () => {
+    setEditData(data);
+    onClose();
+  };
   if (!open || !data) return null;
 
   const avatarUrl = getImageUrl(data.image);
@@ -505,11 +552,23 @@ const UserDetailModal = ({ open, data, onClose }) => {
             value={data.email}
           />
 
-          <DetailItem
-            icon={<Phone size={18} />}
-            label="Số điện thoại"
-            value={data.soDienThoai}
-          />
+          <div className="user-detail-item">
+            <Phone size={18} />
+
+            <div>
+              <span>Số điện thoại</span>
+
+              <input
+                value={editData.soDienThoai || ""}
+                onChange={(e) =>
+                  handleChange(
+                    "soDienThoai",
+                    e.target.value
+                  )
+                }
+              />
+            </div>
+          </div>
 
           <DetailItem
             icon={<Calendar size={18} />}
@@ -523,11 +582,31 @@ const UserDetailModal = ({ open, data, onClose }) => {
             value={data.vaiTro}
           />
 
-          <DetailItem
-            icon={<Shield size={18} />}
-            label="Trạng thái"
-            value={data.trangThai}
-          />
+          <div className="user-detail-item">
+            <Shield size={18} />
+
+            <div>
+              <span>Trạng thái</span>
+
+              <select
+                value={editData.trangThai || ""}
+                onChange={(e) =>
+                  handleChange(
+                    "trangThai",
+                    e.target.value
+                  )
+                }
+              >
+                <option value="Hoạt động">
+                  Hoạt động
+                </option>
+
+                <option value="Khóa">
+                  Khóa
+                </option>
+              </select>
+            </div>
+          </div>
 
           <DetailItem
             icon={<FileCheck size={18} />}
@@ -571,12 +650,83 @@ const UserDetailModal = ({ open, data, onClose }) => {
             value={data.lyDoKhoa || 'Không có'}
           />
         </div>
+        {
+          data.type === "ĐỐI TÁC" && (
 
+            <div className="user-detail-section">
+              <h3>Thông tin ngân hàng</h3>
+
+              <div className="user-detail-grid">
+
+                <div className="user-detail-item">
+                  <div>
+                    <span>Tên chủ tài khoản</span>
+
+                    <input
+                      value={editData.tenChuTaiKhoan}
+                      onChange={(e) =>
+                        handleChange(
+                          "tenChuTaiKhoan",
+                          e.target.value
+                        )}
+                    />
+                  </div>
+                </div>
+
+                <div className="user-detail-item">
+                  <div>
+                    <span>Số tài khoản</span>
+
+                    <input
+                      value={editData.soTaiKhoan}
+                      onChange={(e) =>
+                        handleChange(
+                          "soTaiKhoan",
+                          e.target.value
+                        )}
+                    />
+                  </div>
+                </div>
+
+                <div className="user-detail-item">
+                  <div>
+                    <span>Ngân hàng</span>
+
+                    <input
+                      value={editData.tenNganHang}
+                      onChange={(e) =>
+                        handleChange(
+                          "tenNganHang",
+                          e.target.value
+                        )}
+                    />
+                  </div>
+                </div>
+
+                <div className="user-detail-item">
+                  <div>
+                    <span>Chi nhánh</span>
+
+                    <input
+                      value={editData.chiNhanhNganHang}
+                      onChange={(e) =>
+                        handleChange(
+                          "chiNhanhNganHang",
+                          e.target.value
+                        )}
+                    />
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          )}
         <div className="user-detail-section">
           <h3>Danh sách vi phạm</h3>
 
           {Array.isArray(data.danhSachViPham) &&
-          data.danhSachViPham.length > 0 ? (
+            data.danhSachViPham.length > 0 ? (
             <div className="user-violation-list">
               {data.danhSachViPham.map(
                 (item, index) => (
@@ -612,6 +762,23 @@ const UserDetailModal = ({ open, data, onClose }) => {
               Người dùng chưa có vi phạm nào
             </p>
           )}
+        </div>
+        <div className="user-detail-actions">
+
+          <button
+            className="btn-cancel-user"
+            onClick={onClose}
+          >
+            Hủy
+          </button>
+
+          <button
+            className="btn-save-user"
+            onClick={handleSave}
+          >
+            Lưu thay đổi
+          </button>
+
         </div>
       </div>
     </div>

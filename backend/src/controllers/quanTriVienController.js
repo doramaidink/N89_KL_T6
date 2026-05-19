@@ -422,7 +422,30 @@ class QuanTriVienController {
 
       const partners = await DoiTac.find({})
         .sort({ createdAt: -1 })
-        .select('_id hoTen soDienThoai trangThaiHoSo createdAt');
+        .select(`
+    _id
+    hoTen
+    soDienThoai
+    soCCCD
+    diaChi
+    queQuan
+    tinhDangKy
+    gioiThieuBanThan
+    kinhNghiem
+    soNamKinhNghiem
+    giaThue
+    kyNangDacBiet
+    ngonNguHoTro
+    trangThaiHoSo
+    createdAt
+    updatedAt
+    image
+
+    tenNganHang
+    tenChuTaiKhoan
+    chiNhanhNganHang
+    soTaiKhoan
+`)
 
       const tongNguoiDung = await NguoiDung.countDocuments();
       const tongDoiTacHoatDong = await DoiTac.countDocuments({
@@ -524,12 +547,74 @@ class QuanTriVienController {
       }));
 
       const partnerAccounts = partners.map((p) => ({
-        id: `#DT-${String(p._id).slice(-6).toUpperCase()}`,
+        _id: p._id,
+
+        id: `#DT-${String(p._id)
+          .slice(-6)
+          .toUpperCase()}`,
+
         name: p.hoTen || 'Đối tác',
+        hoTen: p.hoTen || 'Đối tác',
+
         email: p.soDienThoai || '',
+
         type: 'ĐỐI TÁC',
-        status: p.trangThaiHoSo === 'tu_choi' ? 'Tạm khóa' : 'Hoạt động',
-        date: p.createdAt ? new Date(p.createdAt).toLocaleDateString('vi-VN') : '',
+
+        status:
+          p.trangThaiHoSo === 'tu_choi'
+            ? 'Tạm khóa'
+            : 'Hoạt động',
+
+        trangThai: p.trangThaiHoSo,
+
+        date: p.createdAt
+          ? new Date(p.createdAt)
+            .toLocaleDateString('vi-VN')
+          : '',
+
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
+
+        soDienThoai: p.soDienThoai || '',
+        soCCCD: p.soCCCD || '',
+        diaChi: p.diaChi || '',
+        queQuan: p.queQuan || '',
+        tinhDangKy: p.tinhDangKy || '',
+
+        gioiThieuBanThan:
+          p.gioiThieuBanThan || '',
+
+        kinhNghiem:
+          p.kinhNghiem || '',
+
+        soNamKinhNghiem:
+          p.soNamKinhNghiem || 0,
+
+        giaThue:
+          p.giaThue || 0,
+
+        kyNangDacBiet:
+          p.kyNangDacBiet || [],
+
+        ngonNguHoTro:
+          p.ngonNguHoTro || [],
+
+        image: p.image || '',
+
+        // ===== THÔNG TIN NGÂN HÀNG =====
+
+        tenChuTaiKhoan:
+          p.tenChuTaiKhoan || '',
+
+        soTaiKhoan:
+          p.soTaiKhoan || '',
+
+        tenNganHang:
+          p.tenNganHang || '',
+
+        chiNhanhNganHang:
+          p.chiNhanhNganHang || '',
+
         avatar: (p.hoTen || 'DT')
           .split(' ')
           .filter(Boolean)
@@ -895,131 +980,152 @@ class QuanTriVienController {
   }
 
   async capNhatDoiTac(req, res) {
-  try {
+    try {
 
-    const { id } = req.params;
+      const { id } = req.params;
 
-    const doiTac = await DoiTac.findById(id);
+      const doiTac = await DoiTac.findById(id);
 
-    if (!doiTac) {
-      return res.status(404).json({
-        message: 'Không tìm thấy đối tác'
+      if (!doiTac) {
+        return res.status(404).json({
+          message: 'Không tìm thấy đối tác'
+        });
+      }
+
+      const {
+        hoTen,
+        soDienThoai,
+        soCCCD,
+        diaChi,
+        queQuan,
+        tinhDangKy,
+        gioiThieuBanThan,
+        kinhNghiem,
+        soNamKinhNghiem,
+        giaThue,
+        kyNangDacBiet,
+        ngonNguHoTro,
+        xacMinhTaiKhoan,
+        trangThaiHoSo,
+        danhSachChungChi,
+
+        // thêm
+        chiNhanhNganHang,
+        tenNganHang,
+        tenChuTaiKhoan,
+        soTaiKhoan
+
+      } = req.body;
+
+      // ─────────────────────────────
+      // UPDATE FIELD
+      // ─────────────────────────────
+      if (hoTen) doiTac.hoTen = hoTen;
+
+      if (soDienThoai)
+        doiTac.soDienThoai = soDienThoai;
+
+      if (soCCCD)
+        doiTac.soCCCD = soCCCD;
+
+      if (diaChi)
+        doiTac.diaChi = diaChi;
+
+      if (queQuan)
+        doiTac.queQuan = queQuan;
+
+      if (tinhDangKy)
+        doiTac.tinhDangKy = tinhDangKy;
+
+      if (gioiThieuBanThan)
+        doiTac.gioiThieuBanThan =
+          gioiThieuBanThan;
+
+      if (kinhNghiem)
+        doiTac.kinhNghiem = kinhNghiem;
+
+      if (soNamKinhNghiem)
+        doiTac.soNamKinhNghiem =
+          soNamKinhNghiem;
+
+      if (giaThue)
+        doiTac.giaThue = giaThue;
+
+      if (trangThaiHoSo)
+        doiTac.trangThaiHoSo =
+          trangThaiHoSo;
+
+      // ─────────────────────────────
+      // KỸ NĂNG
+      // ─────────────────────────────
+      if (kyNangDacBiet) {
+        doiTac.kyNangDacBiet =
+          typeof kyNangDacBiet === 'string'
+            ? JSON.parse(kyNangDacBiet)
+            : kyNangDacBiet;
+      }
+
+      if (ngonNguHoTro) {
+        doiTac.ngonNguHoTro =
+          typeof ngonNguHoTro === 'string'
+            ? JSON.parse(ngonNguHoTro)
+            : ngonNguHoTro;
+      }
+
+      // ─────────────────────────────
+      // XÁC MINH TÀI KHOẢN
+      // ─────────────────────────────
+      if (xacMinhTaiKhoan) {
+        doiTac.xacMinhTaiKhoan =
+          xacMinhTaiKhoan;
+      }
+
+      // ─────────────────────────────
+      // CHỨNG CHỈ
+      // ─────────────────────────────
+      if (danhSachChungChi) {
+
+        doiTac.danhSachChungChi =
+          typeof danhSachChungChi === 'string'
+            ? JSON.parse(danhSachChungChi)
+            : danhSachChungChi;
+      }
+      if (chiNhanhNganHang)
+        doiTac.chiNhanhNganHang = chiNhanhNganHang;
+
+      if (tenNganHang)
+        doiTac.tenNganHang =
+          tenNganHang;
+
+      if (tenChuTaiKhoan)
+        doiTac.tenChuTaiKhoan =
+          tenChuTaiKhoan;
+
+      if (soTaiKhoan)
+        doiTac.soTaiKhoan =
+          soTaiKhoan;
+
+      // ─────────────────────────────
+      // SAVE
+      // ─────────────────────────────
+      await doiTac.save();
+
+      return res.status(200).json({
+        success: true,
+        message: 'Cập nhật đối tác thành công',
+        doiTac,
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi server',
       });
     }
-
-    const {
-      hoTen,
-      soDienThoai,
-      soCCCD,
-      diaChi,
-      queQuan,
-      tinhDangKy,
-      gioiThieuBanThan,
-      kinhNghiem,
-      soNamKinhNghiem,
-      giaThue,
-      kyNangDacBiet,
-      ngonNguHoTro,
-      xacMinhTaiKhoan,
-      trangThaiHoSo,
-      danhSachChungChi,
-    } = req.body;
-
-    // ─────────────────────────────
-    // UPDATE FIELD
-    // ─────────────────────────────
-    if (hoTen) doiTac.hoTen = hoTen;
-
-    if (soDienThoai)
-      doiTac.soDienThoai = soDienThoai;
-
-    if (soCCCD)
-      doiTac.soCCCD = soCCCD;
-
-    if (diaChi)
-      doiTac.diaChi = diaChi;
-
-    if (queQuan)
-      doiTac.queQuan = queQuan;
-
-    if (tinhDangKy)
-      doiTac.tinhDangKy = tinhDangKy;
-
-    if (gioiThieuBanThan)
-      doiTac.gioiThieuBanThan =
-        gioiThieuBanThan;
-
-    if (kinhNghiem)
-      doiTac.kinhNghiem = kinhNghiem;
-
-    if (soNamKinhNghiem)
-      doiTac.soNamKinhNghiem =
-        soNamKinhNghiem;
-
-    if (giaThue)
-      doiTac.giaThue = giaThue;
-
-    if (trangThaiHoSo)
-      doiTac.trangThaiHoSo =
-        trangThaiHoSo;
-
-    // ─────────────────────────────
-    // KỸ NĂNG
-    // ─────────────────────────────
-    if (kyNangDacBiet) {
-      doiTac.kyNangDacBiet =
-        typeof kyNangDacBiet === 'string'
-          ? JSON.parse(kyNangDacBiet)
-          : kyNangDacBiet;
-    }
-
-    if (ngonNguHoTro) {
-      doiTac.ngonNguHoTro =
-        typeof ngonNguHoTro === 'string'
-          ? JSON.parse(ngonNguHoTro)
-          : ngonNguHoTro;
-    }
-
-    // ─────────────────────────────
-    // XÁC MINH TÀI KHOẢN
-    // ─────────────────────────────
-    if (xacMinhTaiKhoan) {
-      doiTac.xacMinhTaiKhoan =
-        xacMinhTaiKhoan;
-    }
-
-    // ─────────────────────────────
-    // CHỨNG CHỈ
-    // ─────────────────────────────
-    if (danhSachChungChi) {
-
-      doiTac.danhSachChungChi =
-        typeof danhSachChungChi === 'string'
-          ? JSON.parse(danhSachChungChi)
-          : danhSachChungChi;
-    }
-
-    // ─────────────────────────────
-    // SAVE
-    // ─────────────────────────────
-    await doiTac.save();
-
-    return res.status(200).json({
-      success: true,
-      message: 'Cập nhật đối tác thành công',
-      doiTac,
-    });
-
-  } catch (error) {
-
-    console.log(error);
-
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi server',
-    });
-  }
-};
+  };
 }
 
 module.exports = new QuanTriVienController();

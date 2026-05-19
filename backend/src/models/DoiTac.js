@@ -175,6 +175,29 @@ const DoiTacSchema = new Schema({
     type: Number,
     default: 0,
   },
+  tenChuTaiKhoan: {
+    type: String,
+    default: '',
+    trim: true,
+  },
+
+  soTaiKhoan: {
+    type: String,
+    default: '',
+    trim: true,
+  },
+
+  tenNganHang: {
+    type: String,
+    default: '',
+    trim: true,
+  },
+
+  chiNhanhNganHang: {
+    type: String,
+    default: '',
+    trim: true,
+  },
 
   cacDiaDiemDangKy: [
     {

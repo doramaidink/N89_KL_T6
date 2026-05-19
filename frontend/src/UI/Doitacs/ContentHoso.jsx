@@ -19,6 +19,10 @@ const ContentHoso = () => {
   const sdtRef = useRef(null);
   const cccdRef = useRef(null);
   const diaDiemHuongDanRef = useRef(null);
+  const tenChuTaiKhoanRef = useRef(null);
+  const soTaiKhoanRef = useRef(null);
+  const tenNganHangRef = useRef(null);
+  const chiNhanhNganHangRef = useRef(null);
 
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [locations, setLocations] = useState([]);
@@ -107,6 +111,21 @@ const ContentHoso = () => {
           if (kinhNghiemRef.current) kinhNghiemRef.current.value = dt.kinhNghiem || "";
           if (sdtRef.current) sdtRef.current.value = dt.soDienThoai || "";
           if (cccdRef.current) cccdRef.current.value = dt.soCCCD || "";
+          if (tenChuTaiKhoanRef.current)
+            tenChuTaiKhoanRef.current.value =
+              dt.tenChuTaiKhoan || "";
+
+          if (soTaiKhoanRef.current)
+            soTaiKhoanRef.current.value =
+              dt.soTaiKhoan || "";
+
+          if (tenNganHangRef.current)
+            tenNganHangRef.current.value =
+              dt.tenNganHang || "";
+
+          if (chiNhanhNganHangRef.current)
+            chiNhanhNganHangRef.current.value =
+              dt.chiNhanhNganHang || "";
 
           if (diaDiemHuongDanRef.current) {
             diaDiemHuongDanRef.current.value = Array.isArray(dt.cacDiaDiemDangKy)
@@ -217,7 +236,12 @@ const ContentHoso = () => {
                 <label>Số CCCD</label>
                 <div className="input-wrapper">
                   <img src="/img/cccd.jpg" alt="CCCD" className="input-icon" />
-                  <input type="text" defaultValue="048201004567" ref={cccdRef} />
+                  <input
+                    type="text"
+                    ref={cccdRef}
+                    disabled
+                    className="readonly-input"
+                  />
                 </div>
               </div>
               <div className="input-group-with-icon">
@@ -241,14 +265,20 @@ const ContentHoso = () => {
             <div className="hoso-edit-card">
               <div className="input-group">
                 <label>Tên (Full Name)</label>
-                <input type="text" defaultValue="Nguyễn Thành Nam" ref={hoTenRef} />
+                <input
+                  type="text"
+                  ref={hoTenRef}
+                  disabled
+                  className="readonly-input"
+                />
               </div>
               <div className="input-group">
                 <label>Địa chỉ liên hệ</label>
                 <input
                   type="text"
-                  defaultValue="123 Nguyễn Văn Linh, Quận Hải Châu, Đà Nẵng"
                   ref={diaChiRef}
+                  disabled
+                  className="readonly-input"
                 />
               </div>
               <div className="form-row">
@@ -306,6 +336,75 @@ const ContentHoso = () => {
               <div className="input-group">
                 <label className="bottom">Kinh nghiệm</label>
                 <textarea rows="3" defaultValue="" ref={kinhNghiemRef}></textarea>
+              </div>
+              <div
+                className="hoso-edit-card"
+                style={{ marginTop: "20px" }}
+              >
+                <h3
+                  style={{
+                    marginBottom: "20px"
+                  }}
+                >
+                  Thông tin ngân hàng
+                </h3>
+
+                <div className="form-row">
+
+                  <div className="input-group">
+                    <label>Tên chủ tài khoản</label>
+
+                    <input
+                      type="text"
+                      ref={tenChuTaiKhoanRef}
+                      disabled
+                      className="readonly-input"
+                    />
+
+                  </div>
+
+                  <div className="input-group">
+                    <label>Số tài khoản</label>
+
+                    <input
+                      type="text"
+                      ref={soTaiKhoanRef}
+                      disabled
+                      className="readonly-input"
+                    />
+
+                  </div>
+
+                </div>
+
+                <div className="form-row">
+
+                  <div className="input-group">
+                    <label>Ngân hàng</label>
+
+                    <input
+                      type="text"
+                      ref={tenNganHangRef}
+                      disabled
+                      className="readonly-input"
+                    />
+
+                  </div>
+
+                  <div className="input-group">
+                    <label>Chi nhánh</label>
+
+                    <input
+                      type="text"
+                      ref={chiNhanhNganHangRef}
+                      disabled
+                      className="readonly-input"
+                    />
+
+                  </div>
+
+                </div>
+
               </div>
               {/*
               <div className="location-upload-wrapper">
@@ -372,8 +471,8 @@ const ContentHoso = () => {
                     <div className="input-group">
                       <label className="bottom">Kinh nghiệm</label>
                       <textarea rows="3" placeholder="Ví dụ: 3 năm dẫn tour văn hóa" value={item.experience} onChange={(e) => handleLocationChange(item.id, 'experience', e.target.value)} />
-                    </div>   
-      
+                    </div>
+
                     <button type="button" className="btn-delete-location" onClick={() => removeLocationRow(item.id)}>
                       Xóa
                     </button>

@@ -25,6 +25,13 @@ class doiTacController {
         kinhNghiem,
         soNamKinhNghiem,
         giaThue,
+
+        // thêm
+        tenChuTaiKhoan,
+        soTaiKhoan,
+        tenNganHang,
+        chiNhanhNganHang,
+
         cacDiaDiemDangKy,
         diaDiemGiaCa
       } = req.body;
@@ -191,22 +198,31 @@ class doiTacController {
         diaChi,
         queQuan,
         tinhDangKy,
+
         gioiThieuBanThan,
+
         kyNangDacBiet: dsKyNang,
         ngonNguHoTro: dsNgonNgu,
+
         kinhNghiem,
         soNamKinhNghiem: Number(soNamKinhNghiem || 0),
         giaThue: Number(giaThue || 0),
 
+        // thêm ngân hàng
+        tenChuTaiKhoan: tenChuTaiKhoan || '',
+        soTaiKhoan: soTaiKhoan || '',
+        tenNganHang: tenNganHang || '',
+        chiNhanhNganHang: chiNhanhNganHang || '',
+
         cacDiaDiemDangKy: dsDiaDiem,
         diaDiemGiaCa: dsDiaDiemGiaCa,
 
-
         image: anhKhuonMat,
         thuMucAnh: 'img/huongdanvien',
-        anhCCCDMatTruoc: anhCCCDMatTruoc,
-        anhCCCDMatSau: anhCCCDMatSau,
-        anhKhuonMat: anhKhuonMat,
+
+        anhCCCDMatTruoc,
+        anhCCCDMatSau,
+        anhKhuonMat,
         lyLichTuPhap,
 
         verificationStatus: 'cho_xac_thuc',
@@ -443,9 +459,15 @@ class doiTacController {
         gioiThieuBanThan,
         ngonNguHoTro,
         kinhNghiem,
-        giaThue
-      } = req.body;
+        giaThue,
 
+        // thêm
+        tenChuTaiKhoan,
+        soTaiKhoan,
+        tenNganHang,
+        chiNhanhNganHang
+
+      } = req.body;
       const doiTac = await DoiTac.findOne({ slug });
       if (!doiTac) {
         return res.status(404).json({ message: 'Không tìm thấy đối tác' });
@@ -462,6 +484,17 @@ class doiTacController {
         : (ngonNguHoTro || doiTac.ngonNguHoTro);
       doiTac.kinhNghiem = kinhNghiem ?? doiTac.kinhNghiem;
       doiTac.giaThue = Number(giaThue ?? doiTac.giaThue);
+      doiTac.tenChuTaiKhoan =
+        tenChuTaiKhoan ?? doiTac.tenChuTaiKhoan;
+
+      doiTac.soTaiKhoan =
+        soTaiKhoan ?? doiTac.soTaiKhoan;
+
+      doiTac.tenNganHang =
+        tenNganHang ?? doiTac.tenNganHang;
+
+      doiTac.chiNhanhNganHang =
+        chiNhanhNganHang ?? doiTac.chiNhanhNganHang;
 
       await doiTac.save();
 

@@ -29,7 +29,32 @@ const MIEN_TRUNG_KEYWORDS = [
   "dak nong",
   "lam dong",
 ];
-
+const DANH_SACH_NGAN_HANG = [
+  "Vietcombank",
+  "BIDV",
+  "Agribank",
+  "VietinBank",
+  "Techcombank",
+  "MB Bank",
+  "ACB",
+  "Sacombank",
+  "VPBank",
+  "TPBank",
+  "SHB",
+  "HDBank",
+  "VIB",
+  "OCB",
+  "SeABank",
+  "MSB",
+  "Eximbank",
+  "ABBANK",
+  "Nam A Bank",
+  "PVcomBank",
+  "Bac A Bank",
+  "VietBank",
+  "KienlongBank",
+  "LienVietPostBank",
+];
 const normalizeVietnamese = (str = "") =>
   str
     .toLowerCase()
@@ -367,6 +392,10 @@ const ContentDkHdv = () => {
     kinhNghiem: "",
     soNamKinhNghiem: "",
     giaThue: "",
+    tenChuTaiKhoan: "",
+    soTaiKhoan: "",
+    tenNganHang: "",
+    chiNhanhNganHang: "",
     diaDiemGiaCa: [
       {
         diaDiem: "",
@@ -698,7 +727,21 @@ const ContentDkHdv = () => {
   };
 
   const nextStep = () => {
-    if (step === 1 && !validateStep1()) return;
+    if (step === 1 && !validateStep1())
+      if (!formData.tenChuTaiKhoan.trim()) {
+        toast.error("Vui lòng nhập tên chủ tài khoản");
+        return false;
+      }
+
+    if (!formData.soTaiKhoan.trim()) {
+      toast.error("Vui lòng nhập số tài khoản");
+      return false;
+    }
+
+    if (!formData.tenNganHang.trim()) {
+      toast.error("Vui lòng chọn ngân hàng");
+      return false;
+    } return;
     if (step === 2 && !validateStep2()) return;
     setStep((prev) => prev + 1);
   };
@@ -902,6 +945,69 @@ const ContentDkHdv = () => {
               </div>
             </div>
 
+            <div className="form-group full-col">
+              <h3 style={{ marginBottom: "20px" ,fontSize: "12px",color: "#43423cfc", fontStyle: "italic"}}>
+                Thông tin ngân hàng
+              </h3>
+
+              <div className="dkhdv-grid two-col">
+
+                <div className="form-group">
+                  <h2 className="h2-dkhdv">Họ và tên chủ tài khoản</h2>
+                  <input
+                    name="tenChuTaiKhoan"
+                    value={formData.tenChuTaiKhoan}
+                    onChange={handleChange}
+                    placeholder="Ghi đúng họ và tên trên tài khoản ngân hàng"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <h2 className="h2-dkhdv">Số tài khoản</h2>
+                  <input
+                    name="soTaiKhoan"
+                    value={formData.soTaiKhoan}
+                    onChange={handleChange}
+                    placeholder="Nhập số tài khoản"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <h2 className="h2-dkhdv">Ngân hàng</h2>
+
+                  <select
+                    name="tenNganHang"
+                    value={formData.tenNganHang}
+                    onChange={handleChange}
+                  >
+                    <option value="">
+                      -- Chọn ngân hàng --
+                    </option>
+
+                    {DANH_SACH_NGAN_HANG.map((bank) => (
+                      <option
+                        key={bank}
+                        value={bank}
+                      >
+                        {bank}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <h2 className="h2-dkhdv">Chi nhánh</h2>
+                  <input
+                    name="chiNhanhNganHang"
+                    value={formData.chiNhanhNganHang}
+                    onChange={handleChange}
+                    placeholder="Ví dụ: Đà Nẵng"
+                  />
+                </div>
+
+              </div>
+            </div>
+
             <div className="dkhdv-card child-card" style={{ marginTop: 24 }}>
               <h3>Địa điểm & Giá cả</h3>
 
@@ -963,7 +1069,16 @@ const ContentDkHdv = () => {
                 + Thêm địa điểm
               </button>
             </div>
-
+            <p
+              style={{
+                marginTop: "12px",
+                fontSize: "14px",
+                color: "#fbbf24",
+                fontStyle: "italic"
+              }}
+            >
+              * Ghi chú: Hệ thống sẽ lấy 10–20% phí hoa hồng cho mỗi chuyến của bạn.
+            </p>
             <div className="step-actions">
               <button className="btn-next" onClick={nextStep}>
                 Tiếp theo
