@@ -404,7 +404,7 @@ const ContentNhomchat = ({ user }) => {
   };
   useEffect(() => {
     const handleBlocked = (data) => {
-      alert(data.message || "Tin nhắn bị chặn vì vi phạm tiêu chuẩn cộng đồng.");
+      toast.error(data.message || "Tin nhắn bị chặn vì vi phạm tiêu chuẩn cộng đồng.");
     };
 
     socketRef.current.on("message_blocked", handleBlocked);

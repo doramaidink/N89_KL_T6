@@ -13233,9 +13233,9 @@ html {
 }
 
 .quanlybaocao-select-box select {
-  background: transparent;
+  background: black;
   border: none;
-  color: #fff;
+  color: white;
   font-size: 13px;
   outline: none;
   cursor: pointer;
