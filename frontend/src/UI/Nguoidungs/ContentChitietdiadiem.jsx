@@ -91,6 +91,11 @@ const ContentChitietdiadiem = () => {
     sdt: ""
   });
 
+  const [safetyChecks, setSafetyChecks] = useState({
+    locationAgree: false,
+    emergencyAgree: false
+  });
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setGroupForm((prev) => ({ ...prev, [name]: value }));
@@ -912,15 +917,31 @@ const ContentChitietdiadiem = () => {
                 <div className="step3-commit-box-step3">
                   <div className="step3-commit-header-step3">🛡 Cam kết an toàn</div>
                   <label className="step3-check-item-step3">
-                    <input type="checkbox" defaultChecked />
-                    Tôi hiểu rõ hoạt động trekking có thể gặp các rủi ro như:
-                    trượt ngã, lạc đường, thời tiết xấu, côn trùng hoặc chấn thương ngoài ý muốn.
+                    <input
+                      type="checkbox"
+                      checked={safetyChecks.locationAgree}
+                      onChange={(e) =>
+                        setSafetyChecks({
+                          ...safetyChecks,
+                          locationAgree: e.target.checked
+                        })
+                      }
+                    />
+                    Tôi đồng ý bật định vị trên thiết bị nếu không sẽ chịu hoàn toàn trách nghiệm cho chuyến đi này.
                   </label>
 
                   <label className="step3-check-item-step3">
-                    <input type="checkbox" defaultChecked />
-                    Tôi cam kết luôn đi cùng đoàn, không tự ý tách nhóm hoặc thay đổi lộ trình
-                    nếu chưa thông báo với trưởng nhóm / hướng dẫn viên.
+                    <input
+                      type="checkbox"
+                      checked={safetyChecks.emergencyAgree}
+                      onChange={(e) =>
+                        setSafetyChecks({
+                          ...safetyChecks,
+                          emergencyAgree: e.target.checked
+                        })
+                      }
+                    />
+                    Tôi cam kết thông tin liên hệ khẩn cấp là chính xác nếu không sẽ chịu hoàn toàn trách nghiệm cho chuyến đi này.
                   </label>
 
                   <label className="step3-check-item-step3">
@@ -1054,7 +1075,28 @@ const ContentChitietdiadiem = () => {
 
                 <div className="step3-footer-step3">
                   <button className="step3-back-step3" onClick={() => setStepGroup(2)}>← Quay lại</button>
-                  <button className="step3-submit-step3" onClick={handleCreateGroup}>Hoàn tất & Tạo Nhóm</button>
+                  <button
+                    className="step3-submit-step3"
+                    onClick={handleCreateGroup}
+                    disabled={
+                      !safetyChecks.locationAgree ||
+                      !safetyChecks.emergencyAgree
+                    }
+                    style={{
+                      opacity:
+                        !safetyChecks.locationAgree ||
+                          !safetyChecks.emergencyAgree
+                          ? 0.5
+                          : 1,
+                      cursor:
+                        !safetyChecks.locationAgree ||
+                          !safetyChecks.emergencyAgree
+                          ? "not-allowed"
+                          : "pointer"
+                    }}
+                  >
+                    Hoàn tất & Tạo Nhóm
+                  </button>
                 </div>
               </div>
             )}

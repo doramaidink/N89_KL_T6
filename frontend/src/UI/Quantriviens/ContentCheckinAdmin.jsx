@@ -67,7 +67,7 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                                         i.checkinLocationHdv.lng
                                     );
 
-                                    return distance <= 0.5;
+                                    return distance <= 0.1;
                                 }).length
                             }
                         </h3>
@@ -78,19 +78,26 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                     <MapPin size={20} />
                     <div>
                         <p>Sai vị trí</p>
+
                         <h3>
                             {
                                 data.filter(i => {
-                                    if (!i.checkinLocation || !i.checkoutLocation) return false;
+
+                                    // phải có cả user và hdv
+                                    if (
+                                        !i.checkinLocationUser ||
+                                        !i.checkinLocationHdv
+                                    ) return false;
 
                                     const distance = getDistance(
-                                        i.checkinLocation.lat,
-                                        i.checkinLocation.lng,
-                                        i.checkoutLocation.lat,
-                                        i.checkoutLocation.lng
+                                        i.checkinLocationUser.lat,
+                                        i.checkinLocationUser.lng,
+                                        i.checkinLocationHdv.lat,
+                                        i.checkinLocationHdv.lng
                                     );
 
-                                    return distance > 0.5;
+                                    return distance > 0.1;
+
                                 }).length
                             }
                         </h3>
@@ -116,6 +123,7 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                             <th>HDV</th>
                             <th>KHOẢNG CÁCH</th>
                             <th>TRẠNG THÁI</th>
+                            <th>LIÊN HỆ KHẨN CẤP</th>
                             <th>THỜI GIAN</th>
                         </tr>
                     </thead>
@@ -152,7 +160,7 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                                     )
                                     : 0;
 
-                            const MAX_DISTANCE = 0.5; // km
+                            const MAX_DISTANCE = 0.1; // km
 
                             const isUserCheckout = !!item.checkoutLocationUser;
                             const isHdvCheckout = !!item.checkoutLocationHdv; // nếu chưa có sẽ là false
@@ -185,7 +193,7 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                                             {distance.toFixed(2)} km
                                             <br />
                                             <small style={{ color: "#888" }}>
-                                                {distance <= 0.5 ? "Trong phạm vi" : "Ngoài phạm vi"}
+                                                {distance <= 0.1 ? "Trong phạm vi" : "Ngoài phạm vi"}
                                             </small>
                                         </td>
 
@@ -208,6 +216,10 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                                         </td>
 
                                         <td>
+                                            {item.nhomId?.lienHeKhanCap?.sdt || "Không có"}
+                                        </td>
+
+                                        <td>
                                             {checkinTime} <br />
                                             {checkoutTime}
                                         </td>
@@ -216,7 +228,7 @@ const ContentCheckinAdmin = ({ onSelect }) => {
                                     {/* MAP NGAY DƯỚI */}
                                     {selected?._id === item._id && (
                                         <tr>
-                                            <td colSpan="6">
+                                            <td colSpan="7">
                                                 <div className="map-wrapper">
 
                                                     <button
