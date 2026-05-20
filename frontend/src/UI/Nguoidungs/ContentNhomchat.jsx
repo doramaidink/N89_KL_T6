@@ -526,7 +526,7 @@ const ContentNhomchat = ({ user }) => {
 
         <div className="sidebar-section">
           <p className="sidebar-label">THAO TÁC NHANH</p>
-          <div className="sidebar-item"><span>🔗</span> Mời thành viên</div>
+          {/* <div className="sidebar-item"><span>🔗</span> Mời thành viên</div> */}
           <div
             className="sidebar-item"
             onClick={() => setShowGallery(true)}
